@@ -1,0 +1,87 @@
+{
+  "project_info": {
+    "project_number": "449835172487",
+    "firebase_url": "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "lugarlangfinal",
+    "storage_bucket": "lugarlangfinal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449835172487:android:3a5cee69aefcffa8f9ae22",
+        "android_client_info": {
+          "package_name": "com.usc.firebasepractice"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDh4z2b8mRNEkiWczbDx4qZ9diLvz4-vjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449835172487:android:06af554dd941203cf9ae22",
+        "android_client_info": {
+          "package_name": "com.usc.lugarlangfinal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDh4z2b8mRNEkiWczbDx4qZ9diLvz4-vjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449835172487:android:3e8082afd4518d25f9ae22",
+        "android_client_info": {
+          "package_name": "usc.edu.lugarlang"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDh4z2b8mRNEkiWczbDx4qZ9diLvz4-vjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449835172487:android:f5fa341580842b3ff9ae22",
+        "android_client_info": {
+          "package_name": "usc.edu.lugarlang_login"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDh4z2b8mRNEkiWczbDx4qZ9diLvz4-vjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

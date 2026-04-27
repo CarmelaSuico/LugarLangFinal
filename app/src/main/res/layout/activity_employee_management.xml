@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".employee.EmployeeManagement"
+    android:background="#BAA4B1">
+
+    <LinearLayout
+        android:id="@+id/top_header"
+        android:layout_width="match_parent"
+        android:layout_height="112dp"
+        android:orientation="horizontal"
+        android:background="@drawable/top_deisgn"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Employee Management"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/search_card"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/top_header"
+        android:layout_margin="15dp"
+        app:cardBackgroundColor="#D9D9D9"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="2dp">
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchEmployee"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:iconifiedByDefault="false"
+            app:queryHint="Search employee..."
+            app:queryBackground="@android:color/transparent" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvEmployeeList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_card"
+        android:layout_above="@+id/nav_botton"
+        android:layout_marginHorizontal="10dp"/>
+
+    <LinearLayout
+        android:id="@+id/nav_botton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+        <include layout="@layout/eployee_nav_bottons"/>
+    </LinearLayout>
+
+
+</RelativeLayout>
