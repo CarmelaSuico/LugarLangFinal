@@ -104,7 +104,7 @@ public class LoginPage extends AppCompatActivity {
                         if ("Admin".equalsIgnoreCase(role)) {
                             intent = new Intent(LoginPage.this, AdminDashboard.class);
                         } else {
-                            intent = new Intent(LoginPage.this, MainActivity.class);
+                            intent = new Intent(LoginPage.this, DriverOrConductoerDashboard.class);
                         }
                         startActivity(intent);
                         finish();

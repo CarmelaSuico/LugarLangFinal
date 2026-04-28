@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".DriverOrConductoerDashboard"
+    android:background="#BAA4B1">
+
+    <LinearLayout
+        android:id="@+id/top_header"
+        android:layout_width="match_parent"
+        android:layout_height="112dp"
+        android:orientation="horizontal"
+        android:background="@drawable/top_deisgn"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Your Route Details"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_header"
+        android:layout_above="@id/nav_botton"
+        android:padding="12dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#D9D9D9"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/tvDriverStart"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="From: Start Location"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvDriverEnd"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="To: End Location"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:gravity="end"/>
+                </LinearLayout>
+
+                <TextView android:id="@+id/tvDriverPlate" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Plate Number: " android:textColor="@color/black" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/tvDriverVehicle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Assigned Vehicle: " android:textColor="@color/black" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/tvDriverDeparture" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Departure Time: " android:textColor="@color/black" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/tvDriverFranchise" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Franchise: " android:textColor="@color/black" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/tvDriverName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Assigned Driver: " android:textColor="@color/black" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+                <TextView android:id="@+id/tvConductorName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Assigned Conductor: " android:textColor="@color/black" android:textStyle="bold" android:layout_marginBottom="16dp"/>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    app:cardCornerRadius="10dp"
+                    android:layout_marginBottom="16dp">
+
+                    <org.osmdroid.views.MapView
+                        android:id="@+id/mapOSM"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </androidx.cardview.widget.CardView>
+
+                <Button
+                    android:id="@+id/btnStartTrip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start the trip"
+                    android:textAllCaps="false"
+                    android:backgroundTint="#703042"
+                    android:textColor="@color/white"
+                    android:layout_gravity="start"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    app:cornerRadius="20dp"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/nav_botton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+        <include layout="@layout/driverconductor_nav_bottons"/>
+    </LinearLayout>
+
+</RelativeLayout>

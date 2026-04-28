@@ -131,20 +131,32 @@ public class AddNewEmployee extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 fullEmployeeList.clear();
                 idSuggestions.clear();
+
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     Employee emp = ds.getValue(Employee.class);
+
+                    // CRITICAL CHECK: Does this record already have a password?
+                    boolean hasPassword = ds.hasChild("password");
+
                     if (emp != null && emp.getId() != null) {
-                        fullEmployeeList.add(emp);
-                        idSuggestions.add(emp.getId());
+                        // Only show in the "Add New" list if they don't have a password yet
+                        if (!hasPassword) {
+                            fullEmployeeList.add(emp);
+                            idSuggestions.add(emp.getId());
+                        }
                     }
                 }
+
                 // Update the AutoComplete Adapter
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(AddNewEmployee.this,
                         android.R.layout.simple_dropdown_item_1line, idSuggestions);
                 editEmployeeID.setAdapter(adapter);
             }
+
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(AddNewEmployee.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

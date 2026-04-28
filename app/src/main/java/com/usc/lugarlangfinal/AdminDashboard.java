@@ -12,7 +12,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.usc.lugarlangfinal.Transportation.TransportationManagement;
 import com.usc.lugarlangfinal.employee.EmployeeManagement;
+import com.usc.lugarlangfinal.route.RouteManagement;
 
 public class AdminDashboard extends AppCompatActivity {
 
@@ -28,12 +30,22 @@ public class AdminDashboard extends AppCompatActivity {
         btnAdminsettings = findViewById(R.id.btnadminsettings);
         btnEmployee = findViewById(R.id.btnemployee);
         btnRoute = findViewById(R.id.btnroute);
-//        btnTransportation = findViewById(R.id.btntransportation);
+        btnTransportation = findViewById(R.id.btntransportation);
 //        btnTicket = findViewById(R.id.btnticket);
 
         //setting up the nav bottons
         btnEmployee.setOnClickListener(v -> {
             Intent intent = new Intent(AdminDashboard.this, EmployeeManagement.class);
+            startActivity(intent);
+        });
+
+        btnRoute.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboard.this, RouteManagement.class);
+            startActivity(intent);
+        });
+
+        btnTransportation.setOnClickListener(v->{
+            Intent intent = new Intent(AdminDashboard.this, TransportationManagement.class);
             startActivity(intent);
         });
 

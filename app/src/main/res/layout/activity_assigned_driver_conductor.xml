@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Transportation.AssignedDriverConductor"
+    android:background="#BAA4B1">
+
+    <LinearLayout
+        android:id="@+id/top_header"
+        android:layout_width="match_parent"
+        android:layout_height="112dp"
+        android:orientation="horizontal"
+        android:background="@drawable/top_deisgn"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Assigning Driver/Conductor"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:textAlignment="center"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/top_header"
+        android:layout_above="@id/nav_botton"
+        android:padding="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Route Code" android:textStyle="bold" android:textColor="@android:color/black"/>
+                <AutoCompleteTextView
+                    android:id="@+id/editroutecode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="########"
+                    android:inputType="text"
+                    android:completionThreshold="1"
+                    android:background="@drawable/edit_text_border"
+                    android:padding="10dp"
+                    android:layout_marginBottom="10dp"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 1 (Start Point)" android:textStyle="bold" android:textColor="@color/black" />
+                <EditText android:id="@+id/etTerminal1" android:layout_width="match_parent" android:layout_height="48dp" android:hint="origin" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Route Landmarks (Stops)"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
+
+                    <ImageButton
+                        android:id="@+id/btnAddStopField"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/add_circle_24px"
+                        app:tint="#00BF63" />
+                </LinearLayout>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 2 (Ending Point)" android:textStyle="bold" android:textColor="@color/black" />
+                <EditText android:id="@+id/etTerminal2" android:layout_width="match_parent" android:layout_height="48dp" android:hint="destination" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="12dp" />
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/black" android:layout_marginVertical="10dp" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vehicle Code" android:textStyle="bold" android:textColor="@color/black" />
+                <AutoCompleteTextView android:id="@+id/autoVehicleCode" android:layout_width="match_parent" android:layout_height="48dp" android:hint="##########" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="12dp" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Plate Number" android:textStyle="bold" android:textColor="@color/black" />
+                <EditText android:id="@+id/etPlateNumber" android:layout_width="match_parent" android:layout_height="48dp" android:hint="ABD123" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="12dp" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vehicle Type" android:textStyle="bold" android:textColor="@color/black" />
+                        <Spinner android:id="@+id/spinnerVehicleType" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Franchise" android:textStyle="bold" android:textColor="@color/black" />
+                        <EditText android:id="@+id/etFranchise" android:layout_width="match_parent" android:layout_height="48dp" android:hint="Cerea/Sugbu Transit" android:background="@drawable/edit_text_border" android:padding="10dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_marginVertical="15dp"
+                    android:background="#999999" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assigned Driver" android:textStyle="bold" android:textColor="@android:color/black"/>
+                <AutoCompleteTextView
+                    android:id="@+id/eddriver"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="John Earl Suico"
+                    android:inputType="text"
+                    android:completionThreshold="1"
+                    android:background="@drawable/edit_text_border"
+                    android:padding="10dp"
+                    android:layout_marginBottom="10dp"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assigned Conductor" android:textStyle="bold" android:textColor="@android:color/black"/>
+                <AutoCompleteTextView
+                    android:id="@+id/edconductor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Juan De La Cruz"
+                    android:inputType="text"
+                    android:completionThreshold="1"
+                    android:background="@drawable/edit_text_border"
+                    android:padding="10dp"
+                    android:layout_marginBottom="10dp"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Contact Info:" android:textStyle="bold" android:textColor="@color/black" />
+                        <EditText android:id="@+id/etContact" android:layout_width="match_parent" android:layout_height="48dp" android:hint="+63*********" android:background="@drawable/edit_text_border" android:padding="10dp" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Departure Time" android:textStyle="bold" android:textColor="@color/black" />
+                        <EditText android:id="@+id/eddeparturetime" android:layout_width="match_parent" android:layout_height="48dp" android:hint="6:30pm" android:background="@drawable/edit_text_border" android:padding="10dp" android:inputType="time"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Status" android:textStyle="bold" android:textColor="@color/black" />
+                <Spinner android:id="@+id/spinnerStatus" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="20dp" />
+
+                <Button
+                    android:id="@+id/btnAddTrip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:backgroundTint="#00BF63"
+                    android:text="Add Trip"
+                    android:textColor="@color/white" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/nav_botton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+        <include layout="@layout/transport_nav_bottons"/>
+    </LinearLayout>
+
+</RelativeLayout>
