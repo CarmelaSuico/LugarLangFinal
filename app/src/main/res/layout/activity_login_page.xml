@@ -45,8 +45,8 @@
                 android:textAlignment="center"
                 android:layout_marginBottom="30dp"/>
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Username" android:textColor="@android:color/white" android:textSize="20sp"/>
-            <EditText android:id="@+id/edusername" android:inputType="text" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Username" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="20dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Full Name" android:textColor="@android:color/white" android:textSize="20sp"/>
+            <EditText android:id="@+id/edusername" android:inputType="text" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Juan Di La Cruz" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="20dp"/>
 
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Password" android:textColor="@android:color/white" android:textSize="20sp"/>
             <EditText android:id="@+id/edpassword" android:inputType="textPassword"  android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="********" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="20dp"/>

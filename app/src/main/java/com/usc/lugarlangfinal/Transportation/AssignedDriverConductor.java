@@ -229,6 +229,7 @@ public class AssignedDriverConductor extends AppCompatActivity {
         String rCode = acRoute.getText().toString();
         String vCode = acVehicle.getText().toString();
         String dName = acDriver.getText().toString();
+        String plateNum = etPlate.getText().toString(); // Get the plate number from EditText
 
         if (rCode.isEmpty() || vCode.isEmpty() || dName.isEmpty()) {
             Toast.makeText(this, "Route, Vehicle, and Driver are required!", Toast.LENGTH_SHORT).show();
@@ -242,6 +243,7 @@ public class AssignedDriverConductor extends AppCompatActivity {
         trip.tripId = tripKey;
         trip.routeCode = rCode;
         trip.vehicleCode = vCode;
+        trip.plateNumber = plateNum; // ADDED: Assign plate number to the trip object
         trip.terminal1 = etT1.getText().toString();
         trip.terminal2 = etT2.getText().toString();
         trip.driverName = dName;
@@ -257,6 +259,8 @@ public class AssignedDriverConductor extends AppCompatActivity {
         db.updateChildren(updates).addOnSuccessListener(aVoid -> {
             Toast.makeText(this, "Trip Added Successfully", Toast.LENGTH_SHORT).show();
             finish();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
 

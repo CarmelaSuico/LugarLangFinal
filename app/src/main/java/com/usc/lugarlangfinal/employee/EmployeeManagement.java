@@ -19,7 +19,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import com.usc.lugarlangfinal.AdminDashboard;
 import com.usc.lugarlangfinal.R;
 import com.usc.lugarlangfinal.adapters.EmployeeAdapter;
 import com.usc.lugarlangfinal.models.Employee;
@@ -29,12 +28,12 @@ import java.util.List;
 
 public class EmployeeManagement extends AppCompatActivity {
 
-    LinearLayout btnEmployeeDashboard, btnAddnewEmployee, btnBack;
-    RecyclerView rvEmployeeList;
-    EmployeeAdapter employeeAdapter;
-    List<Employee> employeeList;
-    SearchView searchEmployee;
-    List<Employee> filteredList;
+    private LinearLayout btnAddnewEmployee, btnBack;
+    private RecyclerView rvEmployeeList;
+    private EmployeeAdapter employeeAdapter;
+    private List<Employee> employeeList;
+    private List<Employee> filteredList;
+    private SearchView searchEmployee;
 
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
@@ -43,30 +42,36 @@ public class EmployeeManagement extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_employee_management);
 
-        // UI IDs
-        btnEmployeeDashboard = findViewById(R.id.btnemployeedashboard);
+        initViews();
+
+        employeeList = new ArrayList<>();
+        filteredList = new ArrayList<>();
+        employeeAdapter = new EmployeeAdapter(filteredList);
+
+        rvEmployeeList.setLayoutManager(new LinearLayoutManager(this));
+        rvEmployeeList.setAdapter(employeeAdapter);
+
+        setupSearch();
+
+        // Start the live listener chain
+        getAdminFranchiseAndLoadEmployees();
+
+        btnBack.setOnClickListener(v -> finish());
+        btnAddnewEmployee.setOnClickListener(v ->
+                startActivity(new Intent(this, AddNewEmployee.class)));
+    }
+
+    private void initViews() {
         btnAddnewEmployee = findViewById(R.id.btnaddnewemployee);
         btnBack = findViewById(R.id.btnback);
         rvEmployeeList = findViewById(R.id.rvEmployeeList);
         searchEmployee = findViewById(R.id.searchEmployee);
+    }
 
-        // RecyclerView Setup
-        rvEmployeeList.setLayoutManager(new LinearLayoutManager(this));
-        employeeList = new ArrayList<>();
-        employeeAdapter = new EmployeeAdapter(employeeList);
-        rvEmployeeList.setAdapter(employeeAdapter);
-        filteredList = new ArrayList<>();
-
-        //search function
-        employeeAdapter = new EmployeeAdapter(filteredList);
-        rvEmployeeList.setAdapter(employeeAdapter);
-
-        // Search Logic
+    private void setupSearch() {
         searchEmployee.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+            public boolean onQueryTextSubmit(String query) { return false; }
 
             @Override
             public boolean onQueryTextChange(String newText) {
@@ -74,31 +79,17 @@ public class EmployeeManagement extends AppCompatActivity {
                 return true;
             }
         });
-
-        // Start the Relational Mapping Chain
-        getAdminFranchiseAndLoadEmployees();
-
-        // Nav buttons
-        btnEmployeeDashboard.setSelected(true);
-        btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(EmployeeManagement.this, AdminDashboard.class));
-            finish();
-        });
-        btnAddnewEmployee.setOnClickListener(v -> {
-            startActivity(new Intent(EmployeeManagement.this, AddNewEmployee.class));
-        });
     }
 
     private void getAdminFranchiseAndLoadEmployees() {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid == null) return;
 
-        String adminUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference adminRef = FirebaseDatabase.getInstance(DB_URL).getReference("admins").child(adminUID);
+        DatabaseReference adminRef = FirebaseDatabase.getInstance(DB_URL)
+                .getReference("admins").child(uid);
 
-        adminRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        // FIXED: Changed to addValueEventListener for LIVE updates
+        adminRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -106,53 +97,47 @@ public class EmployeeManagement extends AppCompatActivity {
                     if (adminFranchise != null) {
                         loadAdminAuthorizedEmployees(adminFranchise);
                     }
-                } else {
-                    Log.e("FirebaseError", "Admin profile not found in database");
                 }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
     private void loadAdminAuthorizedEmployees(String adminFranchise) {
         DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("employee");
 
+        // Keep this as addValueEventListener to listen for new employee additions
         ref.orderByChild("Franchise").equalTo(adminFranchise).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 employeeList.clear();
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    if (ds.hasChild("password")) {
-                        String status = ds.child("status").getValue(String.class);
-                        if ("Active".equalsIgnoreCase(status)) {
-                            Employee emp = ds.getValue(Employee.class);
-                            if (emp != null) {
-                                employeeList.add(emp);
-                            }
-                        }
+                    Employee emp = ds.getValue(Employee.class);
+
+                    // STRICT FILTER: Only show "Active" status (lowercase 'status' in model)
+                    if (emp != null && emp.getStatus() != null && emp.getStatus().equalsIgnoreCase("Active")) {
+                        employeeList.add(emp);
                     }
                 }
-                // Sync the filtered list with the new data
                 filter(searchEmployee.getQuery().toString());
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
+
     private void filter(String text) {
         filteredList.clear();
+        String query = text.toLowerCase().trim();
 
-        if (text.isEmpty()) {
+        if (query.isEmpty()) {
             filteredList.addAll(employeeList);
         } else {
-            String query = text.toLowerCase().trim();
             for (Employee item : employeeList) {
-                // Search by Name or ID
-                if (item.getName().toLowerCase().contains(query) ||
-                        item.getId().toLowerCase().contains(query)) {
+                String name = item.getName() != null ? item.getName().toLowerCase() : "";
+                String id = item.getId() != null ? item.getId().toLowerCase() : "";
+
+                if (name.contains(query) || id.contains(query)) {
                     filteredList.add(item);
                 }
             }

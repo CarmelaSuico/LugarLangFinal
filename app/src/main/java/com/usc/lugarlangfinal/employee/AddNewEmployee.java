@@ -26,7 +26,9 @@ import com.usc.lugarlangfinal.R;
 import com.usc.lugarlangfinal.models.Employee;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AddNewEmployee extends AppCompatActivity {
 
@@ -34,21 +36,40 @@ public class AddNewEmployee extends AppCompatActivity {
     EditText editFulName, editEmail, editLicense, editContact, editAddress, editDefaultPassword, editFranchise;
     Spinner spinnerRole, spinnerUnit, spinnerStatus;
     Button btnAdd;
-    //navigation buttons
     LinearLayout btnEmployeeDashboard, btnAddnewEmployee, btnBack;
 
-    // Fixed DB_URL to match EmployeeManagement.java
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
-    private List<Employee> fullEmployeeList = new ArrayList<>(); // Stores employees for searching
+    private List<Employee> fullEmployeeList = new ArrayList<>();
     private List<String> idSuggestions = new ArrayList<>();
 
+    // Auth instance for creating accounts
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_employee);
 
-        //finding the ids
+        mAuth = FirebaseAuth.getInstance();
+
+        initViews();
+        setupSpinners();
+
+        // Bottom Navigation
+        btnAddnewEmployee.setSelected(true);
+        btnBack.setOnClickListener(v -> startActivity(new Intent(this, AdminDashboard.class)));
+        btnEmployeeDashboard.setOnClickListener(v -> finish());
+        fetchAdminFranchiseAndSyncIDs();
+
+        editEmployeeID.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedID = (String) parent.getItemAtPosition(position);
+            autoFillForm(selectedID);
+        });
+
+        btnAdd.setOnClickListener(v -> saveOrUpdateEmployee());
+    }
+
+    private void initViews() {
         editEmployeeID = findViewById(R.id.editEmployeeID);
         editFulName = findViewById(R.id.edfullname);
         editEmail = findViewById(R.id.editEmail);
@@ -64,99 +85,55 @@ public class AddNewEmployee extends AppCompatActivity {
         btnEmployeeDashboard = findViewById(R.id.btnemployeedashboard);
         btnAddnewEmployee = findViewById(R.id.btnaddnewemployee);
         btnBack = findViewById(R.id.btnback);
+    }
 
-        //nav bottom buttons
-        btnAddnewEmployee.setSelected(true);
-        btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(AddNewEmployee.this, AdminDashboard.class);
-            startActivity(intent);
-        });
-        btnEmployeeDashboard.setOnClickListener(v -> {
-            Intent intent = new Intent(AddNewEmployee.this, EmployeeManagement.class);
-            startActivity(intent);
-        });
-
-        // Load Admin Franchise and sync IDs
-        fetchAdminFranchiseAndSyncIDs();
-
-        // Automation: When an ID is selected from the dropdown
-        editEmployeeID.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedID = (String) parent.getItemAtPosition(position);
-            autoFillForm(selectedID);
-        });
-
-        //spinner input
+    private void setupSpinners() {
         String[] statusOptions = {"Active", "Deactive"};
         spinnerStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, statusOptions));
-        String[] roles = {"Driver", "Conductor", "Admin"};
+        String[] roles = {"Driver", "Conductor"};
         spinnerRole.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, roles));
         String[] units = {"Office", "Bus", "Jeepney"};
         spinnerUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, units));
-
-        btnAdd.setOnClickListener(v -> saveOrUpdateEmployee());
-
     }
 
     private void fetchAdminFranchiseAndSyncIDs() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Toast.makeText(this, "Not logged in!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) return;
 
-        String adminUID = currentUser.getUid();
-        DatabaseReference adminRef = FirebaseDatabase.getInstance(DB_URL).getReference("admins").child(adminUID);
-
+        DatabaseReference adminRef = FirebaseDatabase.getInstance(DB_URL).getReference("admins").child(currentUser.getUid());
         adminRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     String franchise = snapshot.child("company").getValue(String.class);
-                    if (franchise != null) {
-                        loadEmployeesForSuggestions(franchise);
-                    }
+                    if (franchise != null) loadEmployeesForSuggestions(franchise);
                 }
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
     private void loadEmployeesForSuggestions(String franchise) {
         DatabaseReference empRef = FirebaseDatabase.getInstance(DB_URL).getReference("employee");
         Query query = empRef.orderByChild("Franchise").equalTo(franchise);
-
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 fullEmployeeList.clear();
                 idSuggestions.clear();
-
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     Employee emp = ds.getValue(Employee.class);
-
-                    // CRITICAL CHECK: Does this record already have a password?
-                    boolean hasPassword = ds.hasChild("password");
-
-                    if (emp != null && emp.getId() != null) {
-                        // Only show in the "Add New" list if they don't have a password yet
-                        if (!hasPassword) {
-                            fullEmployeeList.add(emp);
-                            idSuggestions.add(emp.getId());
-                        }
+                    // Only suggest if they don't have a role assigned yet (to avoid double registration)
+                    if (emp != null && !ds.hasChild("role")) {
+                        fullEmployeeList.add(emp);
+                        idSuggestions.add(emp.getId());
                     }
                 }
-
-                // Update the AutoComplete Adapter
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(AddNewEmployee.this,
                         android.R.layout.simple_dropdown_item_1line, idSuggestions);
                 editEmployeeID.setAdapter(adapter);
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(AddNewEmployee.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -169,8 +146,6 @@ public class AddNewEmployee extends AppCompatActivity {
                 editContact.setText(emp.getContactNumber());
                 editAddress.setText(emp.getAddress());
                 editFranchise.setText(emp.getFranchise());
-
-                Toast.makeText(this, "Data Loaded for ID: " + id, Toast.LENGTH_SHORT).show();
                 break;
             }
         }
@@ -178,40 +153,59 @@ public class AddNewEmployee extends AppCompatActivity {
 
     private void saveOrUpdateEmployee() {
         String id = editEmployeeID.getText().toString().trim();
+        String email = editEmail.getText().toString().trim();
         String password = editDefaultPassword.getText().toString().trim();
+        String name = editFulName.getText().toString().trim();
+        String franchise = editFranchise.getText().toString().trim();
+        String role = spinnerRole.getSelectedItem().toString();
 
-        // Validation to ensure Admin doesn't save empty data
-        if (id.isEmpty()) {
-            editEmployeeID.setError("Please search and select an ID");
+        if (id.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please fill in ID, Email, and Password", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (password.isEmpty()) {
-            editDefaultPassword.setError("Please set a temporary password");
-            return;
-        }
-
-        // Pointing to the specific employee ID in the database
-        DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("employee").child(id);
-
-        // Updating the profile
-        ref.child("role").setValue(spinnerRole.getSelectedItem().toString());
-        ref.child("AssignedUnit").setValue(spinnerUnit.getSelectedItem().toString());
-        ref.child("status").setValue(spinnerStatus.getSelectedItem().toString());
-        ref.child("password").setValue(password)
-                .addOnSuccessListener(aVoid -> {
-                    // SUCCESS: This is where you notify the Admin
-                    Toast.makeText(this, "Employee Profile Updated!", Toast.LENGTH_SHORT).show();
-
-                    // Clear the form for the next entry
-                    clearFormFields();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        // STEP 1: Create the User in Firebase Authentication
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        String userUID = task.getResult().getUser().getUid();
+                        updateEmployeeDatabase(id, userUID, name, email, franchise, role, password);
+                    } else {
+                        Toast.makeText(this, "Auth Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
-    // Function to reset the UI after adding
+    private void updateEmployeeDatabase(String empID, String authUID, String name, String email, String franchise, String role, String password) {
+        DatabaseReference rootRef = FirebaseDatabase.getInstance(DB_URL).getReference();
+
+        // Data for the 'employee' node
+        Map<String, Object> empUpdates = new HashMap<>();
+        empUpdates.put("role", role);
+        empUpdates.put("AssignedUnit", spinnerUnit.getSelectedItem().toString());
+        empUpdates.put("status", spinnerStatus.getSelectedItem().toString());
+        empUpdates.put("password", password);
+        empUpdates.put("authUID", authUID); // Link them to their Auth ID
+
+        // Data for the 'drivers' or 'conductors' node
+        Map<String, Object> roleData = new HashMap<>();
+        roleData.put("name", name);
+        roleData.put("email", email);
+        roleData.put("company", franchise);
+
+        // Path based on role: "drivers" or "conductors"
+        String rolePath = role.toLowerCase() + "s";
+
+        // Run multi-path update
+        rootRef.child("employee").child(empID).updateChildren(empUpdates);
+        rootRef.child(rolePath).child(authUID).setValue(roleData)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, role + " Registered Successfully!", Toast.LENGTH_SHORT).show();
+                    clearFormFields();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "DB Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
     private void clearFormFields() {
         editEmployeeID.setText("");
         editFulName.setText("");
@@ -221,13 +215,6 @@ public class AddNewEmployee extends AppCompatActivity {
         editAddress.setText("");
         editFranchise.setText("");
         editDefaultPassword.setText("");
-
-        // Reset Spinners to first item
-        spinnerRole.setSelection(0);
-        spinnerUnit.setSelection(0);
-        spinnerStatus.setSelection(0);
-
-        // Move focus back to ID search
         editEmployeeID.requestFocus();
     }
 }

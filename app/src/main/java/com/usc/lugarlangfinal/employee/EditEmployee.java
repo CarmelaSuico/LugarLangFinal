@@ -20,6 +20,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.usc.lugarlangfinal.R;
 import com.usc.lugarlangfinal.models.Employee;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class EditEmployee extends AppCompatActivity {
 
     private EditText editEmployeeID, editFulName, editEmail, editLicense, editContact, editAddress, editFranchise;
@@ -29,7 +32,6 @@ public class EditEmployee extends AppCompatActivity {
 
     private String employeeID;
     private DatabaseReference ref;
-
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     @Override
@@ -37,10 +39,9 @@ public class EditEmployee extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_employee);
 
-        // 1. Initialize Views
         initViews();
+        setupSpinners();
 
-        // 2. Get ID from Intent
         employeeID = getIntent().getStringExtra("EMPLOYEE_ID");
 
         if (employeeID == null) {
@@ -49,15 +50,9 @@ public class EditEmployee extends AppCompatActivity {
             return;
         }
 
-        setupSpinners();
-
-        // 3. Setup Firebase Reference (Singular "employee" to match your DB)
         ref = FirebaseDatabase.getInstance(DB_URL).getReference("employee").child(employeeID);
-
-        // 4. Load Existing Data
         loadEmployeeData();
 
-        // 5. Button Listeners
         btnSaveEdit.setOnClickListener(v -> saveOrUpdateEmployee());
         btnBack.setOnClickListener(v -> finish());
     }
@@ -71,7 +66,6 @@ public class EditEmployee extends AppCompatActivity {
         editAddress = findViewById(R.id.editAddress);
         editFranchise = findViewById(R.id.edfranchise);
 
-        // Make ID and Franchise read-only during edit to maintain database integrity
         editEmployeeID.setEnabled(false);
         editFranchise.setEnabled(false);
 
@@ -97,47 +91,36 @@ public class EditEmployee extends AppCompatActivity {
                         editAddress.setText(employee.getAddress());
                         editFranchise.setText(employee.getFranchise());
 
-                        setSpinnerValue(spinnerRole, employee.getRole());
-                        setSpinnerValue(spinnerUnit, employee.getAssignedUnit());
-                        setSpinnerValue(spinnerStatus, employee.getStatus());
+                        setSpinnerSelection(spinnerRole, employee.getRole());
+                        setSpinnerSelection(spinnerUnit, employee.getAssignedUnit());
+                        setSpinnerSelection(spinnerStatus, employee.getStatus());
                     }
-                } else {
-                    Toast.makeText(EditEmployee.this, "No data found for this ID", Toast.LENGTH_SHORT).show();
                 }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                showErrorDialog("Database Error", error.getMessage());
-            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
     private void saveOrUpdateEmployee(){
-        // Validation: Ensure full name isn't empty
-        if(editFulName.getText().toString().trim().isEmpty()){
+        String name = editFulName.getText().toString().trim();
+        if(name.isEmpty()){
             editFulName.setError("Name is required");
             return;
         }
 
-        // Creating the updated object with ALL 11 fields (including password)
-        Employee updateEmployee = new Employee(
-                editEmployeeID.getText().toString(),
-                editFulName.getText().toString(),
-                spinnerRole.getSelectedItem().toString(),
-                spinnerUnit.getSelectedItem().toString(),
-                editFranchise.getText().toString(),
-                editEmail.getText().toString(),
-                editLicense.getText().toString(),
-                editContact.getText().toString(),
-                editAddress.getText().toString(),
-                spinnerStatus.getSelectedItem().toString(),
-                "" // Empty password
-        );
+        // Use a Map to update ONLY specific fields. This prevents deleting the password.
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("name", name);
+        updates.put("email", editEmail.getText().toString().trim());
+        updates.put("licenseNumber", editLicense.getText().toString().trim());
+        updates.put("contactNumber", editContact.getText().toString().trim());
+        updates.put("address", editAddress.getText().toString().trim());
+        updates.put("role", spinnerRole.getSelectedItem().toString());
+        updates.put("AssignedUnit", spinnerUnit.getSelectedItem().toString());
+        updates.put("status", spinnerStatus.getSelectedItem().toString());
 
-        // Save back to Firebase
-        ref.setValue(updateEmployee).addOnSuccessListener(aVoid -> {
-            Toast.makeText(this, "Changes saved successfully!", Toast.LENGTH_SHORT).show();
+        ref.updateChildren(updates).addOnSuccessListener(aVoid -> {
+            Toast.makeText(this, "Employee updated successfully!", Toast.LENGTH_SHORT).show();
             finish();
         }).addOnFailureListener(e -> {
             showErrorDialog("Update Failed", e.getMessage());
@@ -155,12 +138,14 @@ public class EditEmployee extends AppCompatActivity {
         spinnerUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, units));
     }
 
-    private void setSpinnerValue(Spinner spinner, String value) {
+    private void setSpinnerSelection(Spinner spinner, String value) {
         if (value == null) return;
         ArrayAdapter adapter = (ArrayAdapter) spinner.getAdapter();
-        int position = adapter.getPosition(value);
-        if (position >= 0) {
-            spinner.setSelection(position);
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equalsIgnoreCase(value)) {
+                spinner.setSelection(i);
+                break;
+            }
         }
     }
 
