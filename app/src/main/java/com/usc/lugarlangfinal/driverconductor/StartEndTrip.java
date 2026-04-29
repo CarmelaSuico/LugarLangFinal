@@ -1,5 +1,6 @@
 package com.usc.lugarlangfinal.driverconductor;
 
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -107,7 +108,7 @@ public class StartEndTrip extends AppCompatActivity {
                     String stopNames = snapshot.child("Stops").getValue(String.class);
 
                     if (stopCoords != null && !stopCoords.isEmpty()) {
-                        String[] coordArray = stopCoords.split(";");
+                        String[] coordArray = stopCoords.split("\\|");
                         String[] nameArray = (stopNames != null) ? stopNames.split(", ") : null;
 
                         for (int i = 0; i < coordArray.length; i++) {
@@ -119,7 +120,7 @@ public class StartEndTrip extends AppCompatActivity {
                                         ? nameArray[i] : "Stop " + (i + 1);
 
                                 // UPDATED: Pass your drawable here
-                                addCustomMarker(sp, label, R.drawable.trip_origin_24px);
+                                addCustomMarker(sp, label, R.drawable.circle_24px);
                             }
                         }
                     }
@@ -177,16 +178,22 @@ public class StartEndTrip extends AppCompatActivity {
     private void addCustomMarker(GeoPoint point, String title, int iconRes) {
         Marker marker = new Marker(map);
         marker.setPosition(point);
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER); // Center for circle icons
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
         marker.setTitle(title);
 
         if (iconRes != 0) {
-            marker.setIcon(ContextCompat.getDrawable(this, iconRes));
+            Drawable icon = getResources().getDrawable(iconRes, getTheme());
+
+            // --- START DARK RED COLOR LOGIC ---
+            // Dark Red Hex Code is #8B0000
+            icon.setTint(android.graphics.Color.parseColor("#8B0000"));
+            // --- END DARK RED COLOR LOGIC ---
+
+            marker.setIcon(icon);
         }
 
         map.getOverlays().add(marker);
     }
-
     @Override
     public void onResume() {
         super.onResume();

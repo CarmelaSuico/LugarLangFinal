@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.usc.lugarlangfinal.driverconductor.LocationService;
 import com.usc.lugarlangfinal.driverconductor.StartEndTrip;
 import com.usc.lugarlangfinal.models.Trip;
 
@@ -63,6 +64,17 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         initViews();
         setupOSM();
 
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+
+            androidx.core.app.ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                            android.Manifest.permission.FOREGROUND_SERVICE_LOCATION
+                    }, 101);
+        }
+
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             userEmail = currentUser.getEmail();
@@ -75,13 +87,22 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         // UPDATED: Now passes data to the next activity
         btnStartTrip.setOnClickListener(v -> {
             if (currentTrip != null) {
+                // Create the Intent
+                Intent serviceIntent = new Intent(DriverOrConductoerDashboard.this, LocationService.class);
+
+                // Pass the Trip ID and Franchise so the service knows where to save coordinates[cite: 1]
+                serviceIntent.putExtra("TRIP_ID", currentTrip.tripId);
+                serviceIntent.putExtra("FRANCHISE", currentTrip.franchise);
+
+                // Use ContextCompat to avoid the version error
+                androidx.core.content.ContextCompat.startForegroundService(DriverOrConductoerDashboard.this, serviceIntent);
+
+                // Move to the next screen
                 Intent intent = new Intent(DriverOrConductoerDashboard.this, StartEndTrip.class);
                 intent.putExtra("ROUTE_CODE", currentTrip.routeCode);
-                intent.putExtra("TERMINAL_1", currentTrip.terminal1);
-                intent.putExtra("TERMINAL_2", currentTrip.terminal2);
                 startActivity(intent);
             } else {
-                Toast.makeText(this, "No trip assigned yet.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "No trip assigned!", Toast.LENGTH_SHORT).show();
             }
         });
     }
