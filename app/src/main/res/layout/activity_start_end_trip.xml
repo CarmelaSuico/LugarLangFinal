@@ -8,6 +8,11 @@
     tools:context=".driverconductor.StartEndTrip"
     android:background="#BAA4B1">
 
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapStartEnd"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <LinearLayout
         android:id="@+id/top_header"
         android:layout_width="match_parent"
@@ -45,11 +50,6 @@
             android:textAlignment="center"
             android:gravity="center"/>
     </LinearLayout>
-
-    <org.osmdroid.views.MapView
-        android:id="@+id/mapStartEnd"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <Button
         android:id="@+id/btnEndTrip"

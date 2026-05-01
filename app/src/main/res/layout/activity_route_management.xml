@@ -1,65 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".route.RouteManagement"
-    android:background="#BAA4B1">
+    android:background="#BAA4B1"
+    android:forceDarkAllowed="false"
+    android:padding="16dp">
 
     <LinearLayout
         android:id="@+id/top_header"
         android:layout_width="match_parent"
-        android:layout_height="112dp"
+        android:layout_height="wrap_content"
+        android:minHeight="100dp"
         android:orientation="horizontal"
         android:background="@drawable/top_deisgn"
-        android:padding="10dp">
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Route Management"
-            android:textSize="35sp"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@color/white"
-            android:textAlignment="center"
-            android:gravity="center"/>
+            app:autoSizeTextType="uniform"
+            app:autoSizeMaxTextSize="35sp"
+            app:autoSizeMinTextSize="18sp"
+            android:textAlignment="center"/>
     </LinearLayout>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/search_card"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_below="@id/top_header"
-        android:layout_margin="15dp"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
         app:cardBackgroundColor="#D9D9D9"
-        app:cardCornerRadius="30dp"
-        app:cardElevation="2dp">
+        app:cardCornerRadius="28dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_header"
+        app:layout_constraintWidth_percent="0.92">
+
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchRoute"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:iconifiedByDefault="false"
-            app:queryHint="Search employee..."
+            app:queryHint="Search route..."
             app:queryBackground="@android:color/transparent" />
     </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRoutelist"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/search_card"
-        android:layout_above="@+id/nav_botton"
-        android:layout_marginHorizontal="10dp"/>
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@id/nav_botton"
+        app:layout_constraintTop_toBottomOf="@id/search_card"/>
 
 
     <LinearLayout
         android:id="@+id/nav_botton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        app:layout_constraintBottom_toBottomOf="parent">
         <include layout="@layout/route_nav_bottons"/>
     </LinearLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

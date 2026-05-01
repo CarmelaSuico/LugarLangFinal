@@ -4,12 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="70dp"
     android:background="#BA007C"
-    android:layout_gravity="bottom">
+    android:forceDarkAllowed="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <!--        Route Dashboard-->
         <LinearLayout
@@ -20,21 +23,31 @@
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackground">
+
             <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
                 android:src="@drawable/bus_railway_24px"
                 android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
-                android:clickable="false" />
+                android:clickable="false"
+                android:scaleType="fitCenter"/>
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Route Dashboard"
                 android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:maxLines="1"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="12sp"/>
         </LinearLayout>
 
         <!--        Add New Route -->
@@ -46,21 +59,31 @@
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackground">
+
             <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
                 android:src="@drawable/add_circle_24px"
                 android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
-                android:clickable="false" />
+                android:clickable="false"
+                android:scaleType="fitCenter" />
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Add New Route"
                 android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:maxLines="1"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="12sp"/>
         </LinearLayout>
 
         <!--        Back to Admin Dashboard-->
@@ -72,21 +95,31 @@
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackground">
+
             <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
                 android:src="@drawable/undo_24px"
                 android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
-                android:clickable="false" />
+                android:clickable="false"
+                android:scaleType="fitCenter" />
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Back"
+                android:text="Back to Dashboard"
                 android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:maxLines="1"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="12sp"/>
         </LinearLayout>
 
 

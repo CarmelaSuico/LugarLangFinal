@@ -7,6 +7,7 @@ import android.os.*;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import android.content.pm.ServiceInfo;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.*;
 import com.google.firebase.database.DatabaseReference;
@@ -82,7 +83,6 @@ public class LocationService extends Service {
         String channelId = "loc_channel";
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Create the Channel for Android 8.0+ (Oreo)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     channelId,
@@ -95,7 +95,6 @@ public class LocationService extends Service {
             }
         }
 
-        // Tap notification to go back to the Trip screen
         Intent notificationIntent = new Intent(this, StartEndTrip.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
@@ -107,7 +106,9 @@ public class LocationService extends Service {
         return new NotificationCompat.Builder(this, channelId)
                 .setContentTitle("LugarLang Live")
                 .setContentText("Driver location tracking is active.")
-                .setSmallIcon(R.drawable.trip_origin_24px)
+                .setSmallIcon(R.drawable.navigation_24px)
+                .setColor(ContextCompat.getColor(this, R.color.lugar_lang_blue))
+                .setColorized(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setOngoing(true)
                 .setContentIntent(pendingIntent)

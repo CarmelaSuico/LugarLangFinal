@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,8 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
 
@@ -37,6 +40,13 @@ public class StartEndTrip extends AppCompatActivity {
     private TextView txtT1, txtT2;
     private Button btnEndTrip;
     private String routeCode;
+
+    private MyLocationNewOverlay mLocationOverlay;
+    private Polyline currentRoadOverlay;
+
+    private ArrayList<GeoPoint> allPoints = new ArrayList<>();
+    private ArrayList<String> allNames = new ArrayList<>();
+    private int currentStopIndex = 0;
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     @Override
@@ -49,18 +59,14 @@ public class StartEndTrip extends AppCompatActivity {
         setContentView(R.layout.activity_start_end_trip);
 
         initViews();
-
         routeCode = getIntent().getStringExtra("ROUTE_CODE");
-        String t1Name = getIntent().getStringExtra("TERMINAL_1");
-        String t2Name = getIntent().getStringExtra("TERMINAL_2");
-
-        txtT1.setText(t1Name != null ? t1Name : "Terminal 1");
-        txtT2.setText(t2Name != null ? t2Name : "Terminal 2");
 
         setupMap();
 
         if (routeCode != null) {
             fetchFullRouteData();
+        } else {
+            Toast.makeText(this, "Error: Route Code Missing", Toast.LENGTH_LONG).show();
         }
 
         btnEndTrip.setOnClickListener(v -> {
@@ -79,7 +85,23 @@ public class StartEndTrip extends AppCompatActivity {
     private void setupMap() {
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setMultiTouchControls(true);
-        map.getController().setZoom(15.0);
+        map.getController().setZoom(18.0);
+
+        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), map) {
+            @Override
+            public void onLocationChanged(android.location.Location location, org.osmdroid.views.overlay.mylocation.IMyLocationProvider source) {
+                super.onLocationChanged(location, source);
+                if (location != null) {
+                    GeoPoint myLoc = new GeoPoint(location.getLatitude(), location.getLongitude());
+                    runOnUiThread(() -> checkProximity(myLoc));
+                }
+            }
+        };
+
+        mLocationOverlay.enableMyLocation();
+        mLocationOverlay.enableFollowLocation();
+        mLocationOverlay.setDrawAccuracyEnabled(false);
+        map.getOverlays().add(mLocationOverlay);
     }
 
     private void fetchFullRouteData() {
@@ -88,53 +110,53 @@ public class StartEndTrip extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    ArrayList<GeoPoint> waypoints = new ArrayList<>();
-                    map.getOverlays().clear();
+                    allPoints.clear();
+                    allNames.clear();
 
-                    // 1. Terminal 1 (Start)
+                    // 1. Terminal 1
                     String t1Coords = snapshot.child("T1_Coords").getValue(String.class);
-                    if (t1Coords != null) {
+                    if (t1Coords != null && !t1Coords.isEmpty()) {
                         GeoPoint p1 = parseGeoPoint(t1Coords);
-                        waypoints.add(p1);
-                        // Using a default marker for the Start Terminal
-                        addCustomMarker(p1, "START: " + txtT1.getText().toString(), 0);
-
-                        map.getController().setZoom(17.0);
-                        map.getController().setCenter(p1);
+                        if (p1.getLatitude() != 0) {
+                            allPoints.add(p1);
+                            allNames.add(snapshot.child("Terminal1").getValue(String.class));
+                            addCustomMarker(p1, "START", 0);
+                        }
                     }
 
-                    // 2. Intermediate Stops - Using trip_origin_24px
-                    String stopCoords = snapshot.child("Stop_Coords").getValue(String.class);
-                    String stopNames = snapshot.child("Stops").getValue(String.class);
 
-                    if (stopCoords != null && !stopCoords.isEmpty()) {
+                    // 2. Intermediate Stops
+                    String stopCoords = snapshot.child("Stop_Coords").getValue(String.class);
+                    if (stopCoords != null && !stopCoords.trim().isEmpty()) {
                         String[] coordArray = stopCoords.split("\\|");
+                        String stopNames = snapshot.child("Stops").getValue(String.class);
                         String[] nameArray = (stopNames != null) ? stopNames.split(", ") : null;
 
                         for (int i = 0; i < coordArray.length; i++) {
                             GeoPoint sp = parseGeoPoint(coordArray[i].trim());
                             if (sp.getLatitude() != 0) {
-                                waypoints.add(sp);
-
-                                String label = (nameArray != null && i < nameArray.length)
-                                        ? nameArray[i] : "Stop " + (i + 1);
-
-                                // UPDATED: Pass your drawable here
-                                addCustomMarker(sp, label, R.drawable.circle_24px);
+                                allPoints.add(sp);
+                                String label = (nameArray != null && i < nameArray.length) ? nameArray[i] : "Stop";
+                                allNames.add(label);
+                                addCustomMarker(sp, label, R.drawable.vd_vector);
                             }
                         }
                     }
 
-                    // 3. Terminal 2 (End)
+                    // 3. Terminal 2
                     String t2Coords = snapshot.child("T2_Coords").getValue(String.class);
-                    if (t2Coords != null) {
+                    if (t2Coords != null && !t2Coords.isEmpty()) {
                         GeoPoint p2 = parseGeoPoint(t2Coords);
-                        waypoints.add(p2);
-                        addCustomMarker(p2, "END: " + txtT2.getText().toString(), 0);
+                        if (p2.getLatitude() != 0) {
+                            allPoints.add(p2);
+                            allNames.add(snapshot.child("Terminal2").getValue(String.class));
+                            addCustomMarker(p2, "END", 0);
+                        }
                     }
 
-                    if (waypoints.size() >= 2) {
-                        drawRoute(waypoints);
+                    if (allPoints.size() >= 2) {
+                        drawRoute(allPoints);
+                        updateHeaderUI();
                     }
                 }
             }
@@ -142,9 +164,28 @@ public class StartEndTrip extends AppCompatActivity {
         });
     }
 
+    private void checkProximity(GeoPoint currentPos) {
+        if (currentPos == null || allPoints.isEmpty() || currentStopIndex >= allPoints.size() - 1) return;
+
+        GeoPoint nextStop = allPoints.get(currentStopIndex + 1);
+        double distance = currentPos.distanceToAsDouble(nextStop);
+
+        if (distance < 50) {
+            currentStopIndex++;
+            updateHeaderUI();
+        }
+    }
+
+    private void updateHeaderUI() {
+        if (allNames.size() < 2 || currentStopIndex >= allNames.size() - 1) return;
+        txtT1.setText(allNames.get(currentStopIndex));
+        txtT2.setText(allNames.get(currentStopIndex + 1));
+    }
+
     private GeoPoint parseGeoPoint(String coordString) {
         try {
             String[] parts = coordString.split(",");
+            if (parts.length < 2) return new GeoPoint(0.0, 0.0);
             double lat = Double.parseDouble(parts[0].trim());
             double lon = Double.parseDouble(parts[1].trim());
             return new GeoPoint(lat, lon);
@@ -157,24 +198,32 @@ public class StartEndTrip extends AppCompatActivity {
         new AsyncTask<Void, Void, Road>() {
             @Override
             protected Road doInBackground(Void... voids) {
-                RoadManager roadManager = new OSRMRoadManager(StartEndTrip.this, "OSM_Routing");
-                return roadManager.getRoad(waypoints);
+                OSRMRoadManager roadManager = new OSRMRoadManager(StartEndTrip.this, getPackageName());
+                // Use the built-in OSRM profile (default is fastest)
+                try {
+                    return roadManager.getRoad(waypoints);
+                } catch (Exception e) {
+                    return null;
+                }
             }
 
             @Override
             protected void onPostExecute(Road road) {
                 if (road != null && road.mStatus == Road.STATUS_OK) {
-                    Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
-                    roadOverlay.setColor(0xFF00FF00); // Green
-                    roadOverlay.setWidth(14.0f);
-                    map.getOverlays().add(roadOverlay);
+                    if (currentRoadOverlay != null) map.getOverlays().remove(currentRoadOverlay);
+                    currentRoadOverlay = RoadManager.buildRoadOverlay(road);
+                    currentRoadOverlay.getOutlinePaint().setColor(0xFF00FF00); // Green for route
+                    currentRoadOverlay.getOutlinePaint().setStrokeWidth(12.0f);
+                    map.getOverlays().add(0, currentRoadOverlay);
                     map.invalidate();
+                } else {
+                    String status = (road != null) ? String.valueOf(road.mStatus) : "Null";
+                    Toast.makeText(StartEndTrip.this, "Route Error: " + status, Toast.LENGTH_SHORT).show();
                 }
             }
         }.execute();
     }
 
-    // UPDATED: Method to support custom drawable icons
     private void addCustomMarker(GeoPoint point, String title, int iconRes) {
         Marker marker = new Marker(map);
         marker.setPosition(point);
@@ -182,27 +231,37 @@ public class StartEndTrip extends AppCompatActivity {
         marker.setTitle(title);
 
         if (iconRes != 0) {
-            Drawable icon = getResources().getDrawable(iconRes, getTheme());
-
-            // --- START DARK RED COLOR LOGIC ---
-            // Dark Red Hex Code is #8B0000
-            icon.setTint(android.graphics.Color.parseColor("#8B0000"));
-            // --- END DARK RED COLOR LOGIC ---
-
-            marker.setIcon(icon);
+            try {
+                Drawable icon = ContextCompat.getDrawable(this, iconRes);
+                if (icon != null) {
+                    Drawable tintedIcon = icon.mutate();
+                    tintedIcon.setTint(android.graphics.Color.parseColor("#8B0000"));
+                    marker.setIcon(tintedIcon);
+                }
+            } catch (Exception e) {
+                Log.e("MARKER_ERROR", "Icon resource not found");
+            }
         }
-
         map.getOverlays().add(marker);
     }
+
     @Override
     public void onResume() {
         super.onResume();
         map.onResume();
+        if (mLocationOverlay != null) {
+            mLocationOverlay.enableMyLocation();
+            mLocationOverlay.enableFollowLocation();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         map.onPause();
+        if (mLocationOverlay != null) {
+            mLocationOverlay.disableMyLocation();
+            mLocationOverlay.disableFollowLocation();
+        }
     }
 }

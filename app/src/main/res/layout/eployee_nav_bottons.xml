@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-     android:layout_height="70dp"
+    android:layout_height="80dp"
     android:background="#BA007C"
-    android:layout_gravity="bottom">
+    android:forceDarkAllowed="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-<!--        Employee Dashboard-->
+        <!-- Employee Dashboard Button -->
         <LinearLayout
             android:id="@+id/btnemployeedashboard"
             android:layout_width="0dp"
@@ -20,24 +23,34 @@
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackground">
+
             <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
                 android:src="@drawable/person_24px"
                 android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
-                android:clickable="false" />
+                android:clickable="false"
+                android:scaleType="fitCenter"/>
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Employee Dashboard"
                 android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:maxLines="1"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="12sp"/>
         </LinearLayout>
 
-        <!--        Add New Employee-->
+        <!-- Add New Employee Button -->
         <LinearLayout
             android:id="@+id/btnaddnewemployee"
             android:layout_width="0dp"
@@ -46,24 +59,34 @@
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackground">
+
             <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
                 android:src="@drawable/add_circle_24px"
                 android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
-                android:clickable="false" />
+                android:clickable="false"
+                android:scaleType="fitCenter"/>
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Add New Employee"
                 android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:maxLines="1"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="12sp"/>
         </LinearLayout>
 
-        <!--        Back-->
+        <!-- Back Button -->
         <LinearLayout
             android:id="@+id/btnback"
             android:layout_width="0dp"
@@ -72,23 +95,32 @@
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:padding="4dp"
+            android:background="?attr/selectableItemBackground">
+
             <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
                 android:src="@drawable/undo_24px"
                 android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
-                android:clickable="false" />
+                android:clickable="false"
+                android:scaleType="fitCenter"/>
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Back"
+                android:text="Back to Dashboard"
                 android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:maxLines="1"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="12sp"/>
         </LinearLayout>
 
-
     </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
