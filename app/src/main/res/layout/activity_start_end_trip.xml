@@ -1,69 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".driverconductor.StartEndTrip"
-    android:background="#BAA4B1">
+    android:background="@color/backgroundAesthetic">
 
     <org.osmdroid.views.MapView
         android:id="@+id/mapStartEnd"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <LinearLayout
-        android:id="@+id/top_header"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/top_header_card"
         android:layout_width="match_parent"
-        android:layout_height="112dp"
-        android:orientation="horizontal"
-        android:background="@drawable/top_deisgn"
-        android:padding="10dp">
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="#CCFFFFFF">
 
-        <TextView
-            android:id="@+id/txtterminal1"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Terminal 1"
-            android:textSize="35sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:textAlignment="center"
-            android:gravity="center"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="20dp"
+            android:gravity="center_vertical">
 
+            <TextView
+                android:id="@+id/txtterminal1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Terminal 1"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/primaryAesthetic"
+                android:gravity="center"/>
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/arrow_forward_24px" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginHorizontal="12dp"
+                app:srcCompat="@drawable/arrow_forward_24px"
+                app:tint="@color/textSecondary" />
 
-        <TextView
-            android:id="@+id/txtterminal2"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Terminal 2"
-            android:textSize="35sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:textAlignment="center"
-            android:gravity="center"/>
-    </LinearLayout>
+            <TextView
+                android:id="@+id/txtterminal2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Terminal 2"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/primaryAesthetic"
+                android:gravity="center"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnEndTrip"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="40dp"
-        android:layout_marginStart="20dp"
-        android:backgroundTint="#703042"
-        android:paddingHorizontal="20dp"
-        android:text="End the trip"
+        android:text="Finish Current Trip"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        app:cornerRadius="20dp" />
+        android:backgroundTint="#EF4444"
+        android:fontFamily="sans-serif-black"
+        android:paddingHorizontal="32dp"
+        app:cornerRadius="32dp"
+        app:elevation="8dp"
+        app:icon="@drawable/close_24px"
+        app:iconGravity="textStart" />
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
