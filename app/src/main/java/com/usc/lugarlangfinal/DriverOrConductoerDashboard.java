@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.usc.lugarlangfinal.driverconductor.LocationService;
 import com.usc.lugarlangfinal.driverconductor.StartEndTrip;
+import com.usc.lugarlangfinal.driverconductor.Ticketing;
 import com.usc.lugarlangfinal.models.Trip;
 
 import org.osmdroid.config.Configuration;
@@ -33,13 +35,13 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 public class DriverOrConductoerDashboard extends AppCompatActivity {
-
+    LinearLayout btnDriverConductDashboard, btnTicketing, btnSetting;
     private TextView tvStart, tvEnd, tvPlate, tvVehicle, tvTime, tvFranchise, tvDriver, tvConductor;
     private Button btnStartTrip;
     private MapView map;
 
-    private Trip currentTrip; // Variable to store the assigned trip
-    private String userEmail, userName, userFranchise;
+    private Trip currentTrip;
+    private String userEmail, userName, userFranchise, employeeNumericId;
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     @Override
@@ -52,6 +54,7 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_driver_or_conductoer_dashboard);
 
+        // Responsive Window Insets
         View mainView = findViewById(R.id.main);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
@@ -64,9 +67,9 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         initViews();
         setupOSM();
 
+        // Check Permissions for Location
         if (androidx.core.content.ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-
             androidx.core.app.ActivityCompat.requestPermissions(this,
                     new String[]{
                             android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -84,25 +87,39 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
             finish();
         }
 
-        // UPDATED: Now passes data to the next activity
+        // Start Trip Button Logic
         btnStartTrip.setOnClickListener(v -> {
             if (currentTrip != null) {
-                // Create the Intent
+                // 1. Start Background Location Service
                 Intent serviceIntent = new Intent(DriverOrConductoerDashboard.this, LocationService.class);
-
-                // Pass the Trip ID and Franchise so the service knows where to save coordinates[cite: 1]
                 serviceIntent.putExtra("TRIP_ID", currentTrip.tripId);
                 serviceIntent.putExtra("FRANCHISE", currentTrip.franchise);
-
-                // Use ContextCompat to avoid the version error
                 androidx.core.content.ContextCompat.startForegroundService(DriverOrConductoerDashboard.this, serviceIntent);
 
-                // Move to the next screen
+                // 2. Open StartEndTrip Activity
                 Intent intent = new Intent(DriverOrConductoerDashboard.this, StartEndTrip.class);
                 intent.putExtra("ROUTE_CODE", currentTrip.routeCode);
+                intent.putExtra("COMPANY_NAME", userFranchise);
+                intent.putExtra("EMPLOYEE_ID", employeeNumericId);
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "No trip assigned!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Bottom Navigation
+        btnDriverConductDashboard.setSelected(true);
+        
+        // Pass required data to Ticketing
+        btnTicketing.setOnClickListener(v -> {
+            if (currentTrip != null) {
+                Intent intent = new Intent(this, Ticketing.class);
+                intent.putExtra("ROUTE_CODE", currentTrip.routeCode);
+                intent.putExtra("COMPANY_NAME", userFranchise);
+                intent.putExtra("EMPLOYEE_ID", employeeNumericId);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "No trip assigned to access ticketing!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -118,15 +135,15 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         tvConductor = findViewById(R.id.tvConductorName);
         btnStartTrip = findViewById(R.id.btnStartTrip);
         map = findViewById(R.id.mapOSM);
+        btnDriverConductDashboard = findViewById(R.id.btndriverorconddashoard);
+        btnTicketing = findViewById(R.id.btnticketing);
     }
 
     private void setupOSM() {
         if (map == null) return;
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setMultiTouchControls(true);
-        GeoPoint startPoint = new GeoPoint(10.3157, 123.8854);
         map.getController().setZoom(15.0);
-        map.getController().setCenter(startPoint);
     }
 
     private void fetchUserProfile() {
@@ -138,6 +155,7 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         userName = ds.child("name").getValue(String.class);
                         userFranchise = ds.child("Franchise").getValue(String.class);
+                        employeeNumericId = ds.child("id").getValue(String.class);
                         if (userName != null && userFranchise != null) {
                             fetchAssignedTrip();
                         }
@@ -158,7 +176,7 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
                     Trip trip = ds.getValue(Trip.class);
                     if (trip != null && userName != null) {
                         if (userName.equalsIgnoreCase(trip.driverName) || userName.equalsIgnoreCase(trip.conductorName)) {
-                            currentTrip = trip; // Save the trip globally for the Intent
+                            currentTrip = trip;
                             displayTripData(trip);
                             fetchRouteCoordinates(trip.routeCode);
                             tripFound = true;
@@ -220,15 +238,6 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         map.invalidate();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (map != null) map.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (map != null) map.onPause();
-    }
+    @Override public void onResume() { super.onResume(); if (map != null) map.onResume(); }
+    @Override public void onPause() { super.onPause(); if (map != null) map.onPause(); }
 }

@@ -21,12 +21,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LugarLangFinal">
+        <activity
+            android:name=".commuterhome"
+            android:exported="false" />
+        <activity
+            android:name=".driverconductor.Ticketing"
+            android:exported="false" />
 
         <service
             android:name=".driverconductor.LocationService"
-            android:foregroundServiceType="location"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="location" />
 
         <activity
             android:name=".driverconductor.StartEndTrip"

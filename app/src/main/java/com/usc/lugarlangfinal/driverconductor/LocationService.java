@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import android.content.pm.ServiceInfo;
 import androidx.core.content.ContextCompat;
+import android.util.Log;
 
 import com.google.android.gms.location.*;
 import com.google.firebase.database.DatabaseReference;
@@ -26,6 +27,7 @@ public class LocationService extends Service {
         super.onCreate();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // High accuracy for real-time passenger tracking
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
                 .setMinUpdateIntervalMillis(2000)
                 .build();
@@ -42,8 +44,10 @@ public class LocationService extends Service {
 
     private void updateFirebase(Location loc) {
         if (tripRef != null) {
+            // Updating the "active" trip node so passengers can see the vehicle moving
             String coords = loc.getLatitude() + "," + loc.getLongitude();
-            tripRef.child("currentLocation").setValue(coords);
+            tripRef.child("currentLocation").setValue(coords)
+                    .addOnFailureListener(e -> Log.e("LOC_SERVICE", "Failed to update location"));
         }
     }
 
@@ -53,6 +57,7 @@ public class LocationService extends Service {
             String tripId = intent.getStringExtra("TRIP_ID");
             String franchise = intent.getStringExtra("FRANCHISE");
 
+            // We update the active trip under the Franchise node
             if (tripId != null && franchise != null) {
                 tripRef = FirebaseDatabase.getInstance(DB_URL)
                         .getReference("trips").child(franchise).child(tripId);
@@ -61,6 +66,7 @@ public class LocationService extends Service {
 
         Notification notification = createNotification();
 
+        // Android 14 (API 34) and above requires the specific foreground type
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
         } else {
@@ -75,7 +81,7 @@ public class LocationService extends Service {
         try {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         } catch (SecurityException e) {
-            e.printStackTrace();
+            Log.e("LOC_SERVICE", "Location permission not granted");
         }
     }
 
@@ -86,16 +92,18 @@ public class LocationService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     channelId,
-                    "Trip Tracking",
+                    "LugarLang Trip Tracking",
                     NotificationManager.IMPORTANCE_LOW
             );
-            channel.setDescription("Active location tracking for drivers");
             if (manager != null) {
                 manager.createNotificationChannel(channel);
             }
         }
 
+        // Tapping the notification takes the driver back to the active map
         Intent notificationIntent = new Intent(this, StartEndTrip.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 0,
@@ -105,14 +113,12 @@ public class LocationService extends Service {
 
         return new NotificationCompat.Builder(this, channelId)
                 .setContentTitle("LugarLang Live")
-                .setContentText("Driver location tracking is active.")
+                .setContentText("Your location is being shared with passengers.")
                 .setSmallIcon(R.drawable.navigation_24px)
                 .setColor(ContextCompat.getColor(this, R.color.lugar_lang_blue))
-                .setColorized(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setOngoing(true)
                 .setContentIntent(pendingIntent)
-                .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .build();
     }
 
@@ -120,7 +126,8 @@ public class LocationService extends Service {
 
     @Override
     public void onDestroy() {
-        if (fusedLocationClient != null) {
+        // Clean up location updates when the service is stopped
+        if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
         super.onDestroy();
