@@ -25,7 +25,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:src="@drawable/bus_railway_24px"
-                android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
                 android:clickable="false" />
@@ -51,7 +50,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:src="@drawable/transit_ticket_24px"
-                android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
                 android:clickable="false" />
@@ -77,7 +75,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:src="@drawable/undo_24px"
-                android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
                 android:clickable="false" />

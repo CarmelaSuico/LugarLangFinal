@@ -1,19 +1,22 @@
 package com.usc.lugarlangfinal.adapters;
 
 import android.annotation.SuppressLint;
-import android.text.*;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.usc.lugarlangfinal.R;
 import java.util.List;
 
 public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ViewHolder> {
-    private List<String> stops;
-    private OnStartDragListener mDragStartListener; // Interface reference
 
-    // 1. Create the Interface
+    private final List<String> stops;
+    private final OnStartDragListener mDragStartListener;
+
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder);
     }
@@ -23,55 +26,48 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ViewHolder> 
         this.mDragStartListener = dragStartListener;
     }
 
-    @NonNull @Override public ViewHolder onCreateViewHolder(@NonNull ViewGroup p, int vt) {
-        return new ViewHolder(LayoutInflater.from(p.getContext()).inflate(R.layout.item_stop_input, p, false));
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stop_input, parent, false));
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    @Override public void onBindViewHolder(@NonNull ViewHolder h, int pos) {
-        h.editStop.setText(stops.get(pos));
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.txtStopName.setText(stops.get(position));
 
-        // Update list as user types
-        h.editStop.addTextChangedListener(new TextWatcher() {
-            public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
-            public void onTextChanged(CharSequence s, int st, int b, int c) {}
-            public void afterTextChanged(Editable s) {
-                int currentPos = h.getAdapterPosition();
-                if (currentPos != RecyclerView.NO_POSITION) {
-                    stops.set(currentPos, s.toString());
+        if (mDragStartListener != null) {
+            holder.dragHandle.setOnTouchListener((v, event) -> {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    mDragStartListener.onStartDrag(holder);
                 }
-            }
-        });
+                return false;
+            });
+        }
 
-        // 2. Trigger drag when the ivDragHandle is touched
-        h.dragHandle.setOnTouchListener((v, event) -> {
-            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                mDragStartListener.onStartDrag(h);
-            }
-            return false;
-        });
-
-        h.btnRemove.setOnClickListener(v -> {
-            int currentPos = h.getAdapterPosition();
+        holder.btnRemove.setOnClickListener(v -> {
+            int currentPos = holder.getBindingAdapterPosition();
             if (currentPos != RecyclerView.NO_POSITION) {
                 stops.remove(currentPos);
                 notifyItemRemoved(currentPos);
+                notifyItemRangeChanged(currentPos, stops.size());
             }
         });
     }
 
-    @Override public int getItemCount() { return stops.size(); }
+    @Override public int getItemCount() { return stops != null ? stops.size() : 0; }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        EditText editStop;
-        ImageButton btnRemove;
-        ImageView dragHandle; // Reference to your drag icon
+        public final TextView txtStopName;
+        public final View btnRemove;
+        public final ImageView dragHandle;
 
         public ViewHolder(View v) {
             super(v);
-            editStop = v.findViewById(R.id.editStopName);
+            txtStopName = v.findViewById(R.id.txtStopName);
             btnRemove = v.findViewById(R.id.btnRemoveStop);
-            dragHandle = v.findViewById(R.id.ivDragHandle); // Ensure this ID matches your XML
+            dragHandle = v.findViewById(R.id.ivDragHandle);
         }
     }
 }

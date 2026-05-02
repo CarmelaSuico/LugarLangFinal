@@ -25,8 +25,8 @@
             android:src="@drawable/reorder_24px"
             app:tint="@color/textSecondary" />
 
-        <EditText
-            android:id="@+id/editStopName"
+        <TextView
+            android:id="@+id/txtStopName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -35,7 +35,9 @@
             android:hint="Stop name..."
             android:textColor="@color/textDark"
             android:textSize="14sp"
-            android:fontFamily="sans-serif-medium" />
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRemoveStop"

@@ -3,7 +3,7 @@ package com.usc.lugarlangfinal.models;
 import com.google.firebase.database.PropertyName;
 
 public class Route {
-    private String routeCode, terminal1, terminal2, stops, assignedTransport, status, company;
+    private String routeCode, terminal1, terminal2, stops, assignedTransport, status, company, plateNumber;
     private double baseFare, additionalFarePerBand, distance;
     private int distanceBands;
     private String t1_Coords; // For "10.3512, 123.9135"

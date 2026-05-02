@@ -1,20 +1,21 @@
 package com.usc.lugarlangfinal.adapters;
+
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.usc.lugarlangfinal.R;
 import com.usc.lugarlangfinal.models.Route;
 import com.usc.lugarlangfinal.route.RouteMoreDetails;
 
 import java.util.List;
+import java.util.Locale;
 
 public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHolder> {
 
@@ -34,39 +35,38 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
     @Override
     public void onBindViewHolder(@NonNull RouteViewHolder holder, int position) {
         Route route = routeList.get(position);
-        holder.txtCode.setText("Route Code: " + route.getRouteCode());
-        holder.txtTerminal1.setText("Terminal 1: " + route.getTerminal1());
-        holder.txtTerminal2.setText("Terminal 2: " + route.getTerminal2());
-        holder.txtDistnce.setText("Distance: " + route.getDistance());
-        holder.txtStatus.setText("Status: " + route.getStatus());
+
+        holder.txtCode.setText(route.getRouteCode());
+        holder.txtTerminal1.setText(route.getTerminal1());
+        holder.txtTerminal2.setText(route.getTerminal2());
+        holder.txtStatus.setText(route.getStatus());
+        holder.txtDistance.setText(String.format(Locale.getDefault(), "%.2f KM", route.getDistance()));
+
         holder.btnMoreDetails.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), RouteMoreDetails.class);
             intent.putExtra("ROUTE_CODE", route.getRouteCode());
+            intent.putExtra("COMPANY", route.getCompany()); // Uses @PropertyName("Company") from model
             v.getContext().startActivity(intent);
         });
     }
 
-
     @Override
     public int getItemCount() {
-        return routeList.size();
+        return routeList != null ? routeList.size() : 0;
     }
 
-    public class RouteViewHolder extends RecyclerView.ViewHolder {
-
-        TextView txtCode, txtTerminal1, txtTerminal2, txtDistnce, txtStatus;
-        Button btnMoreDetails;
+    public static class RouteViewHolder extends RecyclerView.ViewHolder {
+        TextView txtCode, txtTerminal1, txtTerminal2, txtDistance, txtStatus;
+        MaterialButton btnMoreDetails;
 
         public RouteViewHolder(@NonNull View itemView) {
             super(itemView);
             txtCode = itemView.findViewById(R.id.txtcode);
+            txtStatus = itemView.findViewById(R.id.txtstatus);
             txtTerminal1 = itemView.findViewById(R.id.txtterminal1);
             txtTerminal2 = itemView.findViewById(R.id.txtterminal2);
-            txtDistnce = itemView.findViewById(R.id.txtdistnce);
-            txtStatus = itemView.findViewById(R.id.txtstatus);
+            txtDistance = itemView.findViewById(R.id.txtdistance);
             btnMoreDetails = itemView.findViewById(R.id.btnmoredetails);
         }
     }
-
-
 }

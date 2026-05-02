@@ -33,10 +33,10 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
         // Binding data to your specific XML IDs
         holder.tvVehicleCode.setText("Vehicle Code: " + trip.vehicleCode);
-        holder.tvTerminal1.setText("Terminal 1: " + trip.terminal1);
-        holder.tvTerminal2.setText("Terminal 2: " + trip.terminal2);
-        holder.tvDriver.setText("Assigned Driver: " + trip.driverName);
-        holder.tvConductor.setText("Assigned Conductor: " + trip.conductorName);
+        holder.tvTerminal1.setText(trip.terminal1);
+        holder.tvTerminal2.setText(trip.terminal2);
+        holder.tvDriver.setText("Driver: " + trip.driverName);
+        holder.tvConductor.setText("Conductor: " + trip.conductorName);
 
         // More Details Button Logic
         holder.btnMoreDetails.setOnClickListener(v -> {

@@ -16,7 +16,7 @@
         android:orientation="horizontal"
         android:gravity="center">
 
-        <!-- Route Dashboard -->
+        <!-- Employee Dashboard -->
         <LinearLayout
             android:id="@+id/btnroutedashboard"
             android:layout_width="0dp"
@@ -26,22 +26,22 @@
             android:gravity="center"
             android:clickable="true"
             android:focusable="true"
-            android:background="?attr/selectableItemBackground">
+            android:background="@drawable/pill_background">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/bus_railway_24px"
-                app:tint="@color/primaryAesthetic" />
+                app:tint="@color/nav_color" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dashboard"
                 android:textSize="10sp"
-                android:textColor="@color/primaryAesthetic"
+                android:textColor="@color/nav_color"
                 android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
-        <!-- Add New Route -->
+        <!-- Add New Employee -->
         <LinearLayout
             android:id="@+id/btnaddnewroute"
             android:layout_width="0dp"
@@ -51,18 +51,18 @@
             android:gravity="center"
             android:clickable="true"
             android:focusable="true"
-            android:background="?attr/selectableItemBackground">
+            android:background="@drawable/pill_background">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/add_circle_24px"
-                app:tint="@color/textSecondary" />
+                app:tint="@color/nav_color" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Route"
+                android:text="Add New"
                 android:textSize="10sp"
-                android:textColor="@color/textSecondary"
+                android:textColor="@color/nav_color"
                 android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
@@ -76,18 +76,18 @@
             android:gravity="center"
             android:clickable="true"
             android:focusable="true"
-            android:background="?attr/selectableItemBackground">
+            android:background="@drawable/pill_background">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/undo_24px"
-                app:tint="@color/textSecondary" />
+                app:tint="@color/nav_color" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Back"
                 android:textSize="10sp"
-                android:textColor="@color/textSecondary"
+                android:textColor="@color/nav_color"
                 android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 

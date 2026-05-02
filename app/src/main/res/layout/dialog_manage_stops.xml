@@ -14,14 +14,29 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Manage Route Stops"
-            android:textColor="@color/textDark"
-            android:textSize="20sp"
-            android:fontFamily="sans-serif-black"
-            android:layout_marginBottom="4dp"/>
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Manage Route Stops"
+                android:textColor="@color/textDark"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-black" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddStop"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                app:icon="@drawable/add_circle_24px"
+                app:iconTint="@color/primaryAesthetic"
+                android:backgroundTint="@color/primaryLightAesthetic" />
+        </RelativeLayout>
 
         <TextView
             android:layout_width="wrap_content"

@@ -1,16 +1,20 @@
 package com.usc.lugarlangfinal.route;
 
 import android.content.Intent;
+import android.location.Location; // Added for distance calculation
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.*;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 import com.usc.lugarlangfinal.AdminDashboard;
@@ -21,17 +25,18 @@ import com.usc.lugarlangfinal.models.Route;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class AddNewRoute extends AppCompatActivity {
 
-    AutoCompleteTextView editRouteCode;
-    EditText edT1, edT2, edDist, edBase, edBands, edAddl;
-    Spinner spinnerTransport, spinnerStatus;
-    Button btnSave;
-    ImageButton btnManageStops;
-    LinearLayout btnRouteDashboard, btnBack;
+    private TextInputEditText edT1, edT2, edDist, edBase, edBands, edAddl;
+    private AutoCompleteTextView editRouteCode, spinnerTransport, spinnerStatus;
+    private Button btnSave;
+    private View btnManageStops;
+    private LinearLayout btnBack, btnroutedashboard, btnaddnewroute;
 
     private String adminFranchise = "";
+    private String selectedT1Coords = "", selectedT2Coords = "";
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
     private List<Route> masterRouteList = new ArrayList<>();
     private List<String> currentStops = new ArrayList<>();
@@ -41,7 +46,32 @@ public class AddNewRoute extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_route);
 
-        // Initialize UI
+        initViews();
+        setupSpinners();
+        fetchAdminCompany();
+        loadMasterRoutes();
+
+        editRouteCode.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedCode = (String) parent.getItemAtPosition(position);
+            autoFill(selectedCode);
+        });
+
+        btnManageStops.setOnClickListener(v -> showStopsDialog());
+        btnSave.setOnClickListener(v -> saveToFranchise());
+
+        btnaddnewroute.setSelected(true);
+        btnroutedashboard.setOnClickListener(v -> {
+            startActivity(new Intent(this, RouteManagement.class));
+        });
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
+                startActivity(new Intent(this, AdminDashboard.class));
+            });
+        }
+    }
+
+    private void initViews() {
         editRouteCode = findViewById(R.id.editroutecode);
         edT1 = findViewById(R.id.edterminal1);
         edT2 = findViewById(R.id.edterminal2);
@@ -53,52 +83,22 @@ public class AddNewRoute extends AppCompatActivity {
         spinnerStatus = findViewById(R.id.spinnerStatus);
         btnSave = findViewById(R.id.btnaddroute);
         btnManageStops = findViewById(R.id.btnAddStopField);
-        btnRouteDashboard = findViewById(R.id.btnroutedashboard);
         btnBack = findViewById(R.id.btnback);
+        btnroutedashboard = findViewById(R.id.btnroutedashboard);
+        btnaddnewroute = findViewById(R.id.btnaddnewroute);
 
-        setupSpinners();
-        fetchAdminCompany();
-        loadMasterRoutes();
 
-        // Autocomplete Logic
-        editRouteCode.setOnTouchListener((v, event) -> { editRouteCode.showDropDown(); return false; });
-        editRouteCode.setOnItemClickListener((parent, view, position, id) -> autoFill((String) parent.getItemAtPosition(position)));
-
-        btnManageStops.setOnClickListener(v -> showStopsDialog());
-        btnSave.setOnClickListener(v -> saveToFranchise());
-
-        // Nav
-        btnBack.setOnClickListener(v -> startActivity(new Intent(this, AdminDashboard.class)));
-        btnRouteDashboard.setOnClickListener(v -> startActivity(new Intent(this, RouteManagement.class)));
+        edT1.setEnabled(false);
+        edT2.setEnabled(false);
+        edDist.setEnabled(false);
     }
 
-    private void fetchAdminCompany() {
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseDatabase.getInstance(DB_URL).getReference("admins").child(uid)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) adminFranchise = snapshot.child("company").getValue(String.class);
-                    }
-                    @Override public void onCancelled(@NonNull DatabaseError error) {}
-                });
-    }
-
-    private void loadMasterRoutes() {
-        FirebaseDatabase.getInstance(DB_URL).getReference("routes")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        masterRouteList.clear();
-                        List<String> codes = new ArrayList<>();
-                        for (DataSnapshot ds : snapshot.getChildren()) {
-                            Route r = ds.getValue(Route.class);
-                            if (r != null) { masterRouteList.add(r); codes.add(r.getRouteCode()); }
-                        }
-                        editRouteCode.setAdapter(new ArrayAdapter<>(AddNewRoute.this, android.R.layout.simple_dropdown_item_1line, codes));
-                    }
-                    @Override public void onCancelled(@NonNull DatabaseError error) {}
-                });
+    private void setupSpinners() {
+        String[] transport = {"Bus", "Jeepney"};
+        spinnerTransport.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, transport));
+        String[] status = {"Active", "Deactive"};
+        spinnerStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, status));
+        spinnerStatus.setText(status[0], false);
     }
 
     private void autoFill(String code) {
@@ -110,32 +110,85 @@ public class AddNewRoute extends AppCompatActivity {
                 edBands.setText(String.valueOf(r.getDistanceBands()));
                 edAddl.setText(String.valueOf(r.getAdditionalFarePerBand()));
 
-                try {
-                    String[] t1 = r.getT1_Coords().split(",");
-                    String[] t2 = r.getT2_Coords().split(",");
+                selectedT1Coords = r.getT1_Coords();
+                selectedT2Coords = r.getT2_Coords();
 
-                    double lat1 = Double.parseDouble(t1[0].trim());
-                    double lon1 = Double.parseDouble(t1[1].trim());
-                    double lat2 = Double.parseDouble(t2[0].trim());
-                    double lon2 = Double.parseDouble(t2[1].trim());
-
-                    double finalDistance = calculateDistance(lat1, lon1, lat2, lon2);
-
-                    // --- FIXED: Format to 2 decimal places ---
-                    String formattedDistance = String.format("%.2f", finalDistance);
-                    edDist.setText(formattedDistance + " km");
-
-                } catch (Exception e) {
-                    // Fallback to the distance value in the DB if coords fail
-                    // Also formatting the fallback just in case
-                    String fallbackDist = String.format("%.2f", r.getDistance());
-                    edDist.setText(fallbackDist + " km");
-                }
+                // AUTOMATIC DISTANCE CALCULATION
+                calculateAndSetDistance(selectedT1Coords, selectedT2Coords);
 
                 currentStops.clear();
-                if (r.getStops() != null) Collections.addAll(currentStops, r.getStops().split(", "));
+                if (r.getStops() != null && !r.getStops().isEmpty()) {
+                    Collections.addAll(currentStops, r.getStops().split(", "));
+                }
                 break;
             }
+        }
+    }
+
+    /**
+     * Parses coordinates and calculates distance in KM using Haversine-like formula
+     */
+    private void calculateAndSetDistance(String coords1, String coords2) {
+        try {
+            if (!TextUtils.isEmpty(coords1) && !TextUtils.isEmpty(coords2)) {
+                String[] latLng1 = coords1.split(",");
+                String[] latLng2 = coords2.split(",");
+
+                double lat1 = Double.parseDouble(latLng1[0].trim());
+                double lon1 = Double.parseDouble(latLng1[1].trim());
+                double lat2 = Double.parseDouble(latLng2[0].trim());
+                double lon2 = Double.parseDouble(latLng2[1].trim());
+
+                float[] results = new float[1];
+                Location.distanceBetween(lat1, lon1, lat2, lon2, results);
+
+                // Convert meters to KM
+                double distanceInKm = results[0] / 1000.0;
+                edDist.setText(String.format(Locale.getDefault(), "%.2f", distanceInKm));
+            }
+        } catch (Exception e) {
+            edDist.setText("0.00");
+        }
+    }
+
+    private void saveToFranchise() {
+        String code = editRouteCode.getText().toString().trim();
+        if (TextUtils.isEmpty(code) || TextUtils.isEmpty(adminFranchise)) {
+            Toast.makeText(this, "Please select a Route Code first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            Route newRoute = new Route();
+            newRoute.setRouteCode(code);
+            newRoute.setCompany(adminFranchise);
+            newRoute.setTerminal1(edT1.getText().toString());
+            newRoute.setTerminal2(edT2.getText().toString());
+            newRoute.setStops(TextUtils.join(", ", currentStops));
+            newRoute.setT1_Coords(selectedT1Coords);
+            newRoute.setT2_Coords(selectedT2Coords);
+
+            String cleanDist = edDist.getText().toString().replaceAll("[^\\d.]", "");
+            if (cleanDist.isEmpty()) cleanDist = "0";
+
+            newRoute.setBaseFare(parseDouble(edBase.getText().toString()));
+            newRoute.setDistance(Double.parseDouble(cleanDist));
+            newRoute.setDistanceBands(parseInt(edBands.getText().toString()));
+            newRoute.setAdditionalFarePerBand(parseDouble(edAddl.getText().toString()));
+
+            newRoute.setAssignedTransport(spinnerTransport.getText().toString());
+            newRoute.setStatus(spinnerStatus.getText().toString());
+
+            FirebaseDatabase.getInstance(DB_URL).getReference("franchise_routes")
+                    .child(adminFranchise).child(code).setValue(newRoute)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(AddNewRoute.this, "Route saved successfully!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(AddNewRoute.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Please check all numeric fields", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -145,92 +198,92 @@ public class AddNewRoute extends AppCompatActivity {
         dialog.setContentView(v);
 
         RecyclerView rv = v.findViewById(R.id.rvManageStops);
+        Button btnAdd = v.findViewById(R.id.btnAddStop);
+        Button btnDone = v.findViewById(R.id.btnDoneStops);
+
         rv.setLayoutManager(new LinearLayoutManager(this));
+        final ItemTouchHelper[] touchHelper = new ItemTouchHelper[1];
 
-        // 1. Define the ItemTouchHelper first (we use a wrapper to avoid the "variable might not be initialized" error)
-        final ItemTouchHelper[] itemTouchHelperWrapper = new ItemTouchHelper[1];
-
-        // 2. Initialize the Adapter with the new Constructor
-        // We pass 'itemTouchHelperWrapper[0]::startDrag' as the second argument
         StopsAdapter adapter = new StopsAdapter(currentStops, viewHolder -> {
-            if (itemTouchHelperWrapper[0] != null) {
-                itemTouchHelperWrapper[0].startDrag(viewHolder);
-            }
+            if (touchHelper[0] != null) touchHelper[0].startDrag(viewHolder);
         });
 
-        // 3. Set up the Drag & Drop Callback
         ItemTouchHelper.Callback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
             @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                int fromPosition = viewHolder.getBindingAdapterPosition();
-                int toPosition = target.getBindingAdapterPosition();
-
-                // Swap the items in your data list
-                java.util.Collections.swap(currentStops, fromPosition, toPosition);
-                // Notify the adapter of the change
-                adapter.notifyItemMoved(fromPosition, toPosition);
+            public boolean onMove(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder src, @NonNull RecyclerView.ViewHolder target) {
+                int from = src.getBindingAdapterPosition();
+                int to = target.getBindingAdapterPosition();
+                Collections.swap(currentStops, from, to);
+                adapter.notifyItemMoved(from, to);
                 return true;
             }
-
-            @Override public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {}
+            @Override public void onSwiped(@NonNull RecyclerView.ViewHolder v, int d) {}
         };
 
-        // 4. Create the actual Helper and attach it
-        itemTouchHelperWrapper[0] = new ItemTouchHelper(callback);
-        itemTouchHelperWrapper[0].attachToRecyclerView(rv);
-
+        touchHelper[0] = new ItemTouchHelper(callback);
+        touchHelper[0].attachToRecyclerView(rv);
         rv.setAdapter(adapter);
 
-        // "Done" Button logic (if you have one in your dialog layout)
-        Button btnDone = v.findViewById(R.id.btnDoneStops);
-        if (btnDone != null) {
-            btnDone.setOnClickListener(view -> dialog.dismiss());
-        }
+        btnAdd.setOnClickListener(view -> {
+            EditText input = new EditText(this);
+            input.setHint("Enter landmark name");
+            new AlertDialog.Builder(this)
+                    .setTitle("Add Landmark")
+                    .setView(input)
+                    .setPositiveButton("Add", (d, w) -> {
+                        String s = input.getText().toString().trim();
+                        if (!s.isEmpty()) {
+                            currentStops.add(s);
+                            adapter.notifyItemInserted(currentStops.size() - 1);
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+
+        btnDone.setOnClickListener(view -> dialog.dismiss());
         dialog.show();
     }
 
-    private void saveToFranchise() {
-        String code = editRouteCode.getText().toString().trim();
-        if (code.isEmpty() || adminFranchise.isEmpty()) {
-            Toast.makeText(this, "Complete the form and ensure you are logged in.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private double parseDouble(String s) {
+        try { return Double.parseDouble(s); } catch (Exception e) { return 0.0; }
+    }
 
-        Route newRoute = new Route();
-        newRoute.setRouteCode(code);
-        newRoute.setCompany(adminFranchise);
-        newRoute.setTerminal1(edT1.getText().toString());
-        newRoute.setTerminal2(edT2.getText().toString());
-        newRoute.setStops(String.join(", ", currentStops));
-        newRoute.setBaseFare(Double.parseDouble(edBase.getText().toString()));
-        newRoute.setDistance(Double.parseDouble(edDist.getText().toString().replaceAll("[^\\d.]", "")));
-        newRoute.setDistanceBands(Integer.parseInt(edBands.getText().toString().replaceAll("[^\\d]", "")));
-        newRoute.setAdditionalFarePerBand(Double.parseDouble(edAddl.getText().toString()));
-        newRoute.setAssignedTransport(spinnerTransport.getSelectedItem().toString());
-        newRoute.setStatus(spinnerStatus.getSelectedItem().toString());
+    private int parseInt(String s) {
+        try { return Integer.parseInt(s); } catch (Exception e) { return 0; }
+    }
 
-        FirebaseDatabase.getInstance(DB_URL).getReference("franchise_routes")
-                .child(adminFranchise).child(code).setValue(newRoute)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Route claimed for " + adminFranchise, Toast.LENGTH_SHORT).show();
-                    finish();
+    private void fetchAdminCompany() {
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid == null) return;
+        FirebaseDatabase.getInstance(DB_URL).getReference("admins").child(uid)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot s) {
+                        if (s.exists()) adminFranchise = s.child("company").getValue(String.class);
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError e) {}
                 });
     }
 
-    private void setupSpinners() {
-        spinnerTransport.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{"Bus", "Jeepney"}));
-        spinnerStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{"Active", "Deactive"}));
-    }
-
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        double theta = lon1 - lon2;
-        double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2))
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.cos(Math.toRadians(theta));
-        dist = Math.acos(dist);
-        dist = Math.toDegrees(dist);
-
-        // Convert to Kilometers (using 1.609344 for miles to km)
-        return dist * 60 * 1.1515 * 1.609344;
+    private void loadMasterRoutes() {
+        FirebaseDatabase.getInstance(DB_URL).getReference("routes")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot s) {
+                        masterRouteList.clear();
+                        List<String> codes = new ArrayList<>();
+                        for (DataSnapshot ds : s.getChildren()) {
+                            Route r = ds.getValue(Route.class);
+                            if (r != null && r.getRouteCode() != null) {
+                                masterRouteList.add(r);
+                                codes.add(r.getRouteCode());
+                            }
+                        }
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(AddNewRoute.this, android.R.layout.simple_dropdown_item_1line, codes);
+                        editRouteCode.setAdapter(adapter);
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError e) {}
+                });
     }
 }

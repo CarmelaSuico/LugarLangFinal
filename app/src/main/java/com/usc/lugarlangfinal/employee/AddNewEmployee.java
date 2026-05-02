@@ -2,7 +2,8 @@ package com.usc.lugarlangfinal.employee;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -19,7 +20,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.usc.lugarlangfinal.AdminDashboard;
 import com.usc.lugarlangfinal.R;
@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class AddNewEmployee extends AppCompatActivity {
 
-    // Material 3 UI Components
+    // UI Components
     private AutoCompleteTextView editEmployeeID, spinnerRole, spinnerUnit, spinnerStatus;
     private TextInputEditText editFulName, editEmail, editLicense, editContact, editAddress, editDefaultPassword, editFranchise;
     private Button btnAdd;
@@ -55,15 +55,29 @@ public class AddNewEmployee extends AppCompatActivity {
         setupSpinners();
         fetchAdminFranchiseAndSyncIDs();
 
-        // Listen for ID selection to auto-fill deactive data
+        // 1. Navbar State
+        btnAddnewEmployee.setSelected(true);
+
+        // 2. ID Selection Listener
         editEmployeeID.setOnItemClickListener((parent, view, position, id) -> {
             String selectedID = (String) parent.getItemAtPosition(position);
             autoFillForm(selectedID);
         });
 
+        // 3. Save Button Listener
         btnAdd.setOnClickListener(v -> saveOrUpdateEmployee());
-        btnBack.setOnClickListener(v -> finish());
-        btnEmployeeDashboard.setOnClickListener(v -> finish());
+
+        // 4. Navigation Listeners
+        btnBack.setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminDashboard.class));
+            finish();
+        });
+
+        btnEmployeeDashboard.setOnClickListener(v -> {
+            // Adjust this if your management activity is named differently
+            startActivity(new Intent(this, EmployeeManagement.class));
+            finish();
+        });
     }
 
     private void initViews() {
@@ -84,12 +98,14 @@ public class AddNewEmployee extends AppCompatActivity {
         btnAddnewEmployee = findViewById(R.id.btnaddnewemployee);
         btnBack = findViewById(R.id.btnback);
 
-        editFranchise.setEnabled(false); // Locked to Admin's company
-        btnAddnewEmployee.setSelected(true);
+        editFranchise.setEnabled(false);
     }
 
     private void setupSpinners() {
-        spinnerStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new String[]{"Active", "Deactive"}));
+        String[] statusArr = {"Active", "Deactive"};
+        spinnerStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, statusArr));
+        spinnerStatus.setText(statusArr[0], false); // Default to Active
+
         spinnerRole.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new String[]{"Driver", "Conductor"}));
         spinnerUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new String[]{"None", "Bus", "Jeepney"}));
     }
@@ -102,10 +118,12 @@ public class AddNewEmployee extends AppCompatActivity {
         adminRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                adminFranchise = snapshot.child("company").getValue(String.class);
-                if (adminFranchise != null) {
-                    editFranchise.setText(adminFranchise);
-                    loadDeactiveOrNewSuggestions(adminFranchise);
+                if (snapshot.exists()) {
+                    adminFranchise = snapshot.child("company").getValue(String.class);
+                    if (adminFranchise != null) {
+                        editFranchise.setText(adminFranchise);
+                        loadDeactiveOrNewSuggestions(adminFranchise);
+                    }
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
@@ -114,7 +132,6 @@ public class AddNewEmployee extends AppCompatActivity {
 
     private void loadDeactiveOrNewSuggestions(String franchise) {
         DatabaseReference empRef = FirebaseDatabase.getInstance(DB_URL).getReference("employee");
-        // Query by Franchise (PascalCase 'Franchise' as per your Model)
         empRef.orderByChild("Franchise").equalTo(franchise).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -124,8 +141,8 @@ public class AddNewEmployee extends AppCompatActivity {
                     Employee emp = ds.getValue(Employee.class);
                     if (emp != null) {
                         String status = emp.getStatus();
-                        // ONLY show if status is Deactive, Inactive, or null (New)
-                        if (status == null || status.isEmpty() || status.equalsIgnoreCase("Deactive") || status.equalsIgnoreCase("Inactive")) {
+                        // Suggest only deactive or fresh entries for reactivation/re-registration
+                        if (status == null || status.equalsIgnoreCase("Deactive") || status.equalsIgnoreCase("Inactive")) {
                             fullEmployeeList.add(emp);
                             idSuggestions.add(emp.getId());
                         }
@@ -147,7 +164,7 @@ public class AddNewEmployee extends AppCompatActivity {
                 editContact.setText(emp.getContactNumber());
                 editAddress.setText(emp.getAddress());
                 spinnerRole.setText(emp.getRole(), false);
-                spinnerStatus.setText("Active", false); // Default to Active for reactivation
+                spinnerStatus.setText("Active", false);
                 editDefaultPassword.setText(emp.getPassword());
                 btnAdd.setText("Reactivate Employee");
                 break;
@@ -161,29 +178,31 @@ public class AddNewEmployee extends AppCompatActivity {
         String password = editDefaultPassword.getText().toString().trim();
         String role = spinnerRole.getText().toString();
 
-        if (id.isEmpty() || email.isEmpty() || role.isEmpty()) {
-            Toast.makeText(this, "Required fields are missing!", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(id) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Check if employee already exists in our local sync list
         Employee existing = null;
-        for (Employee e : fullEmployeeList) { if (e.getId().equals(id)) { existing = e; break; } }
+        for (Employee e : fullEmployeeList) {
+            if (e.getId().equals(id)) {
+                existing = e;
+                break;
+            }
+        }
 
-        if (existing != null && existing.getAuthUID() != null) {
-            // Already has an Auth account, just update database
+        if (existing != null && existing.getAuthUID() != null && !existing.getAuthUID().isEmpty()) {
             updateFirebaseData(id, existing.getAuthUID(), "Employee Reactivated!");
         } else {
-            // New employee, create Auth account first
             if (password.length() < 6) {
-                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Password too short!", Toast.LENGTH_SHORT).show();
                 return;
             }
             mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     updateFirebaseData(id, task.getResult().getUser().getUid(), "Employee Registered!");
                 } else {
-                    Toast.makeText(this, "Auth Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -193,25 +212,30 @@ public class AddNewEmployee extends AppCompatActivity {
         DatabaseReference root = FirebaseDatabase.getInstance(DB_URL).getReference();
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put("name", editFulName.getText().toString());
-        updates.put("email", editEmail.getText().toString());
+        updates.put("name", editFulName.getText().toString().trim());
+        updates.put("email", editEmail.getText().toString().trim());
         updates.put("role", spinnerRole.getText().toString());
         updates.put("status", spinnerStatus.getText().toString());
+        updates.put("licenseNumber", editLicense.getText().toString().trim());
+        updates.put("contactNumber", editContact.getText().toString().trim());
+        updates.put("address", editAddress.getText().toString().trim());
         updates.put("AssignedUnit", spinnerUnit.getText().toString());
         updates.put("Franchise", adminFranchise);
         updates.put("password", editDefaultPassword.getText().toString());
         updates.put("authUID", authUID);
+        updates.put("id", empID);
 
         root.child("employee").child(empID).updateChildren(updates).addOnSuccessListener(aVoid -> {
-            // Update role-specific node (drivers/conductors)
             String rolePath = spinnerRole.getText().toString().toLowerCase() + "s";
             Map<String, Object> roleMap = new HashMap<>();
-            roleMap.put("name", editFulName.getText().toString());
+            roleMap.put("name", editFulName.getText().toString().trim());
             roleMap.put("company", adminFranchise);
-            root.child(rolePath).child(authUID).updateChildren(roleMap);
+            roleMap.put("id", empID);
 
-            Toast.makeText(this, successMsg, Toast.LENGTH_SHORT).show();
-            finish();
+            root.child(rolePath).child(authUID).updateChildren(roleMap).addOnSuccessListener(unused -> {
+                Toast.makeText(this, successMsg, Toast.LENGTH_SHORT).show();
+                finish();
+            });
         });
     }
 }

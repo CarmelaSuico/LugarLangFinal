@@ -58,8 +58,9 @@
                 android:orientation="vertical"
                 android:padding="24dp">
 
+                <!-- Route Code - Changed to AutoCompleteTextView -->
                 <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Route Code"
@@ -68,13 +69,14 @@
                     app:boxStrokeColor="@color/primaryAesthetic"
                     app:hintTextColor="@color/primaryAesthetic"
                     android:layout_marginBottom="16dp">
-                    <com.google.android.material.textfield.TextInputEditText
+                    <AutoCompleteTextView
                         android:id="@+id/editroutecode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Terminal 1 -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -89,6 +91,7 @@
                         android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Landmarks Header -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -114,6 +117,7 @@
                         android:backgroundTint="@color/primaryLightAesthetic" />
                 </LinearLayout>
 
+                <!-- Terminal 2 -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
@@ -128,12 +132,14 @@
                         android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Assigned Transport & Distance -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:baselineAligned="false">
 
+                    <!-- SPINNER: Assigned Transport -->
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="0dp"
@@ -141,12 +147,15 @@
                         android:layout_weight="1"
                         android:hint="Assigned Transport"
                         android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="16dp">
+                        android:layout_marginBottom="16dp"
+                        app:boxStrokeColor="@color/primaryAesthetic"
+                        app:hintTextColor="@color/primaryAesthetic">
                         <AutoCompleteTextView
                             android:id="@+id/spinnerassignedtranport"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="none" />
+                            android:inputType="none"
+                            android:padding="16dp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -165,6 +174,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
+                <!-- Fare Details -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -215,17 +225,21 @@
                         android:inputType="numberDecimal" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- SPINNER: Status -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Status"
-                    android:layout_marginBottom="24dp">
+                    android:layout_marginBottom="24dp"
+                    app:boxStrokeColor="@color/primaryAesthetic"
+                    app:hintTextColor="@color/primaryAesthetic">
                     <AutoCompleteTextView
                         android:id="@+id/spinnerStatus"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="none" />
+                        android:inputType="none"
+                        android:padding="16dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton

@@ -2,13 +2,16 @@ package com.usc.lugarlangfinal.route;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -18,15 +21,17 @@ import com.google.firebase.database.ValueEventListener;
 import com.usc.lugarlangfinal.R;
 import com.usc.lugarlangfinal.models.Route;
 
+import java.util.Locale;
+
 public class RouteMoreDetails extends AppCompatActivity {
 
     // UI Elements
     private TextView tvRouteCode, tvStatus, tvTerminal1, tvTerminal2, tvDistance;
     private TextView tvTransport, tvBaseFare, tvDistanceBand, tvAdditionalFare;
-    private ImageButton btnBack, btnEdit;
+    private ImageButton btnBack;
+    private MaterialButton btnEdit; // Changed from ImageButton to MaterialButton
 
     // Firebase
-    private DatabaseReference routeRef;
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     private String selectedRouteCode;
@@ -40,17 +45,17 @@ public class RouteMoreDetails extends AppCompatActivity {
         // 1. Initialize Views
         initViews();
 
-        // 2. Get Data from Intent (Passed from RouteManagement)
+        // 2. Get Data from Intent
         selectedRouteCode = getIntent().getStringExtra("ROUTE_CODE");
-        adminFranchise = getIntent().getStringExtra("COMPANY"); // Optional: if passed via intent
+        adminFranchise = getIntent().getStringExtra("COMPANY");
 
         if (selectedRouteCode == null) {
-            Toast.makeText(this, "Error: Route code not found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: Route code missing", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        // 3. Load Data from Firebase
+        // 3. Load Data logic
         if (adminFranchise == null || adminFranchise.isEmpty()) {
             fetchAdminFranchiseAndLoadData();
         } else {
@@ -61,9 +66,9 @@ public class RouteMoreDetails extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
 
         btnEdit.setOnClickListener(v -> {
-            // Logic to go to an Edit Page (pass the current route details)
             Intent intent = new Intent(RouteMoreDetails.this, EditRoute.class);
             intent.putExtra("ROUTE_CODE", selectedRouteCode);
+            intent.putExtra("COMPANY", adminFranchise);
             startActivity(intent);
         });
     }
@@ -77,15 +82,18 @@ public class RouteMoreDetails extends AppCompatActivity {
         tvDistance = findViewById(R.id.tvDetailDistance);
 
         tvTransport = findViewById(R.id.tvAssignedTransport);
-        tvBaseFare = findViewById(R.id.tvBasefar);
+        tvBaseFare = findViewById(R.id.tvBaseFare);
         tvDistanceBand = findViewById(R.id.tvDistanceBand);
-        tvAdditionalFare = findViewById(R.id.tvAddtionalFareperBand);
+        tvAdditionalFare = findViewById(R.id.tvAdditionalFare);
 
-        btnEdit = findViewById(R.id.imgedit);
+        btnEdit = findViewById(R.id.btnEditRoute); // Matches the MaterialButton ID in your XML
     }
 
     private void fetchAdminFranchiseAndLoadData() {
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) return;
+
+        String uid = auth.getCurrentUser().getUid();
         DatabaseReference adminRef = FirebaseDatabase.getInstance(DB_URL).getReference("admins").child(uid);
 
         adminRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -93,46 +101,58 @@ public class RouteMoreDetails extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     adminFranchise = snapshot.child("company").getValue(String.class);
-                    loadRouteDetails(adminFranchise, selectedRouteCode);
+                    if (adminFranchise != null) {
+                        loadRouteDetails(adminFranchise, selectedRouteCode);
+                    }
                 }
             }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("RouteMoreDetails", "Database error: " + error.getMessage());
+            }
         });
     }
 
     private void loadRouteDetails(String franchise, String routeCode) {
-        routeRef = FirebaseDatabase.getInstance(DB_URL)
+        DatabaseReference routeRef = FirebaseDatabase.getInstance(DB_URL)
                 .getReference("franchise_routes")
                 .child(franchise)
                 .child(routeCode);
 
+        // addValueEventListener keeps the UI updated if data changes in the DB
         routeRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Route route = snapshot.getValue(Route.class);
-                if (route != null) {
-                    displayData(route);
+                if (snapshot.exists()) {
+                    Route route = snapshot.getValue(Route.class);
+                    if (route != null) {
+                        displayData(route);
+                    }
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(RouteMoreDetails.this, "Failed to load details", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RouteMoreDetails.this, "Failed to load route details", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void displayData(Route route) {
-        tvRouteCode.setText(route.getRouteCode());
-        tvStatus.setText("Status: " + route.getStatus());
-        tvTerminal1.setText("Terminal 1 (Starting Point): " + route.getTerminal1());
-        tvTerminal2.setText("Terminal 2 (Ending Point): " + route.getTerminal2());
-        tvDistance.setText(String.format("Distance: %.2f km", route.getDistance()));
+        tvRouteCode.setText(route.getRouteCode() != null ? route.getRouteCode() : "N/A");
+        tvStatus.setText(route.getStatus() != null ? route.getStatus() : "N/A");
+        tvTerminal1.setText(route.getTerminal1() != null ? route.getTerminal1() : "N/A");
+        tvTerminal2.setText(route.getTerminal2() != null ? route.getTerminal2() : "N/A");
 
-        tvTransport.setText("Assigned Transportation: " + route.getAssignedTransport());
-        tvBaseFare.setText(String.format("Base Fare: ₱%.2f", route.getBaseFare()));
-        tvDistanceBand.setText("Distance Band: " + route.getDistanceBands() + " km");
-        tvAdditionalFare.setText(String.format("Additional Fare Per Band: ₱%.2f", route.getAdditionalFarePerBand()));
+        tvDistance.setText(String.format(Locale.getDefault(), "%.2f KM", route.getDistance()));
+        tvTransport.setText(route.getAssignedTransport() != null ? route.getAssignedTransport() : "N/A");
+        tvBaseFare.setText(String.format(Locale.getDefault(), "₱%.2f", route.getBaseFare()));
+        tvDistanceBand.setText(String.format(Locale.getDefault(), "%d KM", route.getDistanceBands()));
+        tvAdditionalFare.setText(String.format(Locale.getDefault(), "₱%.2f", route.getAdditionalFarePerBand()));
+
+        // Set status color aesthetic
+        if ("Active".equalsIgnoreCase(route.getStatus())) {
+            tvStatus.setTextColor(ContextCompat.getColor(this, R.color.primaryAesthetic));
+        } else {
+            tvStatus.setTextColor(ContextCompat.getColor(this, R.color.textSecondary));
+        }
     }
 }

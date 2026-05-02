@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -48,7 +49,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingBottom="100dp">
+            android:paddingBottom="120dp"> <!-- Increased padding so cards don't hide behind nav -->
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/search_card"
@@ -56,16 +57,18 @@
                 android:layout_height="56dp"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
+                app:cardElevation="6dp"
                 app:strokeWidth="0dp"
                 app:cardBackgroundColor="@color/white">
+
                 <androidx.appcompat.widget.SearchView
                     android:id="@+id/searchRoute"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:iconifiedByDefault="false"
-                    app:queryHint="Search route..."
-                    app:queryBackground="@android:color/transparent" />
+                    app:queryHint="Search route code or terminal..."
+                    app:queryBackground="@android:color/transparent"
+                    app:searchIcon="@drawable/reorder_24px" />
             </com.google.android.material.card.MaterialCardView>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -78,6 +81,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Bottom Navigation Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/nav_botton"
         android:layout_width="match_parent"
@@ -89,7 +93,9 @@
         app:cardElevation="12dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="@color/white">
+
         <include layout="@layout/route_nav_bottons"/>
+
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

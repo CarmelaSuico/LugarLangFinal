@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import com.usc.lugarlangfinal.AdminDashboard;
 import com.usc.lugarlangfinal.R;
 import com.usc.lugarlangfinal.adapters.EmployeeAdapter;
 import com.usc.lugarlangfinal.models.Employee;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class EmployeeManagement extends AppCompatActivity {
 
-    private LinearLayout btnAddnewEmployee, btnBack;
+    private LinearLayout btnAddnewEmployee, btnBack, BtnEmployeeDashboard;
     private RecyclerView rvEmployeeList;
     private EmployeeAdapter employeeAdapter;
     private List<Employee> employeeList;
@@ -47,20 +48,24 @@ public class EmployeeManagement extends AppCompatActivity {
         employeeList = new ArrayList<>();
         filteredList = new ArrayList<>();
 
-        // Initialize adapter with the filtered list for searching
+        // Initialize adapter
         employeeAdapter = new EmployeeAdapter(filteredList);
         rvEmployeeList.setLayoutManager(new LinearLayoutManager(this));
         rvEmployeeList.setAdapter(employeeAdapter);
 
         setupSearch();
-
-        // Start fetching data
         getAdminFranchiseAndLoadEmployees();
 
-        // Navigation Listeners
-        btnBack.setOnClickListener(v -> finish());
-        btnAddnewEmployee.setOnClickListener(v ->
-                startActivity(new Intent(this, AddNewEmployee.class)));
+        // 1. Set Navigation State
+        BtnEmployeeDashboard.setSelected(true);
+
+        // 2. Navigation Listeners
+        btnBack.setOnClickListener(v -> finish()); // Clean back navigation
+
+        btnAddnewEmployee.setOnClickListener(v -> {
+            startActivity(new Intent(this, AddNewEmployee.class));
+            // Don't finish here, so user can press 'back' to return to list
+        });
     }
 
     private void initViews() {
@@ -68,6 +73,7 @@ public class EmployeeManagement extends AppCompatActivity {
         btnBack = findViewById(R.id.btnback);
         rvEmployeeList = findViewById(R.id.rvEmployeeList);
         searchEmployee = findViewById(R.id.searchEmployee);
+        BtnEmployeeDashboard = findViewById(R.id.btnemployeedashboard);
     }
 
     private void setupSearch() {
@@ -86,14 +92,13 @@ public class EmployeeManagement extends AppCompatActivity {
     private void getAdminFranchiseAndLoadEmployees() {
         String uid = FirebaseAuth.getInstance().getUid();
         if (uid == null) {
-            Toast.makeText(this, "Session expired. Please log in again.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Session expired.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         DatabaseReference adminRef = FirebaseDatabase.getInstance(DB_URL)
                 .getReference("admins").child(uid);
 
-        // Listen for the Admin's franchise (e.g., "Sugbu Transit")
         adminRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -113,17 +118,17 @@ public class EmployeeManagement extends AppCompatActivity {
     private void loadAdminAuthorizedEmployees(String adminFranchise) {
         DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("employee");
 
-        // Change "franchise" to "Franchise" to match your Database/Model keys
+        // Query by "Franchise" key as defined in your Model/Database
         ref.orderByChild("Franchise").equalTo(adminFranchise)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Log.d("Firebase", "Employees found: " + snapshot.getChildrenCount()); // Debug log
                         employeeList.clear();
                         for (DataSnapshot ds : snapshot.getChildren()) {
                             Employee emp = ds.getValue(Employee.class);
 
-                            // Strict Status Filter (matches lowercase @PropertyName("status"))
+                            // Optional: If you want to show ALL employees (Active & Deactive),
+                            // remove the getStatus().equalsIgnoreCase check.
                             if (emp != null && emp.getStatus() != null &&
                                     emp.getStatus().equalsIgnoreCase("Active")) {
                                 employeeList.add(emp);
@@ -149,13 +154,11 @@ public class EmployeeManagement extends AppCompatActivity {
                 String name = item.getName() != null ? item.getName().toLowerCase() : "";
                 String id = item.getId() != null ? item.getId().toLowerCase() : "";
 
-                // Search by Name or ID
                 if (name.contains(query) || id.contains(query)) {
                     filteredList.add(item);
                 }
             }
         }
-        // Update the RecyclerView
         employeeAdapter.notifyDataSetChanged();
     }
 }

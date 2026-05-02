@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -100,20 +101,24 @@
                         android:textAllCaps="true"
                         android:layout_marginBottom="24dp"/>
 
-                    <LinearLayout android:orientation="vertical" android:layout_marginBottom="20dp">
+                    <!-- Origin -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="20dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 1 (Starting Point)" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
                         <TextView android:id="@+id/tvDetailTerminal1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="South Terminal" android:textColor="@color/textDark" android:textSize="16sp" android:fontFamily="sans-serif-medium"/>
                     </LinearLayout>
 
-                    <LinearLayout android:orientation="vertical" android:layout_marginBottom="20dp">
+                    <!-- Destination -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="20dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 2 (Ending Point)" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
                         <TextView android:id="@+id/tvDetailTerminal2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="North Terminal" android:textColor="@color/textDark" android:textSize="16sp" android:fontFamily="sans-serif-medium"/>
                     </LinearLayout>
 
-                    <LinearLayout android:orientation="vertical" android:layout_marginBottom="20dp">
+                    <!-- Distance -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="20dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Distance" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
                         <TextView android:id="@+id/tvDetailDistance" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15.5 KM" android:textColor="@color/textDark" android:textSize="16sp" android:fontFamily="sans-serif-medium"/>
                     </LinearLayout>
+
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A000000" android:layout_marginBottom="24dp"/>
 
@@ -127,7 +132,7 @@
                         android:textAllCaps="true"
                         android:layout_marginBottom="20dp"/>
 
-                    <LinearLayout android:orientation="vertical" android:layout_marginBottom="16dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assigned Transportation" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
                         <TextView android:id="@+id/tvAssignedTransport" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vehicle Code" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
                     </LinearLayout>
@@ -139,7 +144,7 @@
                         android:baselineAligned="false">
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Base Fare" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
-                            <TextView android:id="@+id/tvBasefar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₱15.00" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                            <TextView android:id="@+id/tvBaseFare" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₱15.00" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dist. Band" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
@@ -147,13 +152,13 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <LinearLayout android:orientation="vertical" android:layout_marginTop="16dp" android:layout_marginBottom="32dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="16dp" android:layout_marginBottom="32dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Additional Fare per Band" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
-                        <TextView android:id="@+id/tvAddtionalFareperBand" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₱2.50" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                        <TextView android:id="@+id/tvAdditionalFare" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₱2.50" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/imgedit"
+                        android:id="@+id/btnEditRoute"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:text="Edit Route Info"
