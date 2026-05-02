@@ -2,16 +2,16 @@ package com.usc.lugarlangfinal.employee;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,8 +25,9 @@ import java.util.Map;
 
 public class EditEmployee extends AppCompatActivity {
 
-    private EditText editEmployeeID, editFulName, editEmail, editLicense, editContact, editAddress, editFranchise;
-    private Spinner spinnerRole, spinnerUnit, spinnerStatus;
+    private AutoCompleteTextView editEmployeeID;
+    private TextInputEditText editFulName, editEmail, editLicense, editContact, editAddress, editFranchise;
+    private AutoCompleteTextView spinnerRole, spinnerUnit, spinnerStatus;
     private Button btnSaveEdit;
     private ImageButton btnBack;
 
@@ -58,6 +59,7 @@ public class EditEmployee extends AppCompatActivity {
     }
 
     private void initViews() {
+        // Matching IDs and Material 3 components from activity_edit_employee.xml
         editEmployeeID = findViewById(R.id.editEmployeeID);
         editFulName = findViewById(R.id.edfullname);
         editEmail = findViewById(R.id.editEmail);
@@ -66,6 +68,7 @@ public class EditEmployee extends AppCompatActivity {
         editAddress = findViewById(R.id.editAddress);
         editFranchise = findViewById(R.id.edfranchise);
 
+        // Lock fields that shouldn't be edited here
         editEmployeeID.setEnabled(false);
         editFranchise.setEnabled(false);
 
@@ -83,7 +86,8 @@ public class EditEmployee extends AppCompatActivity {
                 if(snapshot.exists()){
                     Employee employee = snapshot.getValue(Employee.class);
                     if(employee != null){
-                        editEmployeeID.setText(employee.getId());
+                        // Use setText(text, false) for AutoCompleteTextView to avoid dropdown popups
+                        editEmployeeID.setText(employee.getId(), false);
                         editFulName.setText(employee.getName());
                         editEmail.setText(employee.getEmail());
                         editLicense.setText(employee.getLicenseNumber());
@@ -91,9 +95,9 @@ public class EditEmployee extends AppCompatActivity {
                         editAddress.setText(employee.getAddress());
                         editFranchise.setText(employee.getFranchise());
 
-                        setSpinnerSelection(spinnerRole, employee.getRole());
-                        setSpinnerSelection(spinnerUnit, employee.getAssignedUnit());
-                        setSpinnerSelection(spinnerStatus, employee.getStatus());
+                        spinnerRole.setText(employee.getRole(), false);
+                        spinnerUnit.setText(employee.getAssignedUnit(), false);
+                        spinnerStatus.setText(employee.getStatus(), false);
                     }
                 }
             }
@@ -115,9 +119,9 @@ public class EditEmployee extends AppCompatActivity {
         updates.put("licenseNumber", editLicense.getText().toString().trim());
         updates.put("contactNumber", editContact.getText().toString().trim());
         updates.put("address", editAddress.getText().toString().trim());
-        updates.put("role", spinnerRole.getSelectedItem().toString());
-        updates.put("AssignedUnit", spinnerUnit.getSelectedItem().toString());
-        updates.put("status", spinnerStatus.getSelectedItem().toString());
+        updates.put("role", spinnerRole.getText().toString());
+        updates.put("AssignedUnit", spinnerUnit.getText().toString());
+        updates.put("status", spinnerStatus.getText().toString());
 
         ref.updateChildren(updates).addOnSuccessListener(aVoid -> {
             Toast.makeText(this, "Employee updated successfully!", Toast.LENGTH_SHORT).show();
@@ -128,25 +132,15 @@ public class EditEmployee extends AppCompatActivity {
     }
 
     private void setupSpinners() {
+        // Updated to use ArrayAdapter with AutoCompleteTextView for Material 3 dropdowns
         String[] statusOptions = {"Active", "Deactive"};
-        spinnerStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, statusOptions));
+        spinnerStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, statusOptions));
 
         String[] roles = {"Driver", "Conductor", "Admin"};
-        spinnerRole.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, roles));
+        spinnerRole.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, roles));
 
         String[] units = {"Office", "Bus", "Jeepney"};
-        spinnerUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, units));
-    }
-
-    private void setSpinnerSelection(Spinner spinner, String value) {
-        if (value == null) return;
-        ArrayAdapter adapter = (ArrayAdapter) spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equalsIgnoreCase(value)) {
-                spinner.setSelection(i);
-                break;
-            }
-        }
+        spinnerUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, units));
     }
 
     private void showErrorDialog(String title, String message) {

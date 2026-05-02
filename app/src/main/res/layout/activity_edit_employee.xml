@@ -77,7 +77,8 @@
                     app:boxStrokeColor="@color/primaryAesthetic"
                     app:hintTextColor="@color/primaryAesthetic"
                     android:layout_marginBottom="16dp">
-                    <com.google.android.material.textfield.TextInputEditText
+
+                    <AutoCompleteTextView
                         android:id="@+id/editEmployeeID"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

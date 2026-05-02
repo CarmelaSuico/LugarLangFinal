@@ -87,16 +87,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Staff &amp; Workforce"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-bold"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Employee\nManagement"
                         android:textColor="@color/textDark"
@@ -138,16 +128,6 @@
                         app:tint="@color/primaryLightAesthetic"
                         android:layout_alignParentEnd="true"
                         android:alpha="0.2"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Logistics &amp; Paths"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-bold"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -197,16 +177,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Fleet &amp; Units"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-bold"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Transportation\nManagement"
                         android:textColor="@color/textDark"
@@ -248,16 +218,6 @@
                         app:tint="@color/primaryLightAesthetic"
                         android:layout_alignParentEnd="true"
                         android:alpha="0.2"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Revenue &amp; Sales"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-bold"
-                        android:textAllCaps="true"
-                        android:letterSpacing="0.1"/>
 
                     <TextView
                         android:layout_width="wrap_content"

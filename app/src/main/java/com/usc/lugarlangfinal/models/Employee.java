@@ -4,7 +4,7 @@ import com.google.firebase.database.PropertyName;
 
 public class Employee {
     private String id, name, role, AssignedUnit, Franchise, status; // Match JSON keys
-    private String email, licenseNumber, contactNumber, address, password;
+    private String email, licenseNumber, contactNumber, address, password, authUID;
 
     public Employee() {}
 
@@ -31,6 +31,8 @@ public class Employee {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
+    public String getAuthUID() { return authUID; }
+    public void setAuthUID(String authUID) { this.authUID = authUID; }
     public String getLicenseNumber() { return licenseNumber; }
     public void setLicenseNumber(String licenseNumber) { this.licenseNumber = licenseNumber; }
 

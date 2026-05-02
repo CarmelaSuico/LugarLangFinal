@@ -16,126 +16,140 @@
         android:src="@drawable/city_bg"
         android:alpha="0.2" />
 
-    <com.google.android.material.card.MaterialCardView
+    <!-- ScrollView ensures content moves up when the keyboard appears -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="32dp"
-        app:cardCornerRadius="32dp"
-        app:cardElevation="16dp"
-        app:strokeWidth="0dp"
-        app:cardBackgroundColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/footerText">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="32dp"
-            android:gravity="center_horizontal">
+            android:gravity="center"
+            android:padding="32dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:padding="16dp"
-                android:background="@color/primaryLightAesthetic"
-                android:src="@drawable/bus_railway_24px"
-                app:tint="@color/primaryAesthetic"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                android:layout_marginBottom="24dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LugarLang"
-                android:textColor="@color/primaryAesthetic"
-                android:textSize="32sp"
-                android:fontFamily="sans-serif-black"
-                android:letterSpacing="-0.02" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Transport Management System"
-                android:textColor="@color/textSecondary"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif-medium" />
-
-            <!-- Username Field -->
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:hint="Username"
-                app:boxBackgroundColor="#F1F5F9"
-                app:boxStrokeWidth="0dp"
-                app:boxStrokeWidthFocused="0dp"
-                app:startIconDrawable="@drawable/person_24px"
-                app:startIconTint="@color/primaryAesthetic"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Large">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edusername"
+                app:cardCornerRadius="32dp"
+                app:cardElevation="16dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/textDark"
-                    android:inputType="text"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="32dp"
+                    android:gravity="center_horizontal">
 
-            <!-- Password Field -->
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.FilledBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Password"
-                app:boxBackgroundColor="#F1F5F9"
-                app:boxStrokeWidth="0dp"
-                app:boxStrokeWidthFocused="0dp"
-                app:passwordToggleEnabled="true"
-                app:startIconDrawable="@drawable/settings_24px"
-                app:startIconTint="@color/primaryAesthetic"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Large">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edpassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/textDark"
-                    android:inputType="textPassword"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:padding="16dp"
+                        android:background="@color/primaryLightAesthetic"
+                        android:src="@drawable/bus_railway_24px"
+                        app:tint="@color/primaryAesthetic"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                        android:layout_marginBottom="24dp"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnlogin"
-                android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:layout_marginTop="32dp"
-                android:text="Sign In"
-                android:textColor="@color/white"
-                android:backgroundTint="@color/primaryAesthetic"
-                android:fontFamily="sans-serif-black"
-                android:textSize="16sp"
-                app:cornerRadius="16dp"
-                app:elevation="4dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LugarLang"
+                        android:textColor="@color/primaryAesthetic"
+                        android:textSize="32sp"
+                        android:fontFamily="sans-serif-black"
+                        android:letterSpacing="-0.02" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Forgot Access Details?"
-                android:textColor="@color/primaryAesthetic"
-                android:textSize="14sp"
-                android:fontFamily="sans-serif-medium" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Transport Management System"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif-medium" />
 
+                    <!-- Username Field -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="40dp"
+                        android:hint="Username"
+                        app:boxBackgroundColor="#F1F5F9"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="0dp"
+                        app:startIconDrawable="@drawable/person_24px"
+                        app:startIconTint="@color/primaryAesthetic"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Large">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edusername"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textDark"
+                            android:inputType="text"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Password Field -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="Password"
+                        app:boxBackgroundColor="#F1F5F9"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="0dp"
+                        app:passwordToggleEnabled="true"
+                        app:startIconDrawable="@drawable/lock_24px"
+                        app:startIconTint="@color/primaryAesthetic"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Large">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edpassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textDark"
+                            android:inputType="textPassword"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnlogin"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:layout_marginTop="32dp"
+                        android:text="Log In"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/primaryAesthetic"
+                        android:fontFamily="sans-serif-black"
+                        android:textSize="16sp"
+                        app:cornerRadius="16dp"
+                        app:elevation="4dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="Forgot Access Details?"
+                        android:textColor="@color/primaryAesthetic"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </ScrollView>
 
     <TextView
+        android:id="@+id/footerText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="POWERED BY LUGRALANG TECH"
+        android:text="POWERED BY LUGARLANG TECH"
         android:textColor="@color/textSecondary"
         android:textSize="10sp"
         android:letterSpacing="0.2"

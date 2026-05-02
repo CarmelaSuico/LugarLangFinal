@@ -13,7 +13,7 @@
 
         <!--        Route Dashboard-->
         <LinearLayout
-            android:id="@+id/btnroutedashboard"
+            android:id="@+id/btndriverorconddashoard"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -65,7 +65,7 @@
 
         <!--        Back to Admin Dashboard-->
         <LinearLayout
-            android:id="@+id/btnback"
+            android:id="@+id/btnseeting"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

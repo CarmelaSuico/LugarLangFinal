@@ -46,16 +46,18 @@ public class EmployeeManagement extends AppCompatActivity {
 
         employeeList = new ArrayList<>();
         filteredList = new ArrayList<>();
-        employeeAdapter = new EmployeeAdapter(filteredList);
 
+        // Initialize adapter with the filtered list for searching
+        employeeAdapter = new EmployeeAdapter(filteredList);
         rvEmployeeList.setLayoutManager(new LinearLayoutManager(this));
         rvEmployeeList.setAdapter(employeeAdapter);
 
         setupSearch();
 
-        // Start the live listener chain
+        // Start fetching data
         getAdminFranchiseAndLoadEmployees();
 
+        // Navigation Listeners
         btnBack.setOnClickListener(v -> finish());
         btnAddnewEmployee.setOnClickListener(v ->
                 startActivity(new Intent(this, AddNewEmployee.class)));
@@ -83,12 +85,15 @@ public class EmployeeManagement extends AppCompatActivity {
 
     private void getAdminFranchiseAndLoadEmployees() {
         String uid = FirebaseAuth.getInstance().getUid();
-        if (uid == null) return;
+        if (uid == null) {
+            Toast.makeText(this, "Session expired. Please log in again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         DatabaseReference adminRef = FirebaseDatabase.getInstance(DB_URL)
                 .getReference("admins").child(uid);
 
-        // FIXED: Changed to addValueEventListener for LIVE updates
+        // Listen for the Admin's franchise (e.g., "Sugbu Transit")
         adminRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -99,31 +104,38 @@ public class EmployeeManagement extends AppCompatActivity {
                     }
                 }
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Admin fetch failed: " + error.getMessage());
+            }
         });
     }
 
     private void loadAdminAuthorizedEmployees(String adminFranchise) {
         DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("employee");
 
-        // Keep this as addValueEventListener to listen for new employee additions
-        ref.orderByChild("Franchise").equalTo(adminFranchise).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                employeeList.clear();
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    Employee emp = ds.getValue(Employee.class);
+        // Change "franchise" to "Franchise" to match your Database/Model keys
+        ref.orderByChild("Franchise").equalTo(adminFranchise)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Log.d("Firebase", "Employees found: " + snapshot.getChildrenCount()); // Debug log
+                        employeeList.clear();
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            Employee emp = ds.getValue(Employee.class);
 
-                    // STRICT FILTER: Only show "Active" status (lowercase 'status' in model)
-                    if (emp != null && emp.getStatus() != null && emp.getStatus().equalsIgnoreCase("Active")) {
-                        employeeList.add(emp);
+                            // Strict Status Filter (matches lowercase @PropertyName("status"))
+                            if (emp != null && emp.getStatus() != null &&
+                                    emp.getStatus().equalsIgnoreCase("Active")) {
+                                employeeList.add(emp);
+                            }
+                        }
+                        filter(searchEmployee.getQuery().toString());
                     }
-                }
-                filter(searchEmployee.getQuery().toString());
-            }
 
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
-        });
+                    @Override public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("Firebase", "Error: " + error.getMessage());
+                    }
+                });
     }
 
     private void filter(String text) {
@@ -137,11 +149,13 @@ public class EmployeeManagement extends AppCompatActivity {
                 String name = item.getName() != null ? item.getName().toLowerCase() : "";
                 String id = item.getId() != null ? item.getId().toLowerCase() : "";
 
+                // Search by Name or ID
                 if (name.contains(query) || id.contains(query)) {
                     filteredList.add(item);
                 }
             }
         }
+        // Update the RecyclerView
         employeeAdapter.notifyDataSetChanged();
     }
 }
