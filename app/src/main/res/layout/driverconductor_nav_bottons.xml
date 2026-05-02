@@ -11,9 +11,9 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <!--        driver//conductor Dashboard-->
+        <!--        Route Dashboard-->
         <LinearLayout
-            android:id="@+id/btndriverorconddashoard"
+            android:id="@+id/btnroutedashboard"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -65,7 +65,7 @@
 
         <!--        Back to Admin Dashboard-->
         <LinearLayout
-            android:id="@+id/btnseeting"
+            android:id="@+id/btnback"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -76,7 +76,7 @@
             <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/settings_24px"
+                android:src="@drawable/undo_24px"
                 android:background="@drawable/pill_background"
                 app:tint="@color/nav_color"
                 android:duplicateParentState="true"
@@ -84,7 +84,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Setting"
+                android:text="Back"
                 android:textStyle="bold"
                 android:textColor="@color/white"/>
         </LinearLayout>

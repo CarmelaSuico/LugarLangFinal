@@ -1,105 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".route.RouteMoreDetails"
-    android:background="#BAA4B1"
-    android:padding="16dp">
+    android:background="@color/backgroundAesthetic">
 
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_margin="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/arrow_back_24px"
-        android:scaleType="fitCenter"
-        app:tint="@color/black" />
-
-    <LinearLayout
-        android:id="@+id/title_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btnBack"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Route Code:"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/black" />
-
-        <TextView
-            android:id="@+id/tvDetailRouteCode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="100012268"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            android:textColor="@color/black" />
-    </LinearLayout>
-
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title_container"
-        android:layout_margin="20dp"
-        app:cardCornerRadius="15dp"
-        app:cardBackgroundColor="#D9D9D9"
-        app:cardElevation="4dp">
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
         <RelativeLayout
+            android:id="@+id/top_header"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp">
+            android:layout_height="180dp"
+            android:background="@drawable/top_deisgn"
+            android:padding="24dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/arrow_back_24px"
+                app:tint="@color/white" />
 
             <LinearLayout
-                android:id="@+id/details_list"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="16dp">
 
-                <TextView android:id="@+id/tvDetailStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Status: Active" android:textColor="@color/black" android:layout_marginBottom="8dp" android:textStyle="bold"/>
-                <TextView android:id="@+id/tvDetailTerminal1" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Terminal 1 (Starting Point):" android:textColor="@color/black" android:layout_marginBottom="8dp" android:textStyle="bold"/>
-                <TextView android:id="@+id/tvDetailTerminal2" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Terminal 2 (Ending Point):" android:textColor="@color/black" android:layout_marginBottom="8dp" android:textStyle="bold"/>
-                <TextView android:id="@+id/tvDetailDistance" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Distance:" android:textColor="@color/black" android:layout_marginBottom="12dp" android:textStyle="bold"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Route Details"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.1"/>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/black" android:layout_marginBottom="12dp"/>
-
-                <TextView android:id="@+id/tvAssignedTransport" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Assigned Transportation:" android:textColor="@color/black" android:layout_marginBottom="8dp" android:textStyle="bold"/>
-                <TextView android:id="@+id/tvBasefar" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Base Fare:" android:textColor="@color/black" android:layout_marginBottom="8dp" android:textStyle="bold"/>
-                <TextView android:id="@+id/tvDistanceBand" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Distance Band:" android:textColor="@color/black" android:layout_marginBottom="12dp" android:textStyle="bold"/>
-                <TextView android:id="@+id/tvAddtionalFareperBand" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Additional Fare Per Band:" android:textColor="@color/black" android:layout_marginBottom="12dp" android:textStyle="bold"/>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/black" android:layout_marginBottom="20dp"/>
+                <TextView
+                    android:id="@+id/tvDetailRouteCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ROUTE-001"
+                    android:textColor="@color/white"
+                    android:textSize="32sp"
+                    android:fontFamily="sans-serif-black" />
             </LinearLayout>
 
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#999999"
-                app:cardCornerRadius="10dp"
-                android:layout_below="@+id/details_list"
-                android:layout_marginLeft="250dp">
-
-                <ImageButton
-                    android:id="@+id/imgedit"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:backgroundTint="#999999"
-                    app:srcCompat="@drawable/edit_24px" />
-            </androidx.cardview.widget.CardView>
-
-
         </RelativeLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.appbar.AppBarLayout>
 
-</RelativeLayout>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:clipToPadding="false"
+        android:layout_marginTop="-30dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="40dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:id="@+id/tvDetailStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Active"
+                        android:textColor="@color/primaryAesthetic"
+                        android:fontFamily="sans-serif-black"
+                        android:textSize="14sp"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="24dp"/>
+
+                    <LinearLayout android:orientation="vertical" android:layout_marginBottom="20dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 1 (Starting Point)" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvDetailTerminal1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="South Terminal" android:textColor="@color/textDark" android:textSize="16sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:orientation="vertical" android:layout_marginBottom="20dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 2 (Ending Point)" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvDetailTerminal2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="North Terminal" android:textColor="@color/textDark" android:textSize="16sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:orientation="vertical" android:layout_marginBottom="20dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Distance" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvDetailDistance" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15.5 KM" android:textColor="@color/textDark" android:textSize="16sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A000000" android:layout_marginBottom="24dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fare &amp; Logistics"
+                        android:textColor="@color/primaryAesthetic"
+                        android:fontFamily="sans-serif-black"
+                        android:textSize="12sp"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="20dp"/>
+
+                    <LinearLayout android:orientation="vertical" android:layout_marginBottom="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assigned Transportation" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvAssignedTransport" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vehicle Code" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:baselineAligned="false">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Base Fare" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                            <TextView android:id="@+id/tvBasefar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₱15.00" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dist. Band" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                            <TextView android:id="@+id/tvDistanceBand" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5 KM" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout android:orientation="vertical" android:layout_marginTop="16dp" android:layout_marginBottom="32dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Additional Fare per Band" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvAddtionalFareperBand" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₱2.50" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/imgedit"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:text="Edit Route Info"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/primaryAesthetic"
+                        app:icon="@drawable/edit_24px"
+                        app:iconGravity="textStart"
+                        app:cornerRadius="16dp"
+                        app:elevation="4dp"
+                        android:fontFamily="sans-serif-black"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

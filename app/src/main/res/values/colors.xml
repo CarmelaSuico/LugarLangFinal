@@ -2,5 +2,24 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Aesthetic Green Palette -->
+    <color name="primaryAesthetic">#2E7D32</color> <!-- Forest Green -->
+    <color name="primaryLightAesthetic">#E8F5E9</color> <!-- Light Green 50 -->
+    <color name="primaryDark">#1B5E20</color>
+    <color name="accentAesthetic">#4CAF50</color>
+
+    <color name="textDark">#1B2E1D</color> <!-- Dark Forest Tint -->
+    <color name="textSecondary">#64748B</color> <!-- Slate 500 -->
+
+    <color name="backgroundAesthetic">#F8FAFC</color> <!-- Slate 50 -->
+    <color name="cardBackground">#CCFFFFFF</color> <!-- Glass effect -->
+
+    <!-- Maintaining legacy for safety -->
+    <color name="primaryGreen">#2E7D32</color>
+    <color name="primaryLightGreen">#E8F5E9</color>
+    <color name="backgroundGray">#F5F5F5</color>
+
+    <!-- Project Colors -->
     <color name="lugar_lang_blue">#1A73E8</color>
 </resources>

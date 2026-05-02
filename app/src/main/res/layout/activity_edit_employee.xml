@@ -1,122 +1,240 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".employee.EditEmployee"
-    android:background="#BAA4B1"
-    android:padding="16dp">
+    android:background="@color/backgroundAesthetic">
 
-    <LinearLayout
-        android:id="@+id/top_header"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="112dp"
-        android:orientation="horizontal"
-        android:background="@drawable/top_deisgn"
-        android:padding="10dp"
-        android:gravity="center_vertical">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-        <ImageButton
-            android:id="@+id/btnback"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:srcCompat="@drawable/arrow_back_24px"
-            app:tint="@color/white"
-            android:background="@null"
-            android:scaleType="fitCenter"/>
-
-        <TextView
+        <RelativeLayout
+            android:id="@+id/top_header"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Edit Employee"
-            android:textSize="30sp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginEnd="48dp"/>
+            android:layout_height="140dp"
+            android:background="@drawable/top_deisgn"
+            android:padding="24dp">
 
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/btnback"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/arrow_back_24px"
+                app:tint="@color/white" />
 
-    <ScrollView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:fontFamily="sans-serif-black"
+                android:text="Edit\nEmployee"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:lineSpacingExtra="4dp"/>
+
+        </RelativeLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/top_header"
-        android:padding="16dp">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:clipToPadding="false"
+        android:layout_marginTop="-20dp">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="40dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
-            app:cardUseCompatPadding="true">
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/white">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="24dp">
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Employee ID" android:textStyle="bold" android:textColor="@android:color/black"/>
-                <EditText android:id="@+id/editEmployeeID" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="###########" android:inputType="number" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="10dp"/>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Full Name" android:textStyle="bold" android:textColor="@android:color/black"/>
-                        <EditText android:id="@+id/edfullname" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Juan Del La Cruz" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Role" android:textStyle="bold" android:layout_marginTop="10dp" android:textColor="@android:color/black"/>
-                        <Spinner android:id="@+id/spinnerRole" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="10dp"/>
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Franchise" android:textStyle="bold" android:layout_marginTop="10dp" android:textColor="@android:color/black"/>
-                        <EditText android:id="@+id/edfranchise" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Juan Del La Cruz" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assigned Unit" android:textStyle="bold" android:textColor="@android:color/black"/>
-                <Spinner android:id="@+id/spinnerUnit" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="10dp"/>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email Address" android:textStyle="bold" android:textColor="@android:color/black"/>
-                <EditText android:id="@+id/editEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="juan@email.com" android:inputType="textEmailAddress" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="10dp"/>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Driver License No." android:textStyle="bold" android:textColor="@android:color/black"/>
-                        <EditText android:id="@+id/editLicense" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="###########" android:inputType="text" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                    </LinearLayout>
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Contact Info" android:textStyle="bold" android:textColor="@android:color/black"/>
-                        <EditText android:id="@+id/editContact" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="09#########" android:inputType="phone" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                    </LinearLayout>
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Address" android:textStyle="bold" android:layout_marginTop="10dp" android:textColor="@android:color/black"/>
-                <EditText android:id="@+id/editAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Province/City/Barangay" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="10dp"/>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Status" android:textStyle="bold" android:textColor="@android:color/black"/>
-                <Spinner android:id="@+id/spinnerStatus" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="20dp"/>
-
-                <Button
-                    android:id="@+id/btnsaveedit"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Save Edit"
-                    android:backgroundTint="#00BF63"
-                    android:layout_gravity="end"
-                    android:textColor="@color/white" />
+                    android:hint="Employee ID"
+                    app:startIconDrawable="@drawable/person_24px"
+                    app:startIconTint="@color/primaryAesthetic"
+                    app:boxStrokeColor="@color/primaryAesthetic"
+                    app:hintTextColor="@color/primaryAesthetic"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editEmployeeID"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Full Name"
+                    app:boxStrokeColor="@color/primaryAesthetic"
+                    app:hintTextColor="@color/primaryAesthetic"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edfullname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Role"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="16dp">
+                        <AutoCompleteTextView
+                            android:id="@+id/spinnerRole"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Franchise"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="16dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edfranchise"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Assigned Unit"
+                    android:layout_marginBottom="16dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerUnit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email Address"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textEmailAddress" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.2"
+                        android:hint="License No."
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="16dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editLicense"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Contact"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="16dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/editContact"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="phone" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Address"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Status"
+                    android:layout_marginBottom="24dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnsaveedit"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Update Information"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/primaryAesthetic"
+                    android:fontFamily="sans-serif-black"
+                    app:cornerRadius="16dp"
+                    app:elevation="4dp" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </ScrollView>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.core.widget.NestedScrollView>
 
-
-
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

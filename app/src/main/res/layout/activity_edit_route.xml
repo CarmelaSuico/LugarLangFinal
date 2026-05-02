@@ -1,152 +1,255 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".route.EditRoute"
-    android:background="#BAA4B1"
-    android:padding="16dp">
+    android:background="@color/backgroundAesthetic">
 
-    <LinearLayout
-        android:id="@+id/top_header"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="112dp"
-        android:orientation="horizontal"
-        android:background="@drawable/top_deisgn"
-        android:padding="10dp"
-        android:gravity="center_vertical">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-        <ImageButton
-            android:id="@+id/btnback"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:srcCompat="@drawable/arrow_back_24px"
-            app:tint="@color/white"
-            android:background="@null"
-            android:scaleType="fitCenter"/>
-
-        <TextView
+        <RelativeLayout
+            android:id="@+id/top_header"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Edit Route"
-            android:textSize="30sp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginEnd="48dp"/>
+            android:layout_height="140dp"
+            android:background="@drawable/top_deisgn"
+            android:padding="24dp">
 
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/btnback"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/arrow_back_24px"
+                app:tint="@color/white" />
 
-    <ScrollView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:fontFamily="sans-serif-black"
+                android:text="Edit\nRoute"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:lineSpacingExtra="4dp"/>
+
+        </RelativeLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/top_header"
-        android:padding="16dp">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:clipToPadding="false"
+        android:layout_marginTop="-20dp">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="40dp"
+            app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
-            app:cardUseCompatPadding="true">
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/white">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="24dp">
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Route Code" android:textStyle="bold" android:textColor="@android:color/black"/>
-                <AutoCompleteTextView
-                    android:id="@+id/editroutecode"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="########"
-                    android:inputType="text"
-                    android:completionThreshold="1"
-                    android:background="@drawable/edit_text_border"
-                    android:padding="10dp"
-                    android:layout_marginBottom="10dp"/>
+                    android:hint="Route Code"
+                    app:startIconDrawable="@drawable/bus_railway_24px"
+                    app:startIconTint="@color/primaryAesthetic"
+                    app:boxStrokeColor="@color/primaryAesthetic"
+                    app:hintTextColor="@color/primaryAesthetic"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editroutecode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 1" android:textStyle="bold" android:textColor="@android:color/black"/>
-                    <EditText android:id="@+id/edterminal1" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="South terminal" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                </LinearLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Terminal 1 (Origin)"
+                    app:boxStrokeColor="@color/primaryAesthetic"
+                    app:hintTextColor="@color/primaryAesthetic"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edterminal1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="4dp">
+                    android:layout_marginBottom="12dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="Route Landmarks (Stops)"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"/>
+                        android:fontFamily="sans-serif-bold"
+                        android:textColor="@color/textDark"/>
 
-                    <ImageButton
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAddStopField"
+                        style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/add_circle_24px"
-                        app:tint="#00BF63" />
+                        app:icon="@drawable/add_circle_24px"
+                        app:iconTint="@color/primaryAesthetic"
+                        android:backgroundTint="@color/primaryLightAesthetic" />
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 2" android:textStyle="bold" android:textColor="@android:color/black"/>
-                    <EditText android:id="@+id/edterminal2" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="North terminal" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assigned Transport" android:textStyle="bold" android:layout_marginTop="10dp" android:textColor="@android:color/black"/>
-                        <Spinner android:id="@+id/spinnerassignedtranport" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="10dp"/>
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Distance" android:textStyle="bold" android:layout_marginTop="10dp" android:textColor="@android:color/black"/>
-                        <EditText android:id="@+id/eddistance" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="500km" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Base Fare" android:textStyle="bold" android:layout_marginTop="10dp" android:textColor="@android:color/black"/>
-                        <EditText android:id="@+id/edbasefare" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="18.00" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Distance Bands" android:textStyle="bold" android:layout_marginTop="10dp" android:textColor="@android:color/black"/>
-                        <EditText android:id="@+id/eddistancebands" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="5km" android:background="@drawable/edit_text_border" android:padding="10dp"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Additional Fare per Band" android:textStyle="bold" android:layout_marginTop="10dp" android:textColor="@android:color/black"/>
-                <EditText android:id="@+id/edadditionalfare" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="3.00" android:background="@drawable/edit_text_border" android:padding="10dp" android:layout_marginBottom="10dp"/>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Status" android:textStyle="bold" android:textColor="@android:color/black"/>
-                <Spinner android:id="@+id/spinnerStatus" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="20dp"/>
-
-                <Button
-                    android:id="@+id/btneditroute"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Save Edit"
-                    android:backgroundTint="#00BF63"
-                    android:layout_gravity="end"
-                    android:textColor="@color/white" />
+                    android:hint="Terminal 2 (Destination)"
+                    app:boxStrokeColor="@color/primaryAesthetic"
+                    app:hintTextColor="@color/primaryAesthetic"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edterminal2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Assigned Transport"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="16dp">
+                        <AutoCompleteTextView
+                            android:id="@+id/spinnerassignedtranport"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Distance (KM)"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="16dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/eddistance"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Base Fare"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="16dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edbasefare"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Dist. Bands"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="16dp">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/eddistancebands"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Additional Fare per Band"
+                    android:layout_marginBottom="16dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edadditionalfare"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Status"
+                    android:layout_marginBottom="24dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btneditroute"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Update Route Details"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/primaryAesthetic"
+                    android:fontFamily="sans-serif-black"
+                    app:cornerRadius="16dp"
+                    app:elevation="4dp" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </ScrollView>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.core.widget.NestedScrollView>
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
