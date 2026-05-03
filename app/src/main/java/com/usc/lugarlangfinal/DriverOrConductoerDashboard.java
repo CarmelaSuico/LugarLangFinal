@@ -71,6 +71,11 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
             startActivity(intent);
         });
 
+        btnSetting.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingAdminDriCon.class);
+            startActivity(intent);
+        });
+
     }
 
     private void initViews() {

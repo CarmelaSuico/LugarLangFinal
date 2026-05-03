@@ -1,10 +1,12 @@
 package com.usc.lugarlangfinal;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.location.Address;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +29,8 @@ import java.util.Locale;
 
 public class commuterhome extends AppCompatActivity {
 
+    LinearLayout btnHomePage, btnSearch, btnSetting;
+
     private MapView map;
     private MyLocationNewOverlay mLocationOverlay;
     private SearchView searchView;
@@ -41,6 +45,17 @@ public class commuterhome extends AppCompatActivity {
 
         map = findViewById(R.id.mapdisplay);
         searchView = findViewById(R.id.searchPlace);
+
+        btnHomePage = findViewById(R.id.btnhomepage);
+        btnSearch = findViewById(R.id.btnsearch);
+        btnSetting = findViewById(R.id.btnsetting);
+
+        btnHomePage.setSelected(true);
+
+        btnSetting.setOnClickListener(v -> {
+            startActivity(new Intent(commuterhome.this, Settings.class));
+        });
+
 
         setupMap();
         setupSearch();

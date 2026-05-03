@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginPage extends AppCompatActivity {
 
+    private ImageButton btnBack;
     private Button btnLogin;
     private EditText edusername, edpassword;
     private FirebaseAuth mAuth;
@@ -41,6 +43,12 @@ public class LoginPage extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnlogin);
         edusername = findViewById(R.id.edusername);
         edpassword = findViewById(R.id.edpassword);
+
+        // Back Button
+        btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            startActivity(new Intent(LoginPage.this, commuterhome.class));
+        });
 
         btnLogin.setOnClickListener(v -> performLogin());
     }

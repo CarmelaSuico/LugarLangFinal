@@ -53,34 +53,19 @@ public class AdminDashboard extends AppCompatActivity {
             showToast("Opening Transportation Management...");
         });
 
-        // 4. Ticket Management (Revenue/Sales)
 //        btnTicket.setOnClickListener(v -> {
 //             Intent intent = new Intent(AdminDashboard.this, Ticketing.class);
 //             startActivity(intent);
 //            showToast("Opening Loging Management...");
 //        });
 
-        // 5. Admin Settings / Logout
-//        btnSettings.setOnClickListener(v -> {
-//            // Usually, admins want a quick way to logout or change password
-//            showLogoutDialog();
-//        });
+        btnSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboard.this, SettingAdminDriCon.class);
+            startActivity(intent);
+            showToast("Opening Admin Settings...");
+        });
     }
 
-//    private void showLogoutDialog() {
-//        new androidx.appcompat.app.AlertDialog.Builder(this)
-//                .setTitle("Admin Settings")
-//                .setMessage("Do you want to logout of the system?")
-//                .setPositiveButton("Logout", (dialog, which) -> {
-//                    // FirebaseAuth.getInstance().signOut();
-//                    Intent intent = new Intent(AdminDashboard.this, LoginPage.class);
-//                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                    startActivity(intent);
-//                    finish();
-//                })
-//                .setNegativeButton("Cancel", null)
-//                .show();
-//    }
 
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();

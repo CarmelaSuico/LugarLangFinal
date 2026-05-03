@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.usc.lugarlangfinal.DriverOrConductoerDashboard;
 import com.usc.lugarlangfinal.R;
+import com.usc.lugarlangfinal.SettingAdminDriCon;
 
 import org.osmdroid.util.GeoPoint;
 
@@ -89,6 +90,13 @@ public class Ticketing extends AppCompatActivity {
             btnDashboardNav.setOnClickListener(v -> {
                 Intent intent = new Intent(this, DriverOrConductoerDashboard.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            });
+        }
+
+        if (btnSetting != null) {
+            btnSetting.setOnClickListener(v -> {
+                Intent intent = new Intent(this, SettingAdminDriCon.class);
                 startActivity(intent);
             });
         }

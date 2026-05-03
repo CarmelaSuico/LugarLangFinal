@@ -16,7 +16,6 @@
         android:src="@drawable/city_bg"
         android:alpha="0.2" />
 
-    <!-- ScrollView ensures content moves up when the keyboard appears -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -37,6 +36,20 @@
                 app:cardElevation="16dp"
                 app:strokeWidth="0dp"
                 app:cardBackgroundColor="@color/white">
+
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back Button"
+                    android:src="@drawable/close_24px"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/black"
+                    android:scaleType="centerCrop"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -135,7 +148,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
-                        android:text="Forgot Access Details?"
+                        android:text="Forgot Password?"
                         android:textColor="@color/primaryAesthetic"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-medium" />

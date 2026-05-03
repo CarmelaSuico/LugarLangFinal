@@ -22,8 +22,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LugarLangFinal">
         <activity
+            android:name=".SettingAdminDriCon"
+            android:exported="false" />
+        <activity
+            android:name=".Settings"
+            android:exported="false" />
+        <activity
             android:name=".commuterhome"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -69,8 +75,7 @@
             android:exported="false" />
         <activity
             android:name=".LoginPage"
-            android:exported="false">
-        </activity>
+            android:exported="false" />
         <activity
             android:name=".employee.AddNewEmployee"
             android:exported="false" />

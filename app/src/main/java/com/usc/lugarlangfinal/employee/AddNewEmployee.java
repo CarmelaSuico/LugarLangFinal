@@ -3,7 +3,6 @@ package com.usc.lugarlangfinal.employee;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -14,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -32,7 +33,6 @@ import java.util.Map;
 
 public class AddNewEmployee extends AppCompatActivity {
 
-    // UI Components
     private AutoCompleteTextView editEmployeeID, spinnerRole, spinnerUnit, spinnerStatus;
     private TextInputEditText editFulName, editEmail, editLicense, editContact, editAddress, editDefaultPassword, editFranchise;
     private Button btnAdd;
@@ -41,7 +41,10 @@ public class AddNewEmployee extends AppCompatActivity {
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
     private List<Employee> fullEmployeeList = new ArrayList<>();
     private List<String> idSuggestions = new ArrayList<>();
-    private FirebaseAuth mAuth;
+
+    // Auth instances
+    private FirebaseAuth mAuth;           // Main Admin session
+    private FirebaseAuth secondaryAuth;  // Used only for creating employees
     private String adminFranchise = "";
 
     @Override
@@ -50,34 +53,51 @@ public class AddNewEmployee extends AppCompatActivity {
         setContentView(R.layout.activity_add_new_employee);
 
         mAuth = FirebaseAuth.getInstance();
+        setupSecondaryFirebase();
 
         initViews();
         setupSpinners();
         fetchAdminFranchiseAndSyncIDs();
 
-        // 1. Navbar State
         btnAddnewEmployee.setSelected(true);
 
-        // 2. ID Selection Listener
         editEmployeeID.setOnItemClickListener((parent, view, position, id) -> {
             String selectedID = (String) parent.getItemAtPosition(position);
             autoFillForm(selectedID);
         });
 
-        // 3. Save Button Listener
         btnAdd.setOnClickListener(v -> saveOrUpdateEmployee());
 
-        // 4. Navigation Listeners
         btnBack.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminDashboard.class));
             finish();
         });
 
         btnEmployeeDashboard.setOnClickListener(v -> {
-            // Adjust this if your management activity is named differently
             startActivity(new Intent(this, EmployeeManagement.class));
             finish();
         });
+    }
+
+    private void setupSecondaryFirebase() {
+        try {
+            // Check if the secondary app is already initialized to avoid "Duplicate" errors
+            FirebaseApp secondaryApp;
+            try {
+                secondaryApp = FirebaseApp.getInstance("SecondaryApp");
+            } catch (IllegalStateException e) {
+                // Initialize using your project's specific details
+                FirebaseOptions options = new FirebaseOptions.Builder()
+                        .setApiKey("AIzaSyDh4z2b8mRNEkiWczbDx4qZ9diLvz4-vjE") // Found in Firebase Project Settings
+                        .setApplicationId("1:449835172487:android:06af554dd941203cf9ae22") // Found in Firebase Project Settings
+                        .setDatabaseUrl(DB_URL)
+                        .build();
+                secondaryApp = FirebaseApp.initializeApp(this, options, "SecondaryApp");
+            }
+            secondaryAuth = FirebaseAuth.getInstance(secondaryApp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initViews() {
@@ -104,7 +124,7 @@ public class AddNewEmployee extends AppCompatActivity {
     private void setupSpinners() {
         String[] statusArr = {"Active", "Deactive"};
         spinnerStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, statusArr));
-        spinnerStatus.setText(statusArr[0], false); // Default to Active
+        spinnerStatus.setText(statusArr[0], false);
 
         spinnerRole.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new String[]{"Driver", "Conductor"}));
         spinnerUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new String[]{"None", "Bus", "Jeepney"}));
@@ -141,7 +161,6 @@ public class AddNewEmployee extends AppCompatActivity {
                     Employee emp = ds.getValue(Employee.class);
                     if (emp != null) {
                         String status = emp.getStatus();
-                        // Suggest only deactive or fresh entries for reactivation/re-registration
                         if (status == null || status.equalsIgnoreCase("Deactive") || status.equalsIgnoreCase("Inactive")) {
                             fullEmployeeList.add(emp);
                             idSuggestions.add(emp.getId());
@@ -176,7 +195,6 @@ public class AddNewEmployee extends AppCompatActivity {
         String id = editEmployeeID.getText().toString().trim();
         String email = editEmail.getText().toString().trim();
         String password = editDefaultPassword.getText().toString().trim();
-        String role = spinnerRole.getText().toString();
 
         if (TextUtils.isEmpty(id) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(this, "All fields are required!", Toast.LENGTH_SHORT).show();
@@ -198,9 +216,16 @@ public class AddNewEmployee extends AppCompatActivity {
                 Toast.makeText(this, "Password too short!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+
+            // USE SECONDARY AUTH HERE: prevents Admin sign-out[cite: 5]
+            secondaryAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    updateFirebaseData(id, task.getResult().getUser().getUid(), "Employee Registered!");
+                    String newUID = task.getResult().getUser().getUid();
+
+                    // We sign out of secondaryAuth immediately so it doesn't hold the new employee session locally
+                    secondaryAuth.signOut();
+
+                    updateFirebaseData(id, newUID, "Employee Registered!");
                 } else {
                     Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -210,11 +235,14 @@ public class AddNewEmployee extends AppCompatActivity {
 
     private void updateFirebaseData(String empID, String authUID, String successMsg) {
         DatabaseReference root = FirebaseDatabase.getInstance(DB_URL).getReference();
+        String fullName = editFulName.getText().toString().trim();
+        String email = editEmail.getText().toString().trim();
+        String role = spinnerRole.getText().toString();
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put("name", editFulName.getText().toString().trim());
-        updates.put("email", editEmail.getText().toString().trim());
-        updates.put("role", spinnerRole.getText().toString());
+        updates.put("name", fullName);
+        updates.put("email", email);
+        updates.put("role", role);
         updates.put("status", spinnerStatus.getText().toString());
         updates.put("licenseNumber", editLicense.getText().toString().trim());
         updates.put("contactNumber", editContact.getText().toString().trim());
@@ -226,14 +254,18 @@ public class AddNewEmployee extends AppCompatActivity {
         updates.put("id", empID);
 
         root.child("employee").child(empID).updateChildren(updates).addOnSuccessListener(aVoid -> {
-            String rolePath = spinnerRole.getText().toString().toLowerCase() + "s";
+            String rolePath = role.toLowerCase() + "s";
             Map<String, Object> roleMap = new HashMap<>();
-            roleMap.put("name", editFulName.getText().toString().trim());
+            roleMap.put("name", fullName);
             roleMap.put("company", adminFranchise);
-            roleMap.put("id", empID);
+            roleMap.put("email", email);
 
             root.child(rolePath).child(authUID).updateChildren(roleMap).addOnSuccessListener(unused -> {
                 Toast.makeText(this, successMsg, Toast.LENGTH_SHORT).show();
+
+                // Now you can safely return to EmployeeManagement because the Admin is still logged in[cite: 6]
+                Intent intent = new Intent(AddNewEmployee.this, EmployeeManagement.class);
+                startActivity(intent);
                 finish();
             });
         });
