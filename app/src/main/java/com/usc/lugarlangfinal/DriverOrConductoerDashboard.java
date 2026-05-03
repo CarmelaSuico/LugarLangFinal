@@ -1,28 +1,21 @@
 package com.usc.lugarlangfinal;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 import com.usc.lugarlangfinal.driverconductor.LocationService;
 import com.usc.lugarlangfinal.driverconductor.StartEndTrip;
 import com.usc.lugarlangfinal.driverconductor.Ticketing;
@@ -35,7 +28,8 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 public class DriverOrConductoerDashboard extends AppCompatActivity {
-    LinearLayout btnDriverConductDashboard, btnTicketing, btnSetting;
+
+    private LinearLayout btnDashboardNav, btnTicket, btnSetting;
     private TextView tvStart, tvEnd, tvPlate, tvVehicle, tvTime, tvFranchise, tvDriver, tvConductor;
     private Button btnStartTrip;
     private MapView map;
@@ -47,81 +41,36 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        Configuration.getInstance().setUserAgentValue(getPackageName());
-
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_driver_or_conductoer_dashboard);
-
-        // Responsive Window Insets
-        View mainView = findViewById(R.id.main);
-        if (mainView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-                return insets;
-            });
-        }
 
         initViews();
         setupOSM();
-
-        // Check Permissions for Location
-        if (androidx.core.content.ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            androidx.core.app.ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                            android.Manifest.permission.FOREGROUND_SERVICE_LOCATION
-                    }, 101);
-        }
+        checkInitialPermissions();
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             userEmail = currentUser.getEmail();
             fetchUserProfile();
-        } else {
-            Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_SHORT).show();
-            finish();
         }
 
-        // Start Trip Button Logic
         btnStartTrip.setOnClickListener(v -> {
             if (currentTrip != null) {
-                // 1. Start Background Location Service
-                Intent serviceIntent = new Intent(DriverOrConductoerDashboard.this, LocationService.class);
-                serviceIntent.putExtra("TRIP_ID", currentTrip.tripId);
-                serviceIntent.putExtra("FRANCHISE", currentTrip.franchise);
-                androidx.core.content.ContextCompat.startForegroundService(DriverOrConductoerDashboard.this, serviceIntent);
-
-                // 2. Open StartEndTrip Activity
-                Intent intent = new Intent(DriverOrConductoerDashboard.this, StartEndTrip.class);
-                intent.putExtra("ROUTE_CODE", currentTrip.routeCode);
-                intent.putExtra("COMPANY_NAME", userFranchise);
-                intent.putExtra("EMPLOYEE_ID", employeeNumericId);
-                startActivity(intent);
+                checkLocationSettingsAndStart();
             } else {
-                Toast.makeText(this, "No trip assigned!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "No assigned trip found.", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Bottom Navigation
-        btnDriverConductDashboard.setSelected(true);
-        
-        // Pass required data to Ticketing
-        btnTicketing.setOnClickListener(v -> {
-            if (currentTrip != null) {
-                Intent intent = new Intent(this, Ticketing.class);
-                intent.putExtra("ROUTE_CODE", currentTrip.routeCode);
-                intent.putExtra("COMPANY_NAME", userFranchise);
-                intent.putExtra("EMPLOYEE_ID", employeeNumericId);
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "No trip assigned to access ticketing!", Toast.LENGTH_SHORT).show();
-            }
+        btnDashboardNav.setSelected(true);
+        btnTicket.setOnClickListener(v -> {
+            Intent intent = new Intent(this, Ticketing.class);
+            intent.putExtra("ROUTE_CODE", currentTrip.getRouteCode());
+            intent.putExtra("COMPANY_NAME", userFranchise);
+            intent.putExtra("EMPLOYEE_ID", employeeNumericId);
+            startActivity(intent);
         });
+
     }
 
     private void initViews() {
@@ -135,15 +84,24 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         tvConductor = findViewById(R.id.tvConductorName);
         btnStartTrip = findViewById(R.id.btnStartTrip);
         map = findViewById(R.id.mapOSM);
-        btnDriverConductDashboard = findViewById(R.id.btndriverorconddashoard);
-        btnTicketing = findViewById(R.id.btnticketing);
+        btnDashboardNav = findViewById(R.id.btndriverorconddashoard);
+        btnTicket = findViewById(R.id.btnticketing);
+        btnSetting = findViewById(R.id.btnsetting);
     }
 
     private void setupOSM() {
-        if (map == null) return;
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setMultiTouchControls(true);
         map.getController().setZoom(15.0);
+    }
+
+    private void checkInitialPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.FOREGROUND_SERVICE_LOCATION
+            }, 101);
+        }
     }
 
     private void fetchUserProfile() {
@@ -151,15 +109,11 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         empRef.orderByChild("email").equalTo(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot ds : snapshot.getChildren()) {
-                        userName = ds.child("name").getValue(String.class);
-                        userFranchise = ds.child("Franchise").getValue(String.class);
-                        employeeNumericId = ds.child("id").getValue(String.class);
-                        if (userName != null && userFranchise != null) {
-                            fetchAssignedTrip();
-                        }
-                    }
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    userName = ds.child("name").getValue(String.class);
+                    userFranchise = ds.child("Franchise").getValue(String.class);
+                    employeeNumericId = ds.child("id").getValue(String.class);
+                    if (userFranchise != null) fetchAssignedTrip();
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
@@ -171,21 +125,14 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
         tripRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean tripFound = false;
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     Trip trip = ds.getValue(Trip.class);
-                    if (trip != null && userName != null) {
-                        if (userName.equalsIgnoreCase(trip.driverName) || userName.equalsIgnoreCase(trip.conductorName)) {
-                            currentTrip = trip;
-                            displayTripData(trip);
-                            fetchRouteCoordinates(trip.routeCode);
-                            tripFound = true;
-                            break;
-                        }
+                    if (trip != null && (userName.equalsIgnoreCase(trip.getDriverName()) || userName.equalsIgnoreCase(trip.getConductorName()))) {
+                        currentTrip = trip;
+                        displayTripData(trip);
+                        fetchRouteCoordinates(trip.getRouteCode());
+                        break;
                     }
-                }
-                if (!tripFound) {
-                    Toast.makeText(DriverOrConductoerDashboard.this, "No assigned trip found.", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
@@ -193,51 +140,63 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
     }
 
     private void displayTripData(Trip trip) {
-        if (trip == null) return;
-        tvStart.setText("From: " + (trip.terminal1 != null ? trip.terminal1 : "N/A"));
-        tvEnd.setText("To: " + (trip.terminal2 != null ? trip.terminal2 : "N/A"));
-        tvPlate.setText("Plate Number: " + (trip.plateNumber != null ? trip.plateNumber : "N/A"));
-        tvVehicle.setText("Assigned Vehicle: " + (trip.vehicleCode != null ? trip.vehicleCode : "N/A"));
-        tvTime.setText("Departure Time: " + (trip.departureTime != null ? trip.departureTime : "N/A"));
-        tvFranchise.setText("Franchise: " + (trip.franchise != null ? trip.franchise : "N/A"));
-        tvDriver.setText("Assigned Driver: " + (trip.driverName != null ? trip.driverName : "N/A"));
-        tvConductor.setText("Assigned Conductor: " + (trip.conductorName != null ? trip.conductorName : "N/A"));
+        tvStart.setText("From: " + trip.getTerminal1());
+        tvEnd.setText("To: " + trip.getTerminal2());
+        tvPlate.setText("Plate: " + trip.getPlateNumber());
+        tvTime.setText("Departure: " + trip.getDepartureTime());
+        tvDriver.setText("Driver: " + trip.getDriverName());
+        tvConductor.setText("Conductor: " + trip.getConductorName());
+    }
+
+    private void checkLocationSettingsAndStart() {
+        LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build();
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(request);
+
+        LocationServices.getSettingsClient(this).checkLocationSettings(builder.build())
+                .addOnSuccessListener(this, response -> proceedToStartTrip())
+                .addOnFailureListener(this, e -> {
+                    if (e instanceof ResolvableApiException) {
+                        try {
+                            ((ResolvableApiException) e).startResolutionForResult(this, 1001);
+                        } catch (Exception ignored) {}
+                    }
+                });
+    }
+
+    private void proceedToStartTrip() {
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        serviceIntent.putExtra("TRIP_ID", currentTrip.getTripId());
+        serviceIntent.putExtra("FRANCHISE", currentTrip.getFranchise());
+        ContextCompat.startForegroundService(this, serviceIntent);
+
+        Intent intent = new Intent(this, StartEndTrip.class);
+        intent.putExtra("ROUTE_CODE", currentTrip.getRouteCode());
+        intent.putExtra("COMPANY_NAME", userFranchise);
+        intent.putExtra("EMPLOYEE_ID", employeeNumericId);
+        intent.putExtra("TRIP_ID", currentTrip.getTripId()); // PASSING THE TRIP ID
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == RESULT_OK) proceedToStartTrip();
     }
 
     private void fetchRouteCoordinates(String routeCode) {
-        if (routeCode == null) return;
         DatabaseReference routeRef = FirebaseDatabase.getInstance(DB_URL).getReference("routes").child(routeCode);
         routeRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String t1Coords = snapshot.child("T1_Coords").getValue(String.class);
-                    if (t1Coords != null && !t1Coords.isEmpty()) {
-                        String[] latLng = t1Coords.split(",");
-                        double lat = Double.parseDouble(latLng[0].trim());
-                        double lon = Double.parseDouble(latLng[1].trim());
-                        updateMapLocation(lat, lon, snapshot.child("Terminal1").getValue(String.class));
-                    }
+                String t1Coords = snapshot.child("T1_Coords").getValue(String.class);
+                if (t1Coords != null) {
+                    String[] latLng = t1Coords.split(",");
+                    GeoPoint start = new GeoPoint(Double.parseDouble(latLng[0]), Double.parseDouble(latLng[1]));
+                    map.getController().setCenter(start);
+                    Marker m = new Marker(map); m.setPosition(start); m.setTitle("Start"); map.getOverlays().add(m);
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
-
-    private void updateMapLocation(double lat, double lon, String terminalName) {
-        if (map == null) return;
-        GeoPoint startPoint = new GeoPoint(lat, lon);
-        map.getController().setZoom(17.0);
-        map.getController().setCenter(startPoint);
-        map.getOverlays().clear();
-        Marker startMarker = new Marker(map);
-        startMarker.setPosition(startPoint);
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        startMarker.setTitle(terminalName);
-        map.getOverlays().add(startMarker);
-        map.invalidate();
-    }
-
-    @Override public void onResume() { super.onResume(); if (map != null) map.onResume(); }
-    @Override public void onPause() { super.onPause(); if (map != null) map.onPause(); }
 }

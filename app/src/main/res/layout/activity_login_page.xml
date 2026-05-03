@@ -79,7 +79,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="40dp"
-                        android:hint="Username"
+                        android:hint="Full Name"
                         app:boxBackgroundColor="#F1F5F9"
                         app:boxStrokeWidth="0dp"
                         app:boxStrokeWidthFocused="0dp"

@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
-    android:background="#BA007C"
-    android:layout_gravity="bottom">
+    android:layout_height="72dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="8dp"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center">
 
-        <!--        Route Dashboard-->
+        <!-- Employee Dashboard -->
         <LinearLayout
             android:id="@+id/btndriverorconddashoard"
             android:layout_width="0dp"
@@ -20,23 +25,23 @@
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
-            <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            android:focusable="true"
+            android:background="@drawable/pill_background">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/bus_railway_24px"
-                app:tint="@color/nav_color"
-                android:duplicateParentState="true"
-                android:clickable="false" />
+                app:tint="@color/nav_color" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dashboard"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:textSize="10sp"
+                android:textColor="@color/nav_color"
+                android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
-        <!--        Add New Route -->
+        <!-- Add New Employee -->
         <LinearLayout
             android:id="@+id/btnticketing"
             android:layout_width="0dp"
@@ -45,47 +50,46 @@
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
-            <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            android:focusable="true"
+            android:background="@drawable/pill_background">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/transit_ticket_24px"
-                app:tint="@color/nav_color"
-                android:duplicateParentState="true"
-                android:clickable="false" />
+                app:tint="@color/nav_color" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ticketing"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:textSize="10sp"
+                android:textColor="@color/nav_color"
+                android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
-        <!--        Back to Admin Dashboard-->
+        <!-- Back -->
         <LinearLayout
-            android:id="@+id/btnseeting"
+            android:id="@+id/btnsetting"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true">
-            <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/undo_24px"
-                app:tint="@color/nav_color"
-                android:duplicateParentState="true"
-                android:clickable="false" />
+            android:focusable="true"
+            android:background="@drawable/pill_background">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/settings_24px"
+                app:tint="@color/nav_color" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Back"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
+                android:text="Setting"
+                android:textSize="10sp"
+                android:textColor="@color/nav_color"
+                android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
 
-
     </LinearLayout>
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

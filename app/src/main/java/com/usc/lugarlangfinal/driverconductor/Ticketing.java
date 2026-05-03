@@ -79,7 +79,7 @@ public class Ticketing extends AppCompatActivity {
         // Navigation buttons from included layout
         btnDashboardNav = findViewById(R.id.btndriverorconddashoard);
         btnTicket = findViewById(R.id.btnticketing);
-        btnSetting = findViewById(R.id.btnseeting);
+        btnSetting = findViewById(R.id.btnsetting);
     }
 
     private void setupNavigation() {

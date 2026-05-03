@@ -6,31 +6,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".driverconductor.Ticketing"
-    android:background="#BAA4B1"
-    android:padding="16dp">
+    android:background="@color/backgroundAesthetic">
 
-    <!-- Header -->
-    <LinearLayout
-        android:id="@+id/top_header"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="112dp"
-        android:minHeight="100dp"
-        android:orientation="horizontal"
-        android:background="@drawable/top_deisgn"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
+        <RelativeLayout
+            android:id="@+id/top_header"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Passenger Ticketing"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:textAlignment="center"
-            android:gravity="center"
-            app:autoSizeTextType="uniform"
-            app:autoSizeMinTextSize="25sp"
-            app:autoSizeMaxTextSize="35sp" />
-    </LinearLayout>
+            android:layout_height="180dp"
+            android:background="@drawable/top_deisgn"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="40dp"
+                android:fontFamily="sans-serif-black"
+                android:text="Your Route\nDetail"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                android:lineSpacingExtra="4dp"/>
+        </RelativeLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Route Indicator -->
     <TextView
@@ -44,57 +48,66 @@
         android:textStyle="bold"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_header" />
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout" />
 
-    <!-- Ticketing Form Card -->
-
+    <!-- Route Display Card (Matches tvTicketT1 and tvTicketT2) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/route_display"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="30dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="20dp"
+        app:cardCornerRadius="15dp"
         app:cardBackgroundColor="#27B942"
-        app:layout_constraintTop_toBottomOf="@id/tvRouteLabel"
-        tools:layout_editor_absoluteX="30dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvRouteLabel">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="8dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="4dp">
+            android:gravity="center"
+            android:padding="12dp">
 
             <TextView
                 android:id="@+id/tvTicketT1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Terminal 1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Loading..."
                 android:textColor="@color/white"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:src="@drawable/arrow_forward_24px"
                 app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/tvTicketT2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Terminal 2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Loading..."
                 android:textColor="@color/white"
+                android:textSize="16sp"
                 android:textStyle="bold" />
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <!-- Ticketing Form Card -->
     <androidx.cardview.widget.CardView
+        android:id="@+id/form_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        app:cardCornerRadius="30dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="25dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="#D9D9D9"
         app:layout_constraintWidth_percent="0.9"
@@ -108,45 +121,50 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Origin -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Origin" android:textColor="#444444" android:textSize="16sp" android:layout_marginBottom="8dp"/>
+            <!-- Origin Spinner -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Origin" android:textColor="#444444" android:textSize="14sp" android:layout_marginBottom="4dp"/>
             <Spinner android:id="@+id/spinnerOrigin" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="16dp"/>
 
-            <!-- Destination -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Destination" android:textColor="#444444" android:textSize="16sp" android:layout_marginBottom="8dp"/>
+            <!-- Destination Spinner -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Destination" android:textColor="#444444" android:textSize="14sp" android:layout_marginBottom="4dp"/>
             <Spinner android:id="@+id/spinnerDestination" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="16dp"/>
 
-            <!-- Passenger Type -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Passenger Type" android:textColor="#444444" android:textSize="16sp" android:layout_marginBottom="8dp"/>
-            <Spinner android:id="@+id/spinnerPassengerType" android:layout_width="200dp" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="24dp"/>
+            <!-- Passenger Type Spinner -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Passenger Type" android:textColor="#444444" android:textSize="14sp" android:layout_marginBottom="4dp"/>
+            <Spinner android:id="@+id/spinnerPassengerType" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/edit_text_border" android:layout_marginBottom="24dp"/>
 
-            <!-- Submit Button -->
+            <!-- Submit Button (Matches btnSubmitTicket) -->
             <Button
                 android:id="@+id/btnSubmitTicket"
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
                 android:minWidth="140dp"
                 android:layout_gravity="end"
-                android:text="Submit"
+                android:text="Issue Ticket"
                 android:textAllCaps="false"
                 android:backgroundTint="#00BF63"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:cornerRadius="15dp"
-                android:drawableStart="@drawable/undo_24px"
-                android:drawablePadding="8dp"
-                android:drawableTint="@color/white"/>
+                app:cornerRadius="15dp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Bottom Navigation -->
-    <LinearLayout
-        android:id="@+id/nav_botton"
+    <!-- Bottom Navigation (IDs must match btndriverorconddashoard, btnticketing, btnsetting) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/nav_bottom_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="24dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="12dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- Note: Ensure these IDs are present in your driverconductor_nav_bottons.xml -->
         <include layout="@layout/driverconductor_nav_bottons"/>
-    </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

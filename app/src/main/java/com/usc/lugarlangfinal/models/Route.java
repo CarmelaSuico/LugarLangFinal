@@ -3,14 +3,12 @@ package com.usc.lugarlangfinal.models;
 import com.google.firebase.database.PropertyName;
 
 public class Route {
-    private String routeCode, terminal1, terminal2, stops, assignedTransport, status, company, plateNumber;
+    private String routeCode, terminal1, terminal2, stops, assignedTransport, status, company;
     private double baseFare, additionalFarePerBand, distance;
     private int distanceBands;
-    private String t1_Coords; // For "10.3512, 123.9135"
-    private String t2_Coords;
+    private String t1_Coords, t2_Coords, stops_Coords;
 
-    public Route() {} // Required for Firebase
-
+    public Route() {}
 
     @PropertyName("RouteCode")
     public String getRouteCode() { return routeCode; }
@@ -69,13 +67,16 @@ public class Route {
 
     @PropertyName("T1_Coords")
     public String getT1_Coords() { return t1_Coords; }
-
     @PropertyName("T1_Coords")
     public void setT1_Coords(String t1_Coords) { this.t1_Coords = t1_Coords; }
 
     @PropertyName("T2_Coords")
     public String getT2_Coords() { return t2_Coords; }
-
     @PropertyName("T2_Coords")
     public void setT2_Coords(String t2_Coords) { this.t2_Coords = t2_Coords; }
+
+    @PropertyName("Stop_Coords")
+    public String getStops_Coords() { return stops_Coords; }
+    @PropertyName("Stop_Coords")
+    public void setStops_Coords(String stops_Coords) { this.stops_Coords = stops_Coords; }
 }
