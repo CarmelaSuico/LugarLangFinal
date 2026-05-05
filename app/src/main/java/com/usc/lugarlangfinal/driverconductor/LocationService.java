@@ -13,6 +13,7 @@ public class LocationService extends Service {
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private DatabaseReference tripRef;
+    private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     @Override
     public void onCreate() {
@@ -32,10 +33,13 @@ public class LocationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) return START_STICKY;
+
         String tripId = intent.getStringExtra("TRIP_ID");
         String franchise = intent.getStringExtra("FRANCHISE");
+
         if (tripId != null && franchise != null) {
-            tripRef = FirebaseDatabase.getInstance().getReference("trips").child(franchise).child(tripId);
+            tripRef = FirebaseDatabase.getInstance(DB_URL).getReference("trips").child(franchise).child(tripId);
         }
 
         createChannel();
@@ -57,7 +61,9 @@ public class LocationService extends Service {
 
     private void startUpdates() {
         LocationRequest r = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000).build();
-        try { fusedLocationClient.requestLocationUpdates(r, locationCallback, Looper.getMainLooper()); } catch (SecurityException ignored) {}
+        try {
+            fusedLocationClient.requestLocationUpdates(r, locationCallback, Looper.getMainLooper());
+        } catch (SecurityException ignored) {}
     }
 
     private void createChannel() {
@@ -68,7 +74,9 @@ public class LocationService extends Service {
     }
 
     @Override public void onDestroy() {
-        fusedLocationClient.removeLocationUpdates(locationCallback);
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
         super.onDestroy();
     }
     @Override public IBinder onBind(Intent i) { return null; }

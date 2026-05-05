@@ -64,18 +64,18 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
 
         btnDashboardNav.setSelected(true);
         btnTicket.setOnClickListener(v -> {
-            Intent intent = new Intent(this, Ticketing.class);
-            intent.putExtra("ROUTE_CODE", currentTrip.getRouteCode());
-            intent.putExtra("COMPANY_NAME", userFranchise);
-            intent.putExtra("EMPLOYEE_ID", employeeNumericId);
-            startActivity(intent);
+            if (currentTrip != null) {
+                Intent intent = new Intent(this, Ticketing.class);
+                intent.putExtra("ROUTE_CODE", currentTrip.getRouteCode());
+                intent.putExtra("COMPANY_NAME", userFranchise);
+                intent.putExtra("EMPLOYEE_ID", employeeNumericId);
+                startActivity(intent);
+            }
         });
 
         btnSetting.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingAdminDriCon.class);
-            startActivity(intent);
+            startActivity(new Intent(this, SettingAdminDriCon.class));
         });
-
     }
 
     private void initViews() {
@@ -132,11 +132,16 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     Trip trip = ds.getValue(Trip.class);
-                    if (trip != null && (userName.equalsIgnoreCase(trip.getDriverName()) || userName.equalsIgnoreCase(trip.getConductorName()))) {
-                        currentTrip = trip;
-                        displayTripData(trip);
-                        fetchRouteCoordinates(trip.getRouteCode());
-                        break;
+                    if (trip != null) {
+                        // Ensure the Trip object has its Firebase Key as the TripId
+                        trip.setTripId(ds.getKey());
+
+                        if (userName.equalsIgnoreCase(trip.getDriverName()) || userName.equalsIgnoreCase(trip.getConductorName())) {
+                            currentTrip = trip;
+                            displayTripData(trip);
+                            fetchRouteCoordinates(trip.getRouteCode());
+                            break;
+                        }
                     }
                 }
             }
@@ -169,23 +174,22 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
     }
 
     private void proceedToStartTrip() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            checkInitialPermissions();
+            return;
+        }
+
         Intent serviceIntent = new Intent(this, LocationService.class);
         serviceIntent.putExtra("TRIP_ID", currentTrip.getTripId());
-        serviceIntent.putExtra("FRANCHISE", currentTrip.getFranchise());
+        serviceIntent.putExtra("FRANCHISE", userFranchise);
         ContextCompat.startForegroundService(this, serviceIntent);
 
         Intent intent = new Intent(this, StartEndTrip.class);
         intent.putExtra("ROUTE_CODE", currentTrip.getRouteCode());
         intent.putExtra("COMPANY_NAME", userFranchise);
         intent.putExtra("EMPLOYEE_ID", employeeNumericId);
-        intent.putExtra("TRIP_ID", currentTrip.getTripId()); // PASSING THE TRIP ID
+        intent.putExtra("TRIP_ID", currentTrip.getTripId());
         startActivity(intent);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1001 && resultCode == RESULT_OK) proceedToStartTrip();
     }
 
     private void fetchRouteCoordinates(String routeCode) {
@@ -198,7 +202,12 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
                     String[] latLng = t1Coords.split(",");
                     GeoPoint start = new GeoPoint(Double.parseDouble(latLng[0]), Double.parseDouble(latLng[1]));
                     map.getController().setCenter(start);
-                    Marker m = new Marker(map); m.setPosition(start); m.setTitle("Start"); map.getOverlays().add(m);
+                    map.getOverlays().clear();
+                    Marker m = new Marker(map);
+                    m.setPosition(start);
+                    m.setTitle("Terminal 1");
+                    map.getOverlays().add(m);
+                    map.invalidate();
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}

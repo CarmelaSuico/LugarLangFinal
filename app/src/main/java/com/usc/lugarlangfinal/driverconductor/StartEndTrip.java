@@ -1,20 +1,14 @@
 package com.usc.lugarlangfinal.driverconductor;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import com.google.firebase.database.*;
 import com.usc.lugarlangfinal.R;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
@@ -36,12 +30,11 @@ public class StartEndTrip extends AppCompatActivity {
     private MapView map;
     private TextView txtT1, txtT2;
     private Button btnEndTrip;
-    private String routeCode, companyName, employeeId, tripId;
+    private String companyName, employeeId, tripId;
     private MyLocationNewOverlay mLocationOverlay;
     private Polyline currentRoadOverlay;
     private ArrayList<GeoPoint> allPoints = new ArrayList<>();
     private ArrayList<String> allNames = new ArrayList<>();
-    private int currentStopIndex = 0;
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     @Override
@@ -53,7 +46,6 @@ public class StartEndTrip extends AppCompatActivity {
         initViews();
         setupMap();
 
-        routeCode = getIntent().getStringExtra("ROUTE_CODE");
         companyName = getIntent().getStringExtra("COMPANY_NAME");
         employeeId = getIntent().getStringExtra("EMPLOYEE_ID");
         tripId = getIntent().getStringExtra("TRIP_ID");
@@ -88,34 +80,23 @@ public class StartEndTrip extends AppCompatActivity {
                     allPoints.clear(); allNames.clear(); map.getOverlays().clear();
                     if (mLocationOverlay != null) map.getOverlays().add(mLocationOverlay);
 
-                    String t1Coords = snapshot.child("t1_Coords").getValue(String.class);
                     String t1Name = snapshot.child("terminal1").getValue(String.class);
+                    String t1Coords = snapshot.child("t1_Coords").getValue(String.class);
                     if (t1Coords != null) {
                         GeoPoint p = parseGeoPoint(t1Coords); allPoints.add(p); allNames.add(t1Name);
-                        addMarker(p, "START: " + t1Name, "#00BF63");
+                        addMarker(p, "Start: " + t1Name);
                         map.getController().setCenter(p);
                     }
 
-                    String stopCoords = snapshot.child("stops_Coords").getValue(String.class);
-                    if (stopCoords != null && !stopCoords.isEmpty()) {
-                        String[] coords = stopCoords.split("\\|");
-                        String stopsStr = snapshot.child("stops").getValue(String.class);
-                        String[] names = (stopsStr != null) ? stopsStr.split(", ") : new String[0];
-                        for (int i = 0; i < coords.length; i++) {
-                            GeoPoint p = parseGeoPoint(coords[i]); allPoints.add(p);
-                            String name = (i < names.length) ? names[i] : "Stop";
-                            allNames.add(name); addMarker(p, name, "#703042");
-                        }
-                    }
-
-                    String t2Coords = snapshot.child("t2_Coords").getValue(String.class);
                     String t2Name = snapshot.child("terminal2").getValue(String.class);
+                    String t2Coords = snapshot.child("t2_Coords").getValue(String.class);
                     if (t2Coords != null) {
                         GeoPoint p = parseGeoPoint(t2Coords); allPoints.add(p); allNames.add(t2Name);
-                        addMarker(p, "END: " + t2Name, "#0078FF");
+                        addMarker(p, "End: " + t2Name);
                     }
                     if (allPoints.size() >= 2) drawRoute(allPoints);
-                    updateHeaderUI();
+                    txtT1.setText(t1Name);
+                    txtT2.setText(t2Name);
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
@@ -130,47 +111,73 @@ public class StartEndTrip extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    // 1. Capture current data for the history log
-                    String t1 = snapshot.child("terminal1").getValue(String.class);
-                    String t2 = snapshot.child("terminal2").getValue(String.class);
-                    String driver = snapshot.child("driverName").getValue(String.class);
-                    String depTime = snapshot.child("departureTime").getValue(String.class);
+                    // 1. Capture EVERY field from the snapshot to prevent deletion
+                    // CRITICAL: Matches the uppercase 'P' seen in your database image_10133c.png
+                    String plate = snapshot.child("PlateNumber").getValue(String.class);
+                    String tId = snapshot.child("tripId").getValue(String.class);
+                    String vCode = snapshot.child("vehicleCode").getValue(String.class);
+                    String rCode = snapshot.child("routeCode").getValue(String.class);
+                    String franchise = snapshot.child("franchise").getValue(String.class);
 
-                    // 2. Capture coordinates for reversal
+                    String t1Name = snapshot.child("terminal1").getValue(String.class);
+                    String t2Name = snapshot.child("terminal2").getValue(String.class);
                     String t1C = snapshot.child("t1_Coords").getValue(String.class);
                     String t2C = snapshot.child("t2_Coords").getValue(String.class);
-                    String s = snapshot.child("stops").getValue(String.class);
-                    String sc = snapshot.child("stops_Coords").getValue(String.class);
+                    String stops = snapshot.child("stops").getValue(String.class);
+                    String stopsCoords = snapshot.child("stops_Coords").getValue(String.class);
 
-                    // 3. Prepare Log Entry (History)
-                    Map<String, Object> historyEntry = new HashMap<>();
-                    historyEntry.put("T1", t1);
-                    historyEntry.put("T2", t2);
-                    historyEntry.put("drivername", driver);
-                    historyEntry.put("departuretime", depTime);
-                    historyEntry.put("timestamp", ServerValue.TIMESTAMP); // Adds time of completion
+                    String driver = snapshot.child("driverName").getValue(String.class);
+                    String conductor = snapshot.child("conductorName").getValue(String.class);
+                    String oldDepTime = snapshot.child("departureTime").getValue(String.class);
 
-                    // 4. Prepare Reversed Route for next leg[cite: 7]
+                    // 2. Calculate +1 Hour for the next trip leg
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.HOUR_OF_DAY, 1);
+                    String nextDeparture = new SimpleDateFormat("h:mm a", Locale.getDefault()).format(calendar.getTime());
+
+                    // 3. Prepare the reversed leg map
                     Map<String, Object> nextLeg = new HashMap<>();
-                    nextLeg.put("terminal1", t2);
-                    nextLeg.put("terminal2", t1);
+
+                    // SWAP the route locations
+                    nextLeg.put("terminal1", t2Name);
+                    nextLeg.put("terminal2", t1Name);
                     nextLeg.put("t1_Coords", t2C);
                     nextLeg.put("t2_Coords", t1C);
-                    nextLeg.put("stops", reverseString(s, ", "));
-                    nextLeg.put("stops_Coords", reverseString(sc, "\\|"));
+                    nextLeg.put("stops", reverseString(stops, ", "));
+                    nextLeg.put("stops_Coords", reverseString(stopsCoords, "\\|"));
+
+                    // RETAIN ALL IDENTIFIERS (This prevents the deletion seen in image_044cd3.png)
+                    nextLeg.put("PlateNumber", plate); // Re-saved with correct casing
+                    nextLeg.put("tripId", tId);
+                    nextLeg.put("vehicleCode", vCode);
+                    nextLeg.put("routeCode", rCode);
+                    nextLeg.put("franchise", franchise);
+                    nextLeg.put("driverName", driver);
+                    nextLeg.put("conductorName", conductor);
+
+                    // UPDATE status and time
+                    nextLeg.put("departureTime", nextDeparture);
                     nextLeg.put("status", "Scheduled");
+                    nextLeg.put("currentLocation", "");
 
-                    // 5. Generate a unique key for THIS specific trip in history
-                    String historyKey = rootRef.child("trip_logs").child(companyName)
-                            .child(employeeId).push().getKey();
-
-                    // 6. Atomic Update: Add to history AND prepare return leg[cite: 7]
+                    // 4. Atomic Database Update
                     Map<String, Object> finalUpdates = new HashMap<>();
-                    finalUpdates.put("trip_logs/" + companyName + "/" + employeeId + "/" + historyKey, historyEntry);
                     finalUpdates.put("trips/" + companyName + "/" + tripId, nextLeg);
 
+                    // Log history with history-specific keys
+                    String logKey = rootRef.child("trip_logs").child(companyName).child(employeeId).push().getKey();
+                    Map<String, Object> log = new HashMap<>();
+                    log.put("T1", t1Name);
+                    log.put("T2", t2Name);
+                    log.put("PlateNumber", plate);
+                    log.put("drivername", driver);
+                    log.put("departuretime", oldDepTime);
+                    log.put("timestamp", ServerValue.TIMESTAMP);
+                    finalUpdates.put("trip_logs/" + companyName + "/" + employeeId + "/" + logKey, log);
+
                     rootRef.updateChildren(finalUpdates).addOnSuccessListener(aVoid -> {
-                        Toast.makeText(StartEndTrip.this, "Trip History Saved!", Toast.LENGTH_SHORT).show();
+                        stopService(new Intent(StartEndTrip.this, LocationService.class));
+                        Toast.makeText(StartEndTrip.this, "Trip Reversed! Next: " + nextDeparture, Toast.LENGTH_LONG).show();
                         finish();
                     });
                 }
@@ -187,38 +194,25 @@ public class StartEndTrip extends AppCompatActivity {
         return android.text.TextUtils.join(d.trim(), l);
     }
 
-    private void addMarker(GeoPoint p, String t, String c) {
-        Marker m = new Marker(map);
-        m.setPosition(p);
-        m.setTitle(t);
-        map.getOverlays().add(m);
-    }
-
-    private void updateHeaderUI() {
-        if (allNames.size() < 2) return;
-        txtT1.setText(allNames.get(currentStopIndex));
-        txtT2.setText(allNames.get(allNames.size() - 1));
+    private void addMarker(GeoPoint p, String t) {
+        Marker m = new Marker(map); m.setPosition(p); m.setTitle(t); map.getOverlays().add(m);
     }
 
     private GeoPoint parseGeoPoint(String s) {
         try {
             String[] p = s.split(",");
             return new GeoPoint(Double.parseDouble(p[0].trim()), Double.parseDouble(p[1].trim()));
-        } catch (Exception e) {
-            return new GeoPoint(0.0, 0.0);
-        }
+        } catch (Exception e) { return new GeoPoint(0.0, 0.0); }
     }
 
     private void drawRoute(ArrayList<GeoPoint> w) {
         new AsyncTask<Void, Void, Road>() {
-            @Override
-            protected Road doInBackground(Void... v) {
+            @Override protected Road doInBackground(Void... v) {
                 OSRMRoadManager m = new OSRMRoadManager(StartEndTrip.this, getPackageName());
                 m.setMean(OSRMRoadManager.MEAN_BY_CAR);
                 return m.getRoad(w);
             }
-            @Override
-            protected void onPostExecute(Road r) {
+            @Override protected void onPostExecute(Road r) {
                 if (r != null && r.mStatus == Road.STATUS_OK) {
                     if (currentRoadOverlay != null) map.getOverlays().remove(currentRoadOverlay);
                     currentRoadOverlay = RoadManager.buildRoadOverlay(r);
