@@ -1,9 +1,10 @@
 package com.usc.lugarlangfinal.route;
 
 import android.content.Intent;
-import android.location.Location; // Added for distance calculation
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import androidx.annotation.NonNull;
@@ -36,7 +37,7 @@ public class AddNewRoute extends AppCompatActivity {
     private LinearLayout btnBack, btnroutedashboard, btnaddnewroute;
 
     private String adminFranchise = "";
-    private String selectedT1Coords = "", selectedT2Coords = "";
+    private String selectedT1Coords = "", selectedT2Coords = "", selectedStopCoords = ""; // FIX: Added selectedStopCoords
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
     private List<Route> masterRouteList = new ArrayList<>();
     private List<String> currentStops = new ArrayList<>();
@@ -87,7 +88,6 @@ public class AddNewRoute extends AppCompatActivity {
         btnroutedashboard = findViewById(R.id.btnroutedashboard);
         btnaddnewroute = findViewById(R.id.btnaddnewroute);
 
-
         edT1.setEnabled(false);
         edT2.setEnabled(false);
         edDist.setEnabled(false);
@@ -113,7 +113,9 @@ public class AddNewRoute extends AppCompatActivity {
                 selectedT1Coords = r.getT1_Coords();
                 selectedT2Coords = r.getT2_Coords();
 
-                // AUTOMATIC DISTANCE CALCULATION
+                // FIX: Capture the hidden stop coordinate string from the Master Route
+                selectedStopCoords = r.getStop_Coords();
+
                 calculateAndSetDistance(selectedT1Coords, selectedT2Coords);
 
                 currentStops.clear();
@@ -125,9 +127,6 @@ public class AddNewRoute extends AppCompatActivity {
         }
     }
 
-    /**
-     * Parses coordinates and calculates distance in KM using Haversine-like formula
-     */
     private void calculateAndSetDistance(String coords1, String coords2) {
         try {
             if (!TextUtils.isEmpty(coords1) && !TextUtils.isEmpty(coords2)) {
@@ -141,8 +140,6 @@ public class AddNewRoute extends AppCompatActivity {
 
                 float[] results = new float[1];
                 Location.distanceBetween(lat1, lon1, lat2, lon2, results);
-
-                // Convert meters to KM
                 double distanceInKm = results[0] / 1000.0;
                 edDist.setText(String.format(Locale.getDefault(), "%.2f", distanceInKm));
             }
@@ -165,14 +162,15 @@ public class AddNewRoute extends AppCompatActivity {
             newRoute.setTerminal1(edT1.getText().toString());
             newRoute.setTerminal2(edT2.getText().toString());
             newRoute.setStops(TextUtils.join(", ", currentStops));
+
+            // FIX: Explicitly save the coordinate strings into franchise_routes
             newRoute.setT1_Coords(selectedT1Coords);
             newRoute.setT2_Coords(selectedT2Coords);
+            newRoute.setStop_Coords(selectedStopCoords);
 
             String cleanDist = edDist.getText().toString().replaceAll("[^\\d.]", "");
-            if (cleanDist.isEmpty()) cleanDist = "0";
-
             newRoute.setBaseFare(parseDouble(edBase.getText().toString()));
-            newRoute.setDistance(Double.parseDouble(cleanDist));
+            newRoute.setDistance(Double.parseDouble(cleanDist.isEmpty() ? "0" : cleanDist));
             newRoute.setDistanceBands(parseInt(edBands.getText().toString()));
             newRoute.setAdditionalFarePerBand(parseDouble(edAddl.getText().toString()));
 
@@ -188,7 +186,7 @@ public class AddNewRoute extends AppCompatActivity {
                     .addOnFailureListener(e -> Toast.makeText(AddNewRoute.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
 
         } catch (Exception e) {
-            Toast.makeText(this, "Please check all numeric fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Numeric field error", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -245,13 +243,8 @@ public class AddNewRoute extends AppCompatActivity {
         dialog.show();
     }
 
-    private double parseDouble(String s) {
-        try { return Double.parseDouble(s); } catch (Exception e) { return 0.0; }
-    }
-
-    private int parseInt(String s) {
-        try { return Integer.parseInt(s); } catch (Exception e) { return 0; }
-    }
+    private double parseDouble(String s) { try { return Double.parseDouble(s); } catch (Exception e) { return 0.0; } }
+    private int parseInt(String s) { try { return Integer.parseInt(s); } catch (Exception e) { return 0; } }
 
     private void fetchAdminCompany() {
         String uid = FirebaseAuth.getInstance().getUid();

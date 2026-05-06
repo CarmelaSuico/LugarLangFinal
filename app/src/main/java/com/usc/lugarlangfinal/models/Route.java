@@ -6,7 +6,7 @@ public class Route {
     private String routeCode, terminal1, terminal2, stops, assignedTransport, status, company;
     private double baseFare, additionalFarePerBand, distance;
     private int distanceBands;
-    private String t1_Coords, t2_Coords, stops_Coords;
+    private String t1_Coords, t2_Coords, Stop_Coords;
 
     public Route() {}
 
@@ -76,7 +76,7 @@ public class Route {
     public void setT2_Coords(String t2_Coords) { this.t2_Coords = t2_Coords; }
 
     @PropertyName("Stop_Coords")
-    public String getStops_Coords() { return stops_Coords; }
+    public String getStop_Coords() { return Stop_Coords; }
     @PropertyName("Stop_Coords")
-    public void setStops_Coords(String stops_Coords) { this.stops_Coords = stops_Coords; }
+    public void setStop_Coords(String stops_Coords) { this.Stop_Coords = stops_Coords; }
 }

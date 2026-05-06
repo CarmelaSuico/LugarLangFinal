@@ -23,7 +23,6 @@ import java.util.*;
 
 public class AssignedDriverConductor extends AppCompatActivity {
 
-    // UI Components - Correct types to match Material 3 XML
     private AutoCompleteTextView acRoute, acVehicle, acDriver, acConductor, acVehicleType, acStatus;
     private TextInputEditText etT1, etT2, etPlate, etFranchise, etContact, etTime;
     private MaterialButton btnAddTrip;
@@ -47,9 +46,11 @@ public class AssignedDriverConductor extends AppCompatActivity {
         etTime.setOnClickListener(v -> showTimePicker());
         btnAddTrip.setOnClickListener(v -> performAddTrip());
 
-        // Bottom Navigation Logic
         if (btnAssignDriver != null) btnAssignDriver.setSelected(true);
-        if (btnNavBack != null) btnNavBack.setOnClickListener(v -> finish());
+        if (btnNavBack != null) btnNavBack.setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminDashboard.class));
+            finish();
+        });
         if (btnTransportDashboard != null) {
             btnTransportDashboard.setOnClickListener(v -> {
                 startActivity(new Intent(this, TransportationManagement.class));
@@ -61,25 +62,23 @@ public class AssignedDriverConductor extends AppCompatActivity {
     }
 
     private void initViews() {
-        acRoute = findViewById(R.id.editroutecode);
-        etT1 = findViewById(R.id.etTerminal1);
-        etT2 = findViewById(R.id.etTerminal2);
-
-        acVehicle = findViewById(R.id.autoVehicleCode);
-        etPlate = findViewById(R.id.etPlateNumber);
+        acRoute       = findViewById(R.id.editroutecode);
+        etT1          = findViewById(R.id.etTerminal1);
+        etT2          = findViewById(R.id.etTerminal2);
+        acVehicle     = findViewById(R.id.autoVehicleCode);
+        etPlate       = findViewById(R.id.etPlateNumber);
         acVehicleType = findViewById(R.id.spinnerVehicleType);
-        etFranchise = findViewById(R.id.etFranchise);
+        etFranchise   = findViewById(R.id.etFranchise);
+        acDriver      = findViewById(R.id.eddriver);
+        acConductor   = findViewById(R.id.edconductor);
+        etContact     = findViewById(R.id.etContact);
+        etTime        = findViewById(R.id.eddeparturetime);
+        acStatus      = findViewById(R.id.spinnerStatus);
 
-        acDriver = findViewById(R.id.eddriver);
-        acConductor = findViewById(R.id.edconductor);
-        etContact = findViewById(R.id.etContact);
-        etTime = findViewById(R.id.eddeparturetime);
-        acStatus = findViewById(R.id.spinnerStatus);
-
-        btnAddTrip = findViewById(R.id.btnAddTrip);
+        btnAddTrip           = findViewById(R.id.btnAddTrip);
         btnTransportDashboard = findViewById(R.id.btntransportdashboard);
-        btnAssignDriver = findViewById(R.id.btnassinedriver);
-        btnNavBack = findViewById(R.id.btnback);
+        btnAssignDriver      = findViewById(R.id.btnassinedriver);
+        btnNavBack           = findViewById(R.id.btnback);
 
         setupStaticDropdowns();
     }
@@ -133,7 +132,7 @@ public class AssignedDriverConductor extends AppCompatActivity {
     private void loadFirebaseData() {
         DatabaseReference root = FirebaseDatabase.getInstance(DB_URL).getReference();
 
-        // Load Routes
+        // Load Routes from franchise_routes
         root.child("franchise_routes").child(adminFranchise).orderByChild("Status").equalTo("Active")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -142,9 +141,13 @@ public class AssignedDriverConductor extends AppCompatActivity {
                         List<String> codes = new ArrayList<>();
                         for (DataSnapshot ds : snapshot.getChildren()) {
                             Route r = ds.getValue(Route.class);
-                            if (r != null) { activeRoutes.add(r); codes.add(r.getRouteCode()); }
+                            if (r != null) {
+                                activeRoutes.add(r);
+                                codes.add(r.getRouteCode());
+                            }
                         }
-                        acRoute.setAdapter(new ArrayAdapter<>(AssignedDriverConductor.this, android.R.layout.simple_dropdown_item_1line, codes));
+                        acRoute.setAdapter(new ArrayAdapter<>(AssignedDriverConductor.this,
+                                android.R.layout.simple_dropdown_item_1line, codes));
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
                 });
@@ -160,7 +163,8 @@ public class AssignedDriverConductor extends AppCompatActivity {
                             Vehicle v = ds.getValue(Vehicle.class);
                             if (v != null) { availableVehicles.add(v); vCodes.add(v.getVehicleCode()); }
                         }
-                        acVehicle.setAdapter(new ArrayAdapter<>(AssignedDriverConductor.this, android.R.layout.simple_dropdown_item_1line, vCodes));
+                        acVehicle.setAdapter(new ArrayAdapter<>(AssignedDriverConductor.this,
+                                android.R.layout.simple_dropdown_item_1line, vCodes));
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
                 });
@@ -174,9 +178,9 @@ public class AssignedDriverConductor extends AppCompatActivity {
                         List<String> conductors = new ArrayList<>();
                         driverContactMap.clear();
                         for (DataSnapshot ds : snapshot.getChildren()) {
-                            String role = ds.child("role").getValue(String.class);
-                            String status = ds.child("status").getValue(String.class);
-                            String name = ds.child("name").getValue(String.class);
+                            String role    = ds.child("role").getValue(String.class);
+                            String status  = ds.child("status").getValue(String.class);
+                            String name    = ds.child("name").getValue(String.class);
                             String contact = ds.child("contactNumber").getValue(String.class);
                             if ("Active".equalsIgnoreCase(status)) {
                                 if ("Driver".equalsIgnoreCase(role)) {
@@ -187,13 +191,15 @@ public class AssignedDriverConductor extends AppCompatActivity {
                                 }
                             }
                         }
-                        acDriver.setAdapter(new ArrayAdapter<>(AssignedDriverConductor.this, android.R.layout.simple_dropdown_item_1line, drivers));
-                        acConductor.setAdapter(new ArrayAdapter<>(AssignedDriverConductor.this, android.R.layout.simple_dropdown_item_1line, conductors));
+                        acDriver.setAdapter(new ArrayAdapter<>(AssignedDriverConductor.this,
+                                android.R.layout.simple_dropdown_item_1line, drivers));
+                        acConductor.setAdapter(new ArrayAdapter<>(AssignedDriverConductor.this,
+                                android.R.layout.simple_dropdown_item_1line, conductors));
                     }
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
                 });
 
-        // Auto-fill Logic
+        // Auto-fill: Route selected -> fill terminals
         acRoute.setOnItemClickListener((p, v, pos, id) -> {
             String selected = (String) p.getItemAtPosition(pos);
             for (Route r : activeRoutes) {
@@ -205,6 +211,7 @@ public class AssignedDriverConductor extends AppCompatActivity {
             }
         });
 
+        // Auto-fill: Vehicle selected -> fill plate & type
         acVehicle.setOnItemClickListener((p, v, pos, id) -> {
             String selected = (String) p.getItemAtPosition(pos);
             for (Vehicle veh : availableVehicles) {
@@ -216,6 +223,7 @@ public class AssignedDriverConductor extends AppCompatActivity {
             }
         });
 
+        // Auto-fill: Driver selected -> fill contact
         acDriver.setOnItemClickListener((p, v, pos, id) -> {
             String name = (String) p.getItemAtPosition(pos);
             etContact.setText(driverContactMap.get(name));
@@ -223,7 +231,6 @@ public class AssignedDriverConductor extends AppCompatActivity {
     }
 
     private void performAddTrip() {
-        // 1. Check if Franchise is loaded
         if (TextUtils.isEmpty(adminFranchise)) {
             Toast.makeText(this, "Company data still loading. Please wait.", Toast.LENGTH_SHORT).show();
             return;
@@ -238,15 +245,7 @@ public class AssignedDriverConductor extends AppCompatActivity {
                 return;
             }
 
-            DatabaseReference db = FirebaseDatabase.getInstance(DB_URL).getReference();
-            String tripKey = db.child("trips").child(adminFranchise).push().getKey();
-
-            if (tripKey == null) {
-                Toast.makeText(this, "Failed to generate Trip Key", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // 2. Find selected route
+            // 1. Find the selected Route object from the loaded list
             Route selectedRoute = null;
             for (Route r : activeRoutes) {
                 if (rCode.equals(r.getRouteCode())) {
@@ -260,27 +259,32 @@ public class AssignedDriverConductor extends AppCompatActivity {
                 return;
             }
 
-            // 3. Construct Trip object
+            DatabaseReference db = FirebaseDatabase.getInstance(DB_URL).getReference();
+            String tripKey = db.child("trips").child(adminFranchise).push().getKey();
+            if (tripKey == null) return;
+
+            // 2. Map the UI fields and copied Route data to the Trip object
             Trip trip = new Trip();
-            trip.tripId = tripKey;
-            trip.routeCode = rCode;
-            trip.vehicleCode = vCode;
-            trip.setPlateNumber(etPlate.getText().toString());
-            trip.terminal1 = etT1.getText().toString();
-            trip.terminal2 = etT2.getText().toString();
-            trip.driverName = acDriver.getText().toString();
-            trip.conductorName = acConductor.getText().toString();
-            trip.departureTime = etTime.getText().toString();
-            trip.status = acStatus.getText().toString();
-            trip.franchise = adminFranchise;
+            trip.setTripId(tripKey);
+            trip.setRouteCode(rCode);
+            trip.setVehicleCode(vCode);
+            trip.setPlateNumber(etPlate.getText().toString().trim());
+            trip.setTerminal1(etT1.getText().toString().trim());
+            trip.setTerminal2(etT2.getText().toString().trim());
+            trip.setDriverName(acDriver.getText().toString().trim());
+            trip.setConductorName(acConductor.getText().toString().trim());
+            trip.setDepartureTime(etTime.getText().toString().trim());
+            trip.setStatus(acStatus.getText().toString().trim());
+            trip.setFranchise(adminFranchise);
 
-            // Sync coordinates/stops from Route
-            trip.t1_Coords = selectedRoute.getT1_Coords();
-            trip.t2_Coords = selectedRoute.getT2_Coords();
-            trip.stops = selectedRoute.getStops();
-            trip.stops_Coords = selectedRoute.getStops_Coords();
+            // 3. CRITICAL FIX: Transfer coordinate strings from Route to Trip
+            // These keys must match your StartEndTrip.java fetch logic
+            trip.setT1_Coords(selectedRoute.getT1_Coords()); // Saved as t1_Coords
+            trip.setT2_Coords(selectedRoute.getT2_Coords()); // Saved as t2_Coords
+            trip.setStops(selectedRoute.getStops());        // Saved as Stops
+            trip.setStops_Coords(selectedRoute.getStop_Coords()); // Saved as Stop_Coords
 
-            // 4. Perform Atomic Update
+            // 4. Update Firebase atomically[cite: 1]
             Map<String, Object> updates = new HashMap<>();
             updates.put("trips/" + adminFranchise + "/" + tripKey, trip);
             updates.put("vehicles/" + adminFranchise + "/" + vCode + "/Status", "Unavailable");
@@ -290,16 +294,10 @@ public class AssignedDriverConductor extends AppCompatActivity {
                         Toast.makeText(AssignedDriverConductor.this, "Trip Assigned Successfully!", Toast.LENGTH_SHORT).show();
                         finish();
                     })
-                    .addOnFailureListener(e -> {
-                        // This will show you exactly why Firebase rejected the save
-                        Log.e("FIREBASE_SAVE_ERROR", "Reason: " + e.getMessage());
-                        Toast.makeText(AssignedDriverConductor.this, "Database Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    });
+                    .addOnFailureListener(e -> Log.e("FIREBASE_SAVE_ERROR", "Reason: " + e.getMessage()));
 
         } catch (Exception e) {
-            // This catches coding errors (like NullPointerExceptions)
             Log.e("TRIP_CODE_ERROR", "Exception: ", e);
-            Toast.makeText(this, "System Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

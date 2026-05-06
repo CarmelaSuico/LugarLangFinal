@@ -173,19 +173,18 @@ public class DriverOrConductoerDashboard extends AppCompatActivity {
                 });
     }
 
+    // Inside proceedToStartTrip()
     private void proceedToStartTrip() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            checkInitialPermissions();
-            return;
-        }
+        if (currentTrip == null) return;
 
+        // 1. Start Background Location Tracking
         Intent serviceIntent = new Intent(this, LocationService.class);
         serviceIntent.putExtra("TRIP_ID", currentTrip.getTripId());
         serviceIntent.putExtra("FRANCHISE", userFranchise);
         ContextCompat.startForegroundService(this, serviceIntent);
 
+        // 2. Open Map UI
         Intent intent = new Intent(this, StartEndTrip.class);
-        intent.putExtra("ROUTE_CODE", currentTrip.getRouteCode());
         intent.putExtra("COMPANY_NAME", userFranchise);
         intent.putExtra("EMPLOYEE_ID", employeeNumericId);
         intent.putExtra("TRIP_ID", currentTrip.getTripId());

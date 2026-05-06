@@ -22,6 +22,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LugarLangFinal">
         <activity
+            android:name=".commuter.SeachingOriginDesti"
+            android:exported="false" />
+        <activity
             android:name=".SettingAdminDriCon"
             android:exported="false" />
         <activity
