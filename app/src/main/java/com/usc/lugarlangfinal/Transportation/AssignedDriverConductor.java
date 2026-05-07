@@ -231,24 +231,22 @@ public class AssignedDriverConductor extends AppCompatActivity {
     }
 
     private void performAddTrip() {
-        // 1. Initial Validation: Check if franchise data is loaded
         if (TextUtils.isEmpty(adminFranchise)) {
-            Toast.makeText(this, "Company data still loading. Please wait.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Admin company data not loaded.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
             String rCode = acRoute.getText().toString().trim();
             String vCode = acVehicle.getText().toString().trim();
-            String vType = acVehicleType.getText().toString().trim(); // This holds "Bus" or "Jeepney"
+            String vType = acVehicleType.getText().toString().trim(); // "Bus" or "Modern Jeepney"
 
-            // 2. Input Validation
             if (TextUtils.isEmpty(rCode) || TextUtils.isEmpty(vCode)) {
-                Toast.makeText(this, "Please select both a Route and a Vehicle", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Missing Route or Vehicle", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // 3. Find the selected Route object to copy path/coordinates
+            // Find the full Route details from the loaded list
             Route selectedRoute = null;
             for (Route r : activeRoutes) {
                 if (rCode.equals(r.getRouteCode())) {
@@ -257,63 +255,45 @@ public class AssignedDriverConductor extends AppCompatActivity {
                 }
             }
 
-            if (selectedRoute == null) {
-                Toast.makeText(this, "Error: Route details not found in active list.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            if (selectedRoute == null) return;
 
-            // 4. Prepare Firebase Reference and Key
             DatabaseReference db = FirebaseDatabase.getInstance(DB_URL).getReference();
             String tripKey = db.child("trips").child(adminFranchise).push().getKey();
 
-            if (tripKey == null) {
-                Toast.makeText(this, "Database Error: Could not generate Trip ID", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            // THE FIX: Use a Map to manually define keys.
+            // This bypasses the Java model and forces the capital 'A'.
+            // Inside performAddTrip()
+            Map<String, Object> tripData = new HashMap<>();
+            tripData.put("tripId", tripKey);
+            tripData.put("RouteCode", rCode); // Use Capital R
+            tripData.put("VehicleCode", vCode); // Use Capital V
+            tripData.put("AssignedTransport", vType); // Use Capital A
+            tripData.put("PlateNumber", etPlate.getText().toString().trim()); // Use Capital P/N
+            tripData.put("Terminal1", selectedRoute.getTerminal1());
+            tripData.put("Terminal2", selectedRoute.getTerminal2());
+            tripData.put("T1_Coords", selectedRoute.getT1_Coords());
+            tripData.put("T2_Coords", selectedRoute.getT2_Coords());
+            tripData.put("Stops", selectedRoute.getStops());
+            tripData.put("Stop_Coords", selectedRoute.getStop_Coords());
+            tripData.put("departureTime", etTime.getText().toString().trim());
+            tripData.put("driverName", acDriver.getText().toString().trim());
+            tripData.put("conductorName", acConductor.getText().toString().trim());
+            tripData.put("status", acStatus.getText().toString().trim());
+            tripData.put("franchise", adminFranchise);
 
-            // 5. Create and Populate the Trip object
-            Trip trip = new Trip();
-            trip.setTripId(tripKey);
-            trip.setRouteCode(rCode);
-            trip.setVehicleCode(vCode);
-
-            // This links the trip to the specific transport type for the commuter's filter
-            trip.setAssignedTransport(vType);
-
-            // Set Driver/Conductor/Vehicle Info
-            trip.setPlateNumber(etPlate.getText().toString().trim());
-            trip.setDriverName(acDriver.getText().toString().trim());
-            trip.setConductorName(acConductor.getText().toString().trim());
-            trip.setDepartureTime(etTime.getText().toString().trim());
-            trip.setStatus(acStatus.getText().toString().trim());
-            trip.setFranchise(adminFranchise);
-
-            // Set Route Details (Copied from the selectedRoute)
-            trip.setTerminal1(selectedRoute.getTerminal1());
-            trip.setTerminal2(selectedRoute.getTerminal2());
-            trip.setT1_Coords(selectedRoute.getT1_Coords());
-            trip.setT2_Coords(selectedRoute.getT2_Coords());
-            trip.setStops(selectedRoute.getStops());
-            trip.setStops_Coords(selectedRoute.getStop_Coords());
-
-            // 6. Perform Atomic Update (Saves Trip AND updates Vehicle status simultaneously)
             Map<String, Object> updates = new HashMap<>();
-            updates.put("trips/" + adminFranchise + "/" + tripKey, trip);
+            updates.put("trips/" + adminFranchise + "/" + tripKey, tripData);
             updates.put("vehicles/" + adminFranchise + "/" + vCode + "/Status", "Unavailable");
 
-            db.updateChildren(updates)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(AssignedDriverConductor.this, "Trip successfully assigned and live!", Toast.LENGTH_SHORT).show();
-                        finish(); // Return to previous screen
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("FIREBASE_SAVE_ERROR", "Error: " + e.getMessage());
-                        Toast.makeText(AssignedDriverConductor.this, "Failed to save trip.", Toast.LENGTH_SHORT).show();
-                    });
+            db.updateChildren(updates).addOnSuccessListener(aVoid -> {
+                Toast.makeText(this, "Trip successfully assigned!", Toast.LENGTH_SHORT).show();
+                finish();
+            }).addOnFailureListener(e -> {
+                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            });
 
         } catch (Exception e) {
-            Log.e("TRIP_CODE_ERROR", "Exception in performAddTrip: ", e);
-            Toast.makeText(this, "An unexpected error occurred.", Toast.LENGTH_SHORT).show();
+            Log.e("UPLOAD_ERROR", "Error in performAddTrip", e);
         }
     }
 

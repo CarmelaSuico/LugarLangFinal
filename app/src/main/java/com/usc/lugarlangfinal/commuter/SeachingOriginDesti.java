@@ -1,8 +1,6 @@
 package com.usc.lugarlangfinal.commuter;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -10,25 +8,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.BaseColumns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
-import androidx.cursoradapter.widget.CursorAdapter;
-import androidx.cursoradapter.widget.SimpleCursorAdapter;
-
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.usc.lugarlangfinal.R;
 import com.usc.lugarlangfinal.Settings;
 import com.usc.lugarlangfinal.commuterhome;
 
-import org.osmdroid.bonuspack.location.NominatimPOIProvider;
-import org.osmdroid.bonuspack.location.POI;
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
@@ -38,8 +29,6 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -52,36 +41,18 @@ public class SeachingOriginDesti extends AppCompatActivity {
     private MapView map;
     private SearchView searchOrigin, searchDestination;
     private Button btnSuggestionRoutes;
-
     private GeoPoint originPoint, destinationPoint;
     private Marker originMarker, destinationMarker;
     private Polyline currentRouteLine;
-
-    private SimpleCursorAdapter originAdapter, destAdapter;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        Configuration.getInstance().setUserAgentValue(getPackageName());
         setContentView(R.layout.activity_seaching_origin_desti);
 
-        initViews();
-        setupMap();
-        setupSearchWithSuggestions();
-
-        // UI state: highlight current tab
-        btnSearch.setSelected(true);
-
-        btnHomePage.setOnClickListener(v -> startActivity(new Intent(this, commuterhome.class)));
-        btnSetting.setOnClickListener(v -> startActivity(new Intent(this, Settings.class)));
-        btnSuggestionRoutes.setOnClickListener(v -> showTransportSelectionDialog());
-    }
-
-    private void initViews() {
         map = findViewById(R.id.mapCommuter);
         searchOrigin = findViewById(R.id.searchorigin);
         searchDestination = findViewById(R.id.searchdestination);
@@ -89,162 +60,80 @@ public class SeachingOriginDesti extends AppCompatActivity {
         btnHomePage = findViewById(R.id.btnhomepage);
         btnSearch = findViewById(R.id.btnsearch);
         btnSetting = findViewById(R.id.btnsetting);
-    }
 
-    private void showTransportSelectionDialog() {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
-        View view = getLayoutInflater().inflate(R.layout.layout_transport_selection, null);
-        bottomSheetDialog.setContentView(view);
+        btnSearch.setSelected(true);
 
-        view.findViewById(R.id.optionBus).setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            navigateToSuggestedRoutes("Bus");
+        btnHomePage.setOnClickListener(v -> {
+            startActivity(new Intent(SeachingOriginDesti.this, commuterhome.class));
         });
 
-        view.findViewById(R.id.optionJeepney).setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            navigateToSuggestedRoutes("Jeepney");
+        btnSetting.setOnClickListener(v -> {
+            startActivity(new Intent(SeachingOriginDesti.this, Settings.class));
         });
 
-        bottomSheetDialog.show();
-    }
+        setupMap();
 
-    private void navigateToSuggestedRoutes(String transportType) {
-        if (originPoint == null || destinationPoint == null) {
-            Toast.makeText(this, "Wait for the route to be calculated on the map", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Intent intent = new Intent(this, SuggestedRoutes.class);
-        intent.putExtra("TRANSPORT_TYPE", transportType);
-
-        // Safety check for query text
-        String oName = searchOrigin.getQuery() != null ? searchOrigin.getQuery().toString() : "";
-        String dName = searchDestination.getQuery() != null ? searchDestination.getQuery().toString() : "";
-
-        intent.putExtra("ORIGIN_NAME", oName);
-        intent.putExtra("DEST_NAME", dName);
-        intent.putExtra("ORIGIN_LAT", originPoint.getLatitude());
-        intent.putExtra("ORIGIN_LNG", originPoint.getLongitude());
-        intent.putExtra("DEST_LAT", destinationPoint.getLatitude());
-        intent.putExtra("DEST_LNG", destinationPoint.getLongitude());
-        startActivity(intent);
-    }
-
-    private void setupMap() {
-        map.setTileSource(TileSourceFactory.MAPNIK);
-        map.setMultiTouchControls(true);
-        map.getController().setZoom(14.0);
-        map.getController().setCenter(new GeoPoint(10.3157, 123.8854)); // Cebu Default
-    }
-
-    private void setupSearchWithSuggestions() {
-        String[] from = new String[]{"place_name"};
-        int[] to = new int[]{android.R.id.text1};
-
-        originAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        destAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-
-        searchOrigin.setSuggestionsAdapter(originAdapter);
-        searchDestination.setSuggestionsAdapter(destAdapter);
-
-        setupListeners(searchOrigin, originAdapter, true);
-        setupListeners(searchDestination, destAdapter, false);
-    }
-
-    private void setupListeners(SearchView searchView, SimpleCursorAdapter adapter, boolean isOrigin) {
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                geocodeLocation(query, isOrigin);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (newText.length() >= 3) fetchSuggestions(newText, adapter);
-                return true;
-            }
+        searchOrigin.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override public boolean onQueryTextSubmit(String q) { geocode(q, true); return true; }
+            @Override public boolean onQueryTextChange(String n) { return false; }
         });
 
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int pos) { return false; }
-            @Override
-            public boolean onSuggestionClick(int pos) {
-                Cursor cursor = adapter.getCursor();
-                if (cursor.moveToPosition(pos)) {
-                    String selection = cursor.getString(cursor.getColumnIndexOrThrow("place_name"));
-                    searchView.setQuery(selection, true);
-                }
-                return true;
-            }
+        searchDestination.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override public boolean onQueryTextSubmit(String q) { geocode(q, false); return true; }
+            @Override public boolean onQueryTextChange(String n) { return false; }
         });
+
+        btnSuggestionRoutes.setOnClickListener(v -> showTransportDialog());
     }
 
-    private void geocodeLocation(String name, boolean isOrigin) {
-        mainHandler.post(() -> btnSuggestionRoutes.setVisibility(View.GONE));
+    private void geocode(String name, boolean isOrigin) {
         executor.execute(() -> {
             try {
-                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-                List<Address> addresses = geocoder.getFromLocationName(name, 1);
-                if (addresses != null && !addresses.isEmpty()) {
-                    Address addr = addresses.get(0);
-                    GeoPoint point = new GeoPoint(addr.getLatitude(), addr.getLongitude());
+                Geocoder g = new Geocoder(this, Locale.getDefault());
+                List<Address> addrs = g.getFromLocationName(name, 1);
+                if (addrs != null && !addrs.isEmpty()) {
+                    Address a = addrs.get(0);
+                    GeoPoint p = new GeoPoint(a.getLatitude(), a.getLongitude());
                     mainHandler.post(() -> {
                         if (isOrigin) {
-                            originPoint = point;
-                            updateMarker(true, point, "Start: " + name);
+                            originPoint = p;
+                            if (originMarker != null) map.getOverlays().remove(originMarker);
+                            originMarker = new Marker(map);
+                            originMarker.setPosition(p);
+                            originMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                            originMarker.setIcon(ContextCompat.getDrawable(this, R.drawable.trip_origin_24px));
+                            map.getOverlays().add(originMarker);
                         } else {
-                            destinationPoint = point;
-                            updateMarker(false, point, "End: " + name);
+                            destinationPoint = p;
+                            if (destinationMarker != null) map.getOverlays().remove(destinationMarker);
+                            destinationMarker = new Marker(map);
+                            destinationMarker.setPosition(p);
+                            destinationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                            destinationMarker.setIcon(ContextCompat.getDrawable(this, R.drawable.location_on_24px));
+                            map.getOverlays().add(destinationMarker);
                         }
-                        checkAndDrawRoute();
+                        map.getController().animateTo(p);
+                        drawRoutePreview();
                     });
                 }
-            } catch (IOException e) { e.printStackTrace(); }
+            } catch (Exception e) { e.printStackTrace(); }
         });
     }
 
-    private void updateMarker(boolean isOrigin, GeoPoint point, String title) {
-        if (isOrigin) {
-            if (originMarker != null) map.getOverlays().remove(originMarker);
-            originMarker = new Marker(map);
-            originMarker.setPosition(point);
-            originMarker.setTitle(title);
-            originMarker.setIcon(ContextCompat.getDrawable(this, R.drawable.trip_origin_24px));
-            map.getOverlays().add(originMarker);
-        } else {
-            if (destinationMarker != null) map.getOverlays().remove(destinationMarker);
-            destinationMarker = new Marker(map);
-            destinationMarker.setPosition(point);
-            destinationMarker.setTitle(title);
-            destinationMarker.setIcon(ContextCompat.getDrawable(this, R.drawable.location_on_24px));
-            map.getOverlays().add(destinationMarker);
-        }
-        map.getController().animateTo(point);
-        map.invalidate();
-    }
-
-    private void checkAndDrawRoute() {
+    private void drawRoutePreview() {
         if (originPoint != null && destinationPoint != null) {
-            ArrayList<GeoPoint> waypoints = new ArrayList<>();
-            waypoints.add(originPoint);
-            waypoints.add(destinationPoint);
-
+            ArrayList<GeoPoint> points = new ArrayList<>();
+            points.add(originPoint); points.add(destinationPoint);
             executor.execute(() -> {
-                OSRMRoadManager roadManager = new OSRMRoadManager(this, getPackageName());
-                Road road = roadManager.getRoad(waypoints);
+                Road road = new OSRMRoadManager(this, getPackageName()).getRoad(points);
                 mainHandler.post(() -> {
                     if (road.mStatus == Road.STATUS_OK) {
                         if (currentRouteLine != null) map.getOverlays().remove(currentRouteLine);
                         currentRouteLine = RoadManager.buildRoadOverlay(road);
                         currentRouteLine.getOutlinePaint().setColor(Color.BLACK);
-                        currentRouteLine.getOutlinePaint().setStrokeWidth(12.0f);
+                        currentRouteLine.getOutlinePaint().setStrokeWidth(10.0f);
                         map.getOverlays().add(0, currentRouteLine);
-
                         btnSuggestionRoutes.setVisibility(View.VISIBLE);
-                        map.zoomToBoundingBox(road.mBoundingBox, true, 150);
                         map.invalidate();
                     }
                 });
@@ -252,23 +141,31 @@ public class SeachingOriginDesti extends AppCompatActivity {
         }
     }
 
-    private void fetchSuggestions(String text, SimpleCursorAdapter adapter) {
-        GeoPoint center = (GeoPoint) map.getMapCenter();
-        executor.execute(() -> {
-            try {
-                NominatimPOIProvider poiProvider = new NominatimPOIProvider(getPackageName());
-                ArrayList<POI> pois = poiProvider.getPOICloseTo(center, text, 5, 0.2);
-                MatrixCursor cursor = new MatrixCursor(new String[]{BaseColumns._ID, "place_name"});
-                if (pois != null) {
-                    for (int i = 0; i < pois.size(); i++) {
-                        cursor.addRow(new Object[]{i, pois.get(i).mDescription});
-                    }
-                }
-                mainHandler.post(() -> adapter.changeCursor(cursor));
-            } catch (Exception e) { e.printStackTrace(); }
-        });
+    private void showTransportDialog() {
+        BottomSheetDialog d = new BottomSheetDialog(this);
+        View v = getLayoutInflater().inflate(R.layout.layout_transport_selection, null);
+        v.findViewById(R.id.optionBus).setOnClickListener(view -> startSuggested("Bus", d));
+        v.findViewById(R.id.optionJeepney).setOnClickListener(view -> startSuggested("Jeepney", d));
+        d.setContentView(v); d.show();
     }
 
-    @Override public void onResume() { super.onResume(); map.onResume(); }
-    @Override public void onPause() { super.onPause(); map.onPause(); }
+    private void startSuggested(String type, BottomSheetDialog d) {
+        d.dismiss();
+        Intent i = new Intent(this, SuggestedRoutes.class);
+        i.putExtra("TRANSPORT_TYPE", type);
+        i.putExtra("ORIGIN_LAT", originPoint.getLatitude()); // Ensure double
+        i.putExtra("ORIGIN_LNG", originPoint.getLongitude());
+        i.putExtra("DEST_LAT", destinationPoint.getLatitude());
+        i.putExtra("DEST_LNG", destinationPoint.getLongitude());
+        i.putExtra("ORIGIN_NAME", searchOrigin.getQuery().toString());
+        i.putExtra("DEST_NAME", searchDestination.getQuery().toString());
+        startActivity(i);
+    }
+
+    private void setupMap() {
+        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.setMultiTouchControls(true);
+        map.getController().setZoom(15.0);
+        map.getController().setCenter(new GeoPoint(10.3157, 123.8854));
+    }
 }

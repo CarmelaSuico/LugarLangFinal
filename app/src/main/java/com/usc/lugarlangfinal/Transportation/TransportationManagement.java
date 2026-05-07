@@ -2,6 +2,7 @@ package com.usc.lugarlangfinal.Transportation;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -41,35 +42,36 @@ public class TransportationManagement extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transportation_management);
 
+        // 1. Init UI
         rvTrips = findViewById(R.id.rvEmployeeList);
         searchView = findViewById(R.id.searchassigntransport);
-
-        tripList = new ArrayList<>();
-        filteredList = new ArrayList<>();
-        rvTrips.setLayoutManager(new LinearLayoutManager(this));
-
-        tripAdapter = new TripAdapter(filteredList);
-        rvTrips.setAdapter(tripAdapter);
-
         btnTransportdashboard = findViewById(R.id.btntransportdashboard);
         btnAssinedriver = findViewById(R.id.btnassinedriver);
         btnBack = findViewById(R.id.btnback);
 
+        // 2. Setup RecyclerView
+        tripList = new ArrayList<>();
+        filteredList = new ArrayList<>();
+        rvTrips.setLayoutManager(new LinearLayoutManager(this));
+        tripAdapter = new TripAdapter(filteredList);
+        rvTrips.setAdapter(tripAdapter);
+
+        // 3. Navigation
         btnTransportdashboard.setSelected(true);
         btnAssinedriver.setOnClickListener(v -> {
-            startActivity(new Intent(TransportationManagement.this, AssignedDriverConductor.class));
+            startActivity(new Intent(this, AssignedDriverConductor.class));
         });
         btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(TransportationManagement.this, AdminDashboard.class));
+            startActivity(new Intent(this, AdminDashboard.class));
             finish();
         });
 
+        // 4. Start Data Load
         fetchAdminAndLoadTrips();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) { return false; }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 filterTrips(newText);
@@ -87,11 +89,14 @@ public class TransportationManagement extends AppCompatActivity {
         adminRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    adminFranchise = snapshot.child("company").getValue(String.class);
-                    if (adminFranchise != null) {
-                        loadFranchiseTrips();
-                    }
+                // FIX: Get the company name as a String, NOT a Trip object
+                adminFranchise = snapshot.child("company").getValue(String.class);
+
+                if (adminFranchise != null && !adminFranchise.isEmpty()) {
+                    // Once we have the company name, we can safely load the trips
+                    loadFranchiseTrips();
+                } else {
+                    Toast.makeText(TransportationManagement.this, "Company not found", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
@@ -102,6 +107,7 @@ public class TransportationManagement extends AppCompatActivity {
     }
 
     private void loadFranchiseTrips() {
+        // Pointing to: trips -> Sugbo Transit (or whatever the franchise name is)
         DatabaseReference tripRef = FirebaseDatabase.getInstance(DB_URL)
                 .getReference("trips")
                 .child(adminFranchise);
@@ -111,11 +117,15 @@ public class TransportationManagement extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tripList.clear();
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    Trip trip = ds.getValue(Trip.class);
-                    if (trip != null) {
-                        // Use the setter method instead of direct field access
-                        trip.setTripId(ds.getKey());
-                        tripList.add(trip);
+                    try {
+                        // This uses the @PropertyName mapping from your Trip.java
+                        Trip trip = ds.getValue(Trip.class);
+                        if (trip != null) {
+                            trip.setTripId(ds.getKey());
+                            tripList.add(trip);
+                        }
+                    } catch (Exception e) {
+                        Log.e("FirebaseError", "Crash prevented: " + e.getMessage());
                     }
                 }
                 filterTrips(searchView.getQuery().toString());
@@ -135,7 +145,6 @@ public class TransportationManagement extends AppCompatActivity {
         } else {
             String query = text.toLowerCase().trim();
             for (Trip item : tripList) {
-                // CHANGED: Use Getter methods to avoid NullPointer and mapping issues
                 String route = item.getRouteCode() != null ? item.getRouteCode().toLowerCase() : "";
                 String driver = item.getDriverName() != null ? item.getDriverName().toLowerCase() : "";
                 String vehicle = item.getVehicleCode() != null ? item.getVehicleCode().toLowerCase() : "";

@@ -1,109 +1,108 @@
 package com.usc.lugarlangfinal.models;
 
 import com.google.firebase.database.PropertyName;
+import java.io.Serializable;
 
-public class Trip {
+public class Trip implements Serializable {
 
-    // 1. Move the Annotations to the FIELDS.
-    // 2. This tells Firebase EXACTLY which key to look for.
+    @PropertyName("tripId")         private String tripId = "";
+    @PropertyName("RouteCode")      private String routeCode = "";
+    @PropertyName("VehicleCode")    private String vehicleCode = "";
+    @PropertyName("PlateNumber")    private String plateNumber = "";
+    @PropertyName("Terminal1")      private String terminal1 = "";
+    @PropertyName("Terminal2")      private String terminal2 = "";
+    @PropertyName("driverName")     private String driverName = "N/A";
+    @PropertyName("conductorName")  private String conductorName = "N/A";
+    @PropertyName("departureTime")  private String departureTime = "--:--";
+    @PropertyName("status")         private String status = "Unknown";
+    @PropertyName("franchise")      private String franchise = "";
+    @PropertyName("T1_Coords")      private String t1Coords = "0,0";
+    @PropertyName("T2_Coords")      private String t2Coords = "0,0";
+    @PropertyName("Stops")          private String stops = "";
+    // KEY FIX: Firebase field is "Stop_Coords" — must match exactly
+    @PropertyName("Stop_Coords")    private String stopCoords = "";
+    @PropertyName("AssignedTransport") private String assignedTransport = "";
+
+    public Trip() {} // Required for Firebase
+
     @PropertyName("tripId")
-    private String tripId;
+    public String getTripId() { return tripId; }
+    @PropertyName("tripId")
+    public void setTripId(String v) { this.tripId = v != null ? v : ""; }
 
-    @PropertyName("routeCode")
-    private String routeCode;
+    @PropertyName("RouteCode")
+    public String getRouteCode() { return routeCode; }
+    @PropertyName("RouteCode")
+    public void setRouteCode(String v) { this.routeCode = v != null ? v : ""; }
 
-    @PropertyName("vehicleCode")
-    private String vehicleCode;
+    @PropertyName("VehicleCode")
+    public String getVehicleCode() { return vehicleCode; }
+    @PropertyName("VehicleCode")
+    public void setVehicleCode(String v) { this.vehicleCode = v != null ? v : ""; }
 
     @PropertyName("PlateNumber")
-    private String plateNumber;
+    public String getPlateNumber() { return plateNumber; }
+    @PropertyName("PlateNumber")
+    public void setPlateNumber(String v) { this.plateNumber = v != null ? v : ""; }
 
-    @PropertyName("terminal1")
-    private String terminal1;
+    @PropertyName("Terminal1")
+    public String getTerminal1() { return terminal1; }
+    @PropertyName("Terminal1")
+    public void setTerminal1(String v) { this.terminal1 = v != null ? v : ""; }
 
-    @PropertyName("terminal2")
-    private String terminal2;
+    @PropertyName("Terminal2")
+    public String getTerminal2() { return terminal2; }
+    @PropertyName("Terminal2")
+    public void setTerminal2(String v) { this.terminal2 = v != null ? v : ""; }
 
     @PropertyName("driverName")
-    private String driverName;
+    public String getDriverName() { return driverName; }
+    @PropertyName("driverName")
+    public void setDriverName(String v) { this.driverName = v != null ? v : "N/A"; }
 
     @PropertyName("conductorName")
-    private String conductorName;
+    public String getConductorName() { return conductorName; }
+    @PropertyName("conductorName")
+    public void setConductorName(String v) { this.conductorName = v != null ? v : "N/A"; }
 
     @PropertyName("departureTime")
-    private String departureTime;
+    public String getDepartureTime() { return departureTime; }
+    @PropertyName("departureTime")
+    public void setDepartureTime(String v) { this.departureTime = v != null ? v : "--:--"; }
 
     @PropertyName("status")
-    private String status;
+    public String getStatus() { return status; }
+    @PropertyName("status")
+    public void setStatus(String v) { this.status = v != null ? v : "Unknown"; }
 
     @PropertyName("franchise")
-    private String franchise;
+    public String getFranchise() { return franchise; }
+    @PropertyName("franchise")
+    public void setFranchise(String v) { this.franchise = v != null ? v : ""; }
 
-    @PropertyName("t1_Coords")
-    private String t1_Coords;
+    @PropertyName("T1_Coords")
+    public String getT1Coords() { return t1Coords; }
+    @PropertyName("T1_Coords")
+    public void setT1Coords(String v) { this.t1Coords = v != null ? v : "0,0"; }
 
-    @PropertyName("t2_Coords")
-    private String t2_Coords;
+    @PropertyName("T2_Coords")
+    public String getT2Coords() { return t2Coords; }
+    @PropertyName("T2_Coords")
+    public void setT2Coords(String v) { this.t2Coords = v != null ? v : "0,0"; }
 
     @PropertyName("Stops")
-    private String stops;
+    public String getStops() { return stops; }
+    @PropertyName("Stops")
+    public void setStops(String v) { this.stops = v != null ? v : ""; }
 
+    // KEY FIX: getter/setter names must match the @PropertyName on the field
     @PropertyName("Stop_Coords")
-    private String stops_Coords;
+    public String getStopCoords() { return stopCoords; }
+    @PropertyName("Stop_Coords")
+    public void setStopCoords(String v) { this.stopCoords = v != null ? v : ""; }
 
     @PropertyName("AssignedTransport")
-    private String assignedTransport;
-
-    public Trip() {}
-
-    // 3. Remove all @PropertyName from these Getters and Setters.
-    // They will now just act as normal Java methods to access the annotated fields.
-
-    public String getTripId() { return tripId; }
-    public void setTripId(String tripId) { this.tripId = tripId; }
-
-    public String getPlateNumber() { return plateNumber; }
-    public void setPlateNumber(String plateNumber) { this.plateNumber = plateNumber; }
-
-    public String getRouteCode() { return routeCode; }
-    public void setRouteCode(String routeCode) { this.routeCode = routeCode; }
-
-    public String getVehicleCode() { return vehicleCode; }
-    public void setVehicleCode(String vehicleCode) { this.vehicleCode = vehicleCode; }
-
-    public String getTerminal1() { return terminal1; }
-    public void setTerminal1(String terminal1) { this.terminal1 = terminal1; }
-
-    public String getTerminal2() { return terminal2; }
-    public void setTerminal2(String terminal2) { this.terminal2 = terminal2; }
-
-    public String getT1_Coords() { return t1_Coords; }
-    public void setT1_Coords(String t1_Coords) { this.t1_Coords = t1_Coords; }
-
-    public String getT2_Coords() { return t2_Coords; }
-    public void setT2_Coords(String t2_Coords) { this.t2_Coords = t2_Coords; }
-
-    public String getStops() { return stops; }
-    public void setStops(String stops) { this.stops = stops; }
-
-    public String getStops_Coords() { return stops_Coords; }
-    public void setStops_Coords(String stops_Coords) { this.stops_Coords = stops_Coords; }
-
-    public String getDriverName() { return driverName; }
-    public void setDriverName(String driverName) { this.driverName = driverName; }
-
-    public String getConductorName() { return conductorName; }
-    public void setConductorName(String conductorName) { this.conductorName = conductorName; }
-
-    public String getDepartureTime() { return departureTime; }
-    public void setDepartureTime(String departureTime) { this.departureTime = departureTime; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public String getFranchise() { return franchise; }
-    public void setFranchise(String franchise) { this.franchise = franchise; }
-
     public String getAssignedTransport() { return assignedTransport; }
-    public void setAssignedTransport(String assignedTransport) { this.assignedTransport = assignedTransport; }
+    @PropertyName("AssignedTransport")
+    public void setAssignedTransport(String v) { this.assignedTransport = v != null ? v : ""; }
 }

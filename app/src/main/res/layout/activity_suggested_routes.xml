@@ -10,29 +10,26 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingTop="10dp"
-        android:paddingLeft="10dp"
-        android:gravity="center_horizontal">
+        android:padding="10dp">
 
         <ImageButton
             android:id="@+id/btnback"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:scaleType="centerCrop"
-            android:layout_alignParentTop="true"
+            android:scaleType="centerInside"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:srcCompat="@drawable/arrow_back_24px"
             app:tint="@color/white"
-            android:layout_gravity="left"
+            android:layout_gravity="start"
             android:layout_marginBottom="10dp"/>
 
-        <!-- Origin Search Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_origin"
-            android:layout_width="360dp"
+            android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_marginHorizontal="10dp"
             android:layout_marginBottom="12dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
@@ -48,11 +45,11 @@
                 app:queryBackground="@android:color/transparent" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Destination Search Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_destination"
-            android:layout_width="360dp"
+            android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_marginHorizontal="10dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/white">
@@ -74,14 +71,26 @@
             android:layout_marginVertical="16dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
             android:id="@+id/recyclerView"
-            android:layout_margin="16dp"/>
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="8dp"
+            android:clipToPadding="false"
+            android:paddingBottom="20dp"
+            tools:listitem="@layout/item_suggested_route"/>
+
+
+        <TextView
+            android:id="@+id/tvNoRoutesMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:text="No routes found nearby."
+            android:textColor="@color/white"
+            android:visibility="gone"/>
 
     </LinearLayout>
-
-
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

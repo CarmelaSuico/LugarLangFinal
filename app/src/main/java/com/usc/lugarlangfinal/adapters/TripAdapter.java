@@ -29,31 +29,31 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Trip trip = tripList.get(position);
 
-        // USE GETTERS INSTEAD OF DIRECT FIELDS
-        // This prevents crashes now that fields are private in the Trip model
-        holder.tvVehicleCode.setText("Vehicle Code: " + nullSafe(trip.getVehicleCode()));
+        // 1. Route Code (Firebase key: RouteCode)
+        // Make sure your Trip.java has @PropertyName("RouteCode")
+        holder.tvVehicleCode.setText("Route: " + nullSafe(trip.getRouteCode()));
+
+        // 2. Terminals (Firebase keys: Terminal1 and Terminal2)
         holder.tvTerminal1.setText(nullSafe(trip.getTerminal1()));
         holder.tvTerminal2.setText(nullSafe(trip.getTerminal2()));
+
+        // 3. Driver and Conductor
         holder.tvDriver.setText("Driver: " + nullSafe(trip.getDriverName()));
         holder.tvConductor.setText("Conductor: " + nullSafe(trip.getConductorName()));
 
-        // More Details Button Logic
+        // More Details Click
         holder.btnMoreDetails.setOnClickListener(v -> {
-            // Passing data via Getter
-            // Intent intent = new Intent(v.getContext(), TripDetailsActivity.class);
-            // intent.putExtra("TRIP_ID", trip.getTripId());
-            // v.getContext().startActivity(intent);
+            // Your logic here
         });
     }
 
     @Override
     public int getItemCount() {
-        return tripList != null ? tripList.size() : 0;
+        return (tripList != null) ? tripList.size() : 0;
     }
 
-    // Helper method to prevent "null" text showing up in the UI
     private String nullSafe(String s) {
-        return (s == null || s.isEmpty()) ? "N/A" : s;
+        return (s == null || s.trim().isEmpty()) ? "N/A" : s;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -62,6 +62,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            // These IDs must match your item_trip.xml exactly
             tvVehicleCode = itemView.findViewById(R.id.txtcode);
             tvTerminal1 = itemView.findViewById(R.id.txtterminal1);
             tvTerminal2 = itemView.findViewById(R.id.txtterminal2);

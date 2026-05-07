@@ -19,6 +19,13 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/bus_railway_24px"
+                app:tint="@android:color/holo_blue_dark" />
+
             <TextView
                 android:id="@+id/tvRouteCode"
                 android:layout_width="0dp"
@@ -34,7 +41,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:background="@android:color/holo_blue_dark"
-                android:drawablePadding="4dp"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:textColor="@android:color/white"
@@ -84,6 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#4CAF50"
+                android:drawableStart="@drawable/directions_walk_24px"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -113,6 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#F44336"
+                android:drawableStart="@drawable/directions_walk_24px"
                 android:textSize="12sp" />
         </LinearLayout>
 
