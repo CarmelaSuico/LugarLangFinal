@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#BAA4B1"
+    tools:context=".commuter.TripMoreDetails">
+
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapDetails"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="16dp"
+        android:src="@drawable/arrow_back_24px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/black"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:scaleType="centerCrop"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvTerminals"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Terminal 1 > Terminal 2"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:background="#DDDDDD" android:layout_marginVertical="8dp"/>
+
+            <TextView android:id="@+id/tvPlate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Plate Number: "/>
+            <TextView android:id="@+id/tvDeparture" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Departure Time: "/>
+            <TextView android:id="@+id/tvArrival" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Estimated Arrival: --"/>
+            <TextView android:id="@+id/tvFare" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Estimated Fare (w/o Discount): ₱0.00" android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/btnStartTracking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="8dp"
+                android:text="Start Tracking ▶"
+                android:textColor="#880E4F"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

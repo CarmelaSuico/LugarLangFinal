@@ -45,33 +45,37 @@ public class SuggestedRouteAdapter extends RecyclerView.Adapter<SuggestedRouteAd
         h.tvDeparture.setText("🕐 " + t.getDepartureTime());
         h.tvDriver.setText("👤 " + t.getDriverName());
         h.tvPlate.setText("🆔 " + t.getPlateNumber());
-        h.tvFare.setText("₱15.00");
 
-        // Board / alight stop names using the helper in SuggestedRoutes
+        // Board / alight stop names + walk distances
         h.tvBoardStop.setText("🟢 Board: " + SuggestedRoutes.getStopName(t, s.pickupIndex));
         h.tvAlightStop.setText("🔴 Alight: " + SuggestedRoutes.getStopName(t, s.dropoffIndex));
-
-        // Display walk distances
         h.tvBoardWalk.setText(formatDist(s.pickupDist));
         h.tvAlightWalk.setText(formatDist(s.dropoffDist));
 
-        // Status badge color-coding
+        // Fares — show both regular and discounted once loaded
+        if (s.regularFare >= 0) {
+            double discounted = SuggestedRoutes.applyDiscount(s.regularFare, "Student");
+            h.tvFare.setText(String.format("Regular: ₱%.2f", s.regularFare));
+            h.tvFareDiscounted.setText(String.format("Student/PWD/Senior: ₱%.2f", discounted));
+            h.tvFareDiscounted.setVisibility(View.VISIBLE);
+        } else {
+            h.tvFare.setText("Fare: loading...");
+            h.tvFareDiscounted.setVisibility(View.GONE);
+        }
+
+        // Color-code the status badge
         String status = t.getStatus() != null ? t.getStatus() : "";
         h.tvStatus.setText(status);
         switch (status.toLowerCase()) {
             case "active":
             case "on route":
-                h.tvStatus.setBackgroundColor(Color.parseColor("#2E7D32")); // green
-                break;
+                h.tvStatus.setBackgroundColor(Color.parseColor("#2E7D32")); break;
             case "scheduled":
-                h.tvStatus.setBackgroundColor(Color.parseColor("#1565C0")); // blue
-                break;
+                h.tvStatus.setBackgroundColor(Color.parseColor("#1565C0")); break;
             case "completed":
-                h.tvStatus.setBackgroundColor(Color.parseColor("#757575")); // grey
-                break;
+                h.tvStatus.setBackgroundColor(Color.parseColor("#757575")); break;
             default:
-                h.tvStatus.setBackgroundColor(Color.parseColor("#E65100")); // orange
-                break;
+                h.tvStatus.setBackgroundColor(Color.parseColor("#E65100")); break;
         }
 
         h.itemView.setOnClickListener(v -> listener.onItemClick(s));
@@ -88,22 +92,24 @@ public class SuggestedRouteAdapter extends RecyclerView.Adapter<SuggestedRouteAd
     static class RouteViewHolder extends RecyclerView.ViewHolder {
         TextView tvRouteCode, tvTerminals, tvTransportType, tvStatus;
         TextView tvBoardStop, tvBoardWalk, tvAlightStop, tvAlightWalk;
-        TextView tvDeparture, tvDriver, tvPlate, tvFare;
+        TextView tvDeparture, tvDriver, tvPlate;
+        TextView tvFare, tvFareDiscounted;
 
         RouteViewHolder(@NonNull View v) {
             super(v);
-            tvRouteCode     = v.findViewById(R.id.tvRouteCode);
-            tvTerminals     = v.findViewById(R.id.tvTerminals);
-            tvTransportType = v.findViewById(R.id.tvTransportType);
-            tvStatus        = v.findViewById(R.id.tvStatus);
-            tvBoardStop     = v.findViewById(R.id.tvBoardStop);
-            tvBoardWalk     = v.findViewById(R.id.tvBoardWalk);
-            tvAlightStop    = v.findViewById(R.id.tvAlightStop);
-            tvAlightWalk    = v.findViewById(R.id.tvAlightWalk);
-            tvDeparture     = v.findViewById(R.id.tvDeparture);
-            tvDriver        = v.findViewById(R.id.tvDriver);
-            tvPlate         = v.findViewById(R.id.tvPlate);
-            tvFare          = v.findViewById(R.id.tvFare);
+            tvRouteCode      = v.findViewById(R.id.tvRouteCode);
+            tvTerminals      = v.findViewById(R.id.tvTerminals);
+            tvTransportType  = v.findViewById(R.id.tvTransportType);
+            tvStatus         = v.findViewById(R.id.tvStatus);
+            tvBoardStop      = v.findViewById(R.id.tvBoardStop);
+            tvBoardWalk      = v.findViewById(R.id.tvBoardWalk);
+            tvAlightStop     = v.findViewById(R.id.tvAlightStop);
+            tvAlightWalk     = v.findViewById(R.id.tvAlightWalk);
+            tvDeparture      = v.findViewById(R.id.tvDeparture);
+            tvDriver         = v.findViewById(R.id.tvDriver);
+            tvPlate          = v.findViewById(R.id.tvPlate);
+            tvFare           = v.findViewById(R.id.tvFare);
+            tvFareDiscounted = v.findViewById(R.id.tvFareDiscounted);
         }
     }
 }

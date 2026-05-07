@@ -39,7 +39,7 @@ public class StartEndTrip extends AppCompatActivity {
     private MapView map;
     private TextView txtT1, txtT2;
     private Button btnEndTrip;
-    private String companyName, employeeId, tripId;
+    private String companyName, tripId;
     private MyLocationNewOverlay mLocationOverlay;
     private Polyline currentRoadOverlay;
 
@@ -60,11 +60,15 @@ public class StartEndTrip extends AppCompatActivity {
         btnEndTrip = findViewById(R.id.btnEndTrip);
 
         companyName = getIntent().getStringExtra("COMPANY_NAME");
-        employeeId  = getIntent().getStringExtra("EMPLOYEE_ID");
         tripId      = getIntent().getStringExtra("TRIP_ID");
 
         setupMap();
-        if (tripId != null) fetchTripData();
+
+        if (companyName != null && tripId != null) {
+            fetchTripData();
+        } else {
+            Toast.makeText(this, "Error: Missing Trip Data", Toast.LENGTH_SHORT).show();
+        }
 
         btnEndTrip.setOnClickListener(v -> saveAndPrepareNextTrip());
     }
@@ -82,16 +86,15 @@ public class StartEndTrip extends AppCompatActivity {
 
     private void fetchTripData() {
         DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("trips").child(companyName).child(tripId);
-        ref.addValueEventListener(new ValueEventListener() { // Changed to addValueEventListener for live header updates
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) return;
 
-                // CLEAN SLATE FIRST: Clear markers but keep blue dot
                 allPoints.clear();
-                map.getOverlays().removeIf(o -> o instanceof Marker || (o instanceof Polyline && o != mLocationOverlay));
+                List<org.osmdroid.views.overlay.Overlay> overlays = map.getOverlays();
+                overlays.removeIf(o -> o instanceof Marker || o instanceof Polyline);
 
-                // FIXED: Use Capitalized Keys for Terminals to match your Firebase JSON
                 String t1N = snapshot.child("Terminal1").getValue(String.class);
                 String t2N = snapshot.child("Terminal2").getValue(String.class);
                 String t1C = snapshot.child("T1_Coords").getValue(String.class);
@@ -99,40 +102,37 @@ public class StartEndTrip extends AppCompatActivity {
                 String stopsStr = snapshot.child("Stops").getValue(String.class);
                 String stopCoordsStr = snapshot.child("Stop_Coords").getValue(String.class);
 
-                // Update the Header UI
                 txtT1.setText(t1N != null ? t1N : "Origin");
                 txtT2.setText(t2N != null ? t2N : "Destination");
 
-                // 1. ORIGIN MARKER
-                if (t1C != null) {
+                if (t1C != null && t1C.contains(",")) {
                     GeoPoint p = parseGeoPoint(t1C);
                     allPoints.add(p);
                     addMarker(p, "Start: " + t1N, R.drawable.trip_origin_24px);
                     map.getController().animateTo(p);
                 }
 
-                // 2. INTERMEDIATE STOPS MARKERS
                 if (stopCoordsStr != null && !stopCoordsStr.isEmpty()) {
                     String[] coords = stopCoordsStr.split("\\|");
-                    String[] names = (stopsStr != null) ? stopsStr.split(",\\s*") : new String[0];
+                    String[] names = (stopsStr != null) ? stopsStr.split(",") : new String[0];
 
                     for (int i = 0; i < coords.length; i++) {
-                        if (coords[i].trim().isEmpty()) continue;
-                        GeoPoint p = parseGeoPoint(coords[i]);
+                        String coordStr = coords[i].trim();
+                        if (!coordStr.contains(",")) continue;
+
+                        GeoPoint p = parseGeoPoint(coordStr);
                         allPoints.add(p);
-                        String label = (i < names.length) ? names[i] : "Stop " + (i + 1);
+                        String label = (i < names.length) ? names[i].trim() : "Stop " + (i + 1);
                         addMarker(p, label, R.drawable.vd_vector);
                     }
                 }
 
-                // 3. DESTINATION MARKER
-                if (t2C != null) {
+                if (t2C != null && t2C.contains(",")) {
                     GeoPoint p = parseGeoPoint(t2C);
                     allPoints.add(p);
                     addMarker(p, "End: " + t2N, R.drawable.location_on_24px);
                 }
 
-                // Draw the blue line
                 if (allPoints.size() >= 2) {
                     drawRoute(new ArrayList<>(allPoints));
                 }
@@ -149,12 +149,13 @@ public class StartEndTrip extends AppCompatActivity {
             Road road = roadManager.getRoad(w);
             mainHandler.post(() -> {
                 if (road != null && road.mStatus == Road.STATUS_OK) {
-                    if (currentRoadOverlay != null) map.getOverlays().remove(currentRoadOverlay);
                     currentRoadOverlay = RoadManager.buildRoadOverlay(road);
                     currentRoadOverlay.getOutlinePaint().setColor(Color.parseColor("#2979FF"));
                     currentRoadOverlay.getOutlinePaint().setStrokeWidth(14.0f);
                     map.getOverlays().add(0, currentRoadOverlay);
                     map.invalidate();
+                } else {
+                    Log.e("RoadManager", "Failed to fetch road: " + (road != null ? road.mStatus : "null"));
                 }
             });
         });
@@ -166,10 +167,9 @@ public class StartEndTrip extends AppCompatActivity {
         m.setTitle(t);
         m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         try {
-            Drawable d = ContextCompat.getDrawable(this, iconRes);
-            if (d != null) m.setIcon(d);
+            m.setIcon(ContextCompat.getDrawable(this, iconRes));
         } catch (Exception e) {
-            Log.e("MarkerIcon", "Icon not found");
+            Log.e("Marker", "Icon resource not found: " + iconRes);
         }
         map.getOverlays().add(m);
     }
@@ -178,52 +178,44 @@ public class StartEndTrip extends AppCompatActivity {
         try {
             String[] p = s.split(",");
             return new GeoPoint(Double.parseDouble(p[0].trim()), Double.parseDouble(p[1].trim()));
-        } catch (Exception e) { return new GeoPoint(0, 0); }
+        } catch (Exception e) { return new GeoPoint(0.0, 0.0); }
     }
 
     private void saveAndPrepareNextTrip() {
-        DatabaseReference rootRef = FirebaseDatabase.getInstance(DB_URL).getReference();
-        DatabaseReference tripRef = rootRef.child("trips").child(companyName).child(tripId);
+        DatabaseReference db = FirebaseDatabase.getInstance(DB_URL).getReference();
+        DatabaseReference tripRef = db.child("trips").child(companyName).child(tripId);
+        DatabaseReference logRef = db.child("trip_log").child(companyName).push();
 
         tripRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) return;
 
-                // Reversing Capitalized keys for the next leg
-                String t1N = snapshot.child("Terminal1").getValue(String.class);
-                String t2N = snapshot.child("Terminal2").getValue(String.class);
-                String t1C = snapshot.child("T1_Coords").getValue(String.class);
-                String t2C = snapshot.child("T2_Coords").getValue(String.class);
-                String s   = snapshot.child("Stops").getValue(String.class);
-                String sc  = snapshot.child("Stop_Coords").getValue(String.class);
+                Map<String, Object> currentTripData = (Map<String, Object>) snapshot.getValue();
+                if (currentTripData != null) {
+                    currentTripData.put("tripEndTime", ServerValue.TIMESTAMP);
+                    logRef.setValue(currentTripData);
+                }
 
                 Map<String, Object> nextLeg = new HashMap<>();
-                nextLeg.put("Terminal1", t2N); // Swap
-                nextLeg.put("Terminal2", t1N); // Swap
-                nextLeg.put("T1_Coords", t2C);
-                nextLeg.put("T2_Coords", t1C);
-                nextLeg.put("Stops", reverseString(s, ", "));
+                nextLeg.put("Terminal1", snapshot.child("Terminal2").getValue());
+                nextLeg.put("Terminal2", snapshot.child("Terminal1").getValue());
+                nextLeg.put("T1_Coords", snapshot.child("T2_Coords").getValue());
+                nextLeg.put("T2_Coords", snapshot.child("T1_Coords").getValue());
+
+                String s = snapshot.child("Stops").getValue(String.class);
+                String sc = snapshot.child("Stop_Coords").getValue(String.class);
+
+                nextLeg.put("Stops", reverseString(s, ","));
                 nextLeg.put("Stop_Coords", reverseString(sc, "|"));
                 nextLeg.put("status", "Scheduled");
-                nextLeg.put("currentLocation", "");
 
-                // Keep everything else as is
-                nextLeg.put("PlateNumber", snapshot.child("PlateNumber").getValue());
-                nextLeg.put("vehicleCode", snapshot.child("vehicleCode").getValue());
-                nextLeg.put("driverName", snapshot.child("driverName").getValue());
-                nextLeg.put("conductorName", snapshot.child("conductorName").getValue());
-                nextLeg.put("routeCode", snapshot.child("routeCode").getValue());
-                nextLeg.put("franchise", snapshot.child("franchise").getValue());
-                nextLeg.put("departureTime", snapshot.child("departureTime").getValue());
-                nextLeg.put("AssignedTransport", snapshot.child("AssignedTransport").getValue());
-                nextLeg.put("tripId", tripId);
-
-                rootRef.child("trips").child(companyName).child(tripId).updateChildren(nextLeg)
+                tripRef.updateChildren(nextLeg)
                         .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(StartEndTrip.this, "Trip Swapped for Return!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(StartEndTrip.this, "Trip logged and swapped for return leg!", Toast.LENGTH_SHORT).show();
                             finish();
-                        });
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(StartEndTrip.this, "Update Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
@@ -231,9 +223,24 @@ public class StartEndTrip extends AppCompatActivity {
 
     private String reverseString(String s, String d) {
         if (s == null || s.isEmpty()) return "";
-        String[] parts = s.split(java.util.regex.Pattern.quote(d.trim()));
-        List<String> list = new ArrayList<>(Arrays.asList(parts));
+        String[] parts = s.split(java.util.regex.Pattern.quote(d));
+        List<String> list = new ArrayList<>();
+        for(String p : parts) if(!p.trim().isEmpty()) list.add(p.trim());
         Collections.reverse(list);
-        return android.text.TextUtils.join(d.trim(), list);
+        return android.text.TextUtils.join(d, list);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        map.onResume();
+        if (mLocationOverlay != null) mLocationOverlay.enableMyLocation();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        map.onPause();
+        if (mLocationOverlay != null) mLocationOverlay.disableMyLocation();
     }
 }

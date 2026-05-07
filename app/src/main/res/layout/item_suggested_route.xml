@@ -13,6 +13,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Route code + transport type + status badge -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,6 +57,7 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- Terminal route summary -->
         <TextView
             android:id="@+id/tvTerminals"
             android:layout_width="match_parent"
@@ -70,6 +72,7 @@
             android:layout_marginVertical="12dp"
             android:background="#EEEEEE" />
 
+        <!-- Boarding stop + walk distance -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,8 +92,8 @@
                 android:id="@+id/tvBoardWalk"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#4CAF50"
                 android:drawableStart="@drawable/directions_walk_24px"
+                android:textColor="#4CAF50"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -100,6 +103,7 @@
             android:layout_marginStart="8dp"
             android:background="#DDDDDD" />
 
+        <!-- Alighting stop + walk distance -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -119,8 +123,8 @@
                 android:id="@+id/tvAlightWalk"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#F44336"
                 android:drawableStart="@drawable/directions_walk_24px"
+                android:textColor="#F44336"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -130,6 +134,7 @@
             android:layout_marginVertical="12dp"
             android:background="#EEEEEE" />
 
+        <!-- Bottom row: departure + driver (left) | plate + fares (right) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -171,14 +176,24 @@
                     android:textColor="#444444"
                     android:textSize="13sp" />
 
+                <!-- Regular fare -->
                 <TextView
                     android:id="@+id/tvFare"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="4dp"
                     android:textColor="#1976D2"
                     android:textSize="15sp"
                     android:textStyle="bold" />
+
+                <!-- Discounted fare (Student / PWD / Senior) -->
+                <TextView
+                    android:id="@+id/tvFareDiscounted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:textColor="#388E3C"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
