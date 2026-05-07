@@ -14,6 +14,8 @@ import androidx.appcompat.widget.SearchView;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
+import com.usc.lugarlangfinal.commuter.SeachingOriginDesti;
+
 import org.osmdroid.bonuspack.location.NominatimPOIProvider;
 import org.osmdroid.bonuspack.location.POI;
 import org.osmdroid.config.Configuration;
@@ -51,6 +53,10 @@ public class commuterhome extends AppCompatActivity {
         btnSetting = findViewById(R.id.btnsetting);
 
         btnHomePage.setSelected(true);
+
+        btnSearch.setOnClickListener(v -> {
+            startActivity(new Intent(commuterhome.this, SeachingOriginDesti.class));
+        });
 
         btnSetting.setOnClickListener(v -> {
             startActivity(new Intent(commuterhome.this, Settings.class));
@@ -116,16 +122,28 @@ public class commuterhome extends AppCompatActivity {
     }
 
     private void fetchSuggestions(String text) {
+        // 1. Capture the location on the UI thread first
+        GeoPoint mapCenter = (GeoPoint) map.getMapCenter();
+        GeoPoint myLocation = mLocationOverlay.getMyLocation();
+
+        // Use the Blue Dot if available, otherwise use the Map Center
+        final GeoPoint biasLocation = (myLocation != null) ? myLocation : mapCenter;
+
+        // 2. Safety check: If still (0,0), use a hardcoded default (e.g., Cebu City)
+        final GeoPoint searchPoint;
+        if (biasLocation.getLatitude() == 0 && biasLocation.getLongitude() == 0) {
+            searchPoint = new GeoPoint(10.3157, 123.8854);
+        } else {
+            searchPoint = biasLocation;
+        }
+
         new Thread(() -> {
             try {
                 NominatimPOIProvider poiProvider = new NominatimPOIProvider(getPackageName());
-                GeoPoint currentPos = mLocationOverlay.getMyLocation();
 
-                // Fetch up to 5 potential matches near the commuter
-                // Fixed: getPOIsAround replaced with getPOICloseTo which is available in osmbonuspack 6.9.0
-                ArrayList<POI> pois = poiProvider.getPOICloseTo(currentPos, text, 5, 0.1);
+                // 3. Use the searchPoint we captured safely above
+                ArrayList<POI> pois = poiProvider.getPOICloseTo(searchPoint, text, 5, 0.1);
 
-                // Create a MatrixCursor to pass data to the SimpleCursorAdapter
                 MatrixCursor cursor = new MatrixCursor(new String[]{BaseColumns._ID, "place_name"});
                 if (pois != null) {
                     for (int i = 0; i < pois.size(); i++) {

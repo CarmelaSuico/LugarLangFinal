@@ -8,7 +8,12 @@ public class Route {
     private int distanceBands;
     private String t1_Coords, t2_Coords, Stop_Coords;
 
+    // NEW FIELDS FOR TRIPS (Commuter "Best Path" Info)
+    private String departureTime, driverName, plateNumber, tripId;
+
     public Route() {}
+
+    // --- EXISTING METHODS ---
 
     @PropertyName("RouteCode")
     public String getRouteCode() { return routeCode; }
@@ -79,4 +84,26 @@ public class Route {
     public String getStop_Coords() { return Stop_Coords; }
     @PropertyName("Stop_Coords")
     public void setStop_Coords(String stops_Coords) { this.Stop_Coords = stops_Coords; }
+
+    // --- NEW GETTERS AND SETTERS FOR TRIP DATA ---
+
+    @PropertyName("departureTime")
+    public String getDepartureTime() { return departureTime; }
+    @PropertyName("departureTime")
+    public void setDepartureTime(String departureTime) { this.departureTime = departureTime; }
+
+    @PropertyName("driverName")
+    public String getDriverName() { return driverName; }
+    @PropertyName("driverName")
+    public void setDriverName(String driverName) { this.driverName = driverName; }
+
+    @PropertyName("PlateNumber")
+    public String getPlateNumber() { return plateNumber; }
+    @PropertyName("PlateNumber")
+    public void setPlateNumber(String plateNumber) { this.plateNumber = plateNumber; }
+
+    @PropertyName("tripId")
+    public String getTripId() { return tripId; }
+    @PropertyName("tripId")
+    public void setTripId(String tripId) { this.tripId = tripId; }
 }

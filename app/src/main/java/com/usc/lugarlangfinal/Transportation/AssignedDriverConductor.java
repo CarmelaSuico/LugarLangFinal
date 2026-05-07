@@ -231,6 +231,7 @@ public class AssignedDriverConductor extends AppCompatActivity {
     }
 
     private void performAddTrip() {
+        // 1. Initial Validation: Check if franchise data is loaded
         if (TextUtils.isEmpty(adminFranchise)) {
             Toast.makeText(this, "Company data still loading. Please wait.", Toast.LENGTH_SHORT).show();
             return;
@@ -239,13 +240,15 @@ public class AssignedDriverConductor extends AppCompatActivity {
         try {
             String rCode = acRoute.getText().toString().trim();
             String vCode = acVehicle.getText().toString().trim();
+            String vType = acVehicleType.getText().toString().trim(); // This holds "Bus" or "Jeepney"
 
+            // 2. Input Validation
             if (TextUtils.isEmpty(rCode) || TextUtils.isEmpty(vCode)) {
-                Toast.makeText(this, "Select Route and Vehicle", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please select both a Route and a Vehicle", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // 1. Find the selected Route object from the loaded list
+            // 3. Find the selected Route object to copy path/coordinates
             Route selectedRoute = null;
             for (Route r : activeRoutes) {
                 if (rCode.equals(r.getRouteCode())) {
@@ -255,49 +258,62 @@ public class AssignedDriverConductor extends AppCompatActivity {
             }
 
             if (selectedRoute == null) {
-                Toast.makeText(this, "Route details not found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error: Route details not found in active list.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // 4. Prepare Firebase Reference and Key
             DatabaseReference db = FirebaseDatabase.getInstance(DB_URL).getReference();
             String tripKey = db.child("trips").child(adminFranchise).push().getKey();
-            if (tripKey == null) return;
 
-            // 2. Map the UI fields and copied Route data to the Trip object
+            if (tripKey == null) {
+                Toast.makeText(this, "Database Error: Could not generate Trip ID", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 5. Create and Populate the Trip object
             Trip trip = new Trip();
             trip.setTripId(tripKey);
             trip.setRouteCode(rCode);
             trip.setVehicleCode(vCode);
+
+            // This links the trip to the specific transport type for the commuter's filter
+            trip.setAssignedTransport(vType);
+
+            // Set Driver/Conductor/Vehicle Info
             trip.setPlateNumber(etPlate.getText().toString().trim());
-            trip.setTerminal1(etT1.getText().toString().trim());
-            trip.setTerminal2(etT2.getText().toString().trim());
             trip.setDriverName(acDriver.getText().toString().trim());
             trip.setConductorName(acConductor.getText().toString().trim());
             trip.setDepartureTime(etTime.getText().toString().trim());
             trip.setStatus(acStatus.getText().toString().trim());
             trip.setFranchise(adminFranchise);
 
-            // 3. CRITICAL FIX: Transfer coordinate strings from Route to Trip
-            // These keys must match your StartEndTrip.java fetch logic
-            trip.setT1_Coords(selectedRoute.getT1_Coords()); // Saved as t1_Coords
-            trip.setT2_Coords(selectedRoute.getT2_Coords()); // Saved as t2_Coords
-            trip.setStops(selectedRoute.getStops());        // Saved as Stops
-            trip.setStops_Coords(selectedRoute.getStop_Coords()); // Saved as Stop_Coords
+            // Set Route Details (Copied from the selectedRoute)
+            trip.setTerminal1(selectedRoute.getTerminal1());
+            trip.setTerminal2(selectedRoute.getTerminal2());
+            trip.setT1_Coords(selectedRoute.getT1_Coords());
+            trip.setT2_Coords(selectedRoute.getT2_Coords());
+            trip.setStops(selectedRoute.getStops());
+            trip.setStops_Coords(selectedRoute.getStop_Coords());
 
-            // 4. Update Firebase atomically[cite: 1]
+            // 6. Perform Atomic Update (Saves Trip AND updates Vehicle status simultaneously)
             Map<String, Object> updates = new HashMap<>();
             updates.put("trips/" + adminFranchise + "/" + tripKey, trip);
             updates.put("vehicles/" + adminFranchise + "/" + vCode + "/Status", "Unavailable");
 
             db.updateChildren(updates)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(AssignedDriverConductor.this, "Trip Assigned Successfully!", Toast.LENGTH_SHORT).show();
-                        finish();
+                        Toast.makeText(AssignedDriverConductor.this, "Trip successfully assigned and live!", Toast.LENGTH_SHORT).show();
+                        finish(); // Return to previous screen
                     })
-                    .addOnFailureListener(e -> Log.e("FIREBASE_SAVE_ERROR", "Reason: " + e.getMessage()));
+                    .addOnFailureListener(e -> {
+                        Log.e("FIREBASE_SAVE_ERROR", "Error: " + e.getMessage());
+                        Toast.makeText(AssignedDriverConductor.this, "Failed to save trip.", Toast.LENGTH_SHORT).show();
+                    });
 
         } catch (Exception e) {
-            Log.e("TRIP_CODE_ERROR", "Exception: ", e);
+            Log.e("TRIP_CODE_ERROR", "Exception in performAddTrip: ", e);
+            Toast.makeText(this, "An unexpected error occurred.", Toast.LENGTH_SHORT).show();
         }
     }
 

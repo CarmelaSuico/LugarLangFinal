@@ -1,0 +1,70 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    android:layout_margin="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:background="#E0E0E0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/smRouteCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="13B"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" > "
+                android:textSize="22sp"
+                android:textColor="#C2185B"
+                android:textStyle="bold"
+                android:layout_marginHorizontal="8dp"/>
+
+            <TextView
+                android:id="@+id/smDestination"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="USC DC"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/smEta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Estimated Time of Arrival: 9:00 AM - 9:35 AM"
+            android:textColor="@color/black"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/btnMoreDetailsAction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="20dp"
+            android:drawableStart="@drawable/arrow_forward_24px"
+            android:text="More Details"
+            android:textColor="#4E342E"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

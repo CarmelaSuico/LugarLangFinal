@@ -41,20 +41,16 @@ public class TransportationManagement extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transportation_management);
 
-        // 1. Initialize UI Elements
-        rvTrips = findViewById(R.id.rvEmployeeList); // Matching your XML ID
+        rvTrips = findViewById(R.id.rvEmployeeList);
         searchView = findViewById(R.id.searchassigntransport);
 
-        // 2. Setup Lists and Adapter
         tripList = new ArrayList<>();
         filteredList = new ArrayList<>();
         rvTrips.setLayoutManager(new LinearLayoutManager(this));
 
-        // Pass the filteredList to the adapter
         tripAdapter = new TripAdapter(filteredList);
         rvTrips.setAdapter(tripAdapter);
 
-        //nav bottons
         btnTransportdashboard = findViewById(R.id.btntransportdashboard);
         btnAssinedriver = findViewById(R.id.btnassinedriver);
         btnBack = findViewById(R.id.btnback);
@@ -68,11 +64,8 @@ public class TransportationManagement extends AppCompatActivity {
             finish();
         });
 
-
-        // 3. Fetch Admin Identity and Load Trips
         fetchAdminAndLoadTrips();
 
-        // 4. Setup Search Logic
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) { return false; }
@@ -86,6 +79,8 @@ public class TransportationManagement extends AppCompatActivity {
     }
 
     private void fetchAdminAndLoadTrips() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference adminRef = FirebaseDatabase.getInstance(DB_URL).getReference("admins").child(uid);
 
@@ -101,7 +96,7 @@ public class TransportationManagement extends AppCompatActivity {
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(TransportationManagement.this, "Auth Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(TransportationManagement.this, "Auth Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -118,12 +113,11 @@ public class TransportationManagement extends AppCompatActivity {
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     Trip trip = ds.getValue(Trip.class);
                     if (trip != null) {
-                        // Optionally set the trip ID from the key if needed for details
-                        trip.tripId = ds.getKey();
+                        // Use the setter method instead of direct field access
+                        trip.setTripId(ds.getKey());
                         tripList.add(trip);
                     }
                 }
-                // Sync search and update UI
                 filterTrips(searchView.getQuery().toString());
             }
 
@@ -136,15 +130,17 @@ public class TransportationManagement extends AppCompatActivity {
 
     private void filterTrips(String text) {
         filteredList.clear();
-        if (text.isEmpty()) {
+        if (text == null || text.isEmpty()) {
             filteredList.addAll(tripList);
         } else {
             String query = text.toLowerCase().trim();
             for (Trip item : tripList) {
-                // Search by Route Code, Driver Name, or Vehicle Code
-                if (item.routeCode.toLowerCase().contains(query) ||
-                        item.driverName.toLowerCase().contains(query) ||
-                        item.vehicleCode.toLowerCase().contains(query)) {
+                // CHANGED: Use Getter methods to avoid NullPointer and mapping issues
+                String route = item.getRouteCode() != null ? item.getRouteCode().toLowerCase() : "";
+                String driver = item.getDriverName() != null ? item.getDriverName().toLowerCase() : "";
+                String vehicle = item.getVehicleCode() != null ? item.getVehicleCode().toLowerCase() : "";
+
+                if (route.contains(query) || driver.contains(query) || vehicle.contains(query)) {
                     filteredList.add(item);
                 }
             }

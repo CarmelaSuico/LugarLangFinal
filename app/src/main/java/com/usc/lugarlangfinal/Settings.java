@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.usc.lugarlangfinal.commuter.SeachingOriginDesti;
 
 public class Settings extends AppCompatActivity {
     LinearLayout btnHomePage, btnSearch, btnSetting;
@@ -31,6 +32,10 @@ public class Settings extends AppCompatActivity {
 
         btnHomePage.setOnClickListener(v -> {
             startActivity(new Intent(Settings.this, commuterhome.class));
+        });
+
+        btnSearch.setOnClickListener(v -> {
+            startActivity(new Intent(Settings.this, SeachingOriginDesti.class));
         });
 
         btnPortal.setOnClickListener(v -> {

@@ -1,6 +1,5 @@
 package com.usc.lugarlangfinal.adapters;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate your item_trip XML
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_trip, parent, false);
         return new ViewHolder(view);
     }
@@ -31,25 +29,31 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Trip trip = tripList.get(position);
 
-        // Binding data to your specific XML IDs
-        holder.tvVehicleCode.setText("Vehicle Code: " + trip.vehicleCode);
-        holder.tvTerminal1.setText(trip.terminal1);
-        holder.tvTerminal2.setText(trip.terminal2);
-        holder.tvDriver.setText("Driver: " + trip.driverName);
-        holder.tvConductor.setText("Conductor: " + trip.conductorName);
+        // USE GETTERS INSTEAD OF DIRECT FIELDS
+        // This prevents crashes now that fields are private in the Trip model
+        holder.tvVehicleCode.setText("Vehicle Code: " + nullSafe(trip.getVehicleCode()));
+        holder.tvTerminal1.setText(nullSafe(trip.getTerminal1()));
+        holder.tvTerminal2.setText(nullSafe(trip.getTerminal2()));
+        holder.tvDriver.setText("Driver: " + nullSafe(trip.getDriverName()));
+        holder.tvConductor.setText("Conductor: " + nullSafe(trip.getConductorName()));
 
         // More Details Button Logic
         holder.btnMoreDetails.setOnClickListener(v -> {
-            // You can pass the trip data to a details page if needed
+            // Passing data via Getter
             // Intent intent = new Intent(v.getContext(), TripDetailsActivity.class);
-            // intent.putExtra("TRIP_ID", trip.tripId);
+            // intent.putExtra("TRIP_ID", trip.getTripId());
             // v.getContext().startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return tripList.size();
+        return tripList != null ? tripList.size() : 0;
+    }
+
+    // Helper method to prevent "null" text showing up in the UI
+    private String nullSafe(String s) {
+        return (s == null || s.isEmpty()) ? "N/A" : s;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -58,7 +62,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Matching the IDs in your XML exactly
             tvVehicleCode = itemView.findViewById(R.id.txtcode);
             tvTerminal1 = itemView.findViewById(R.id.txtterminal1);
             tvTerminal2 = itemView.findViewById(R.id.txtterminal2);
