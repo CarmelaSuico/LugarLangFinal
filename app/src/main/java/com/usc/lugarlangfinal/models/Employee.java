@@ -3,14 +3,16 @@ package com.usc.lugarlangfinal.models;
 import com.google.firebase.database.PropertyName;
 
 public class Employee {
-    private String id, name, role, AssignedUnit, Franchise, status; // Match JSON keys
+    private String id, name, role, AssignedUnit, Franchise, status;
     private String email, licenseNumber, contactNumber, address, password, authUID;
 
     public Employee() {}
 
-    // Getters and Setters with exact PropertyName matching
+    // CRITICAL FIX: Changed parameter to Object to prevent Long-to-String crash
     public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public void setId(Object id) {
+        this.id = String.valueOf(id);
+    }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -33,6 +35,7 @@ public class Employee {
 
     public String getAuthUID() { return authUID; }
     public void setAuthUID(String authUID) { this.authUID = authUID; }
+
     public String getLicenseNumber() { return licenseNumber; }
     public void setLicenseNumber(String licenseNumber) { this.licenseNumber = licenseNumber; }
 
@@ -42,7 +45,7 @@ public class Employee {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
-    @PropertyName("status") // Match lowercase 's' in JSON
+    @PropertyName("status")
     public String getStatus() { return status; }
     @PropertyName("status")
     public void setStatus(String status) { this.status = status; }

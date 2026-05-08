@@ -22,6 +22,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LugarLangFinal">
         <activity
+            android:name=".logmonitoring.DriverTripHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".logmonitoring.LogMonitoring"
+            android:exported="false" />
+        <activity
+            android:name=".Transportation.TranportationMoreDetails"
+            android:exported="false" />
+        <activity
             android:name=".commuter.StartTracking"
             android:exported="false" />
         <activity

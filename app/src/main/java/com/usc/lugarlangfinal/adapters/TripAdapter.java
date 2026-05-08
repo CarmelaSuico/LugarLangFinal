@@ -1,5 +1,6 @@
 package com.usc.lugarlangfinal.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.usc.lugarlangfinal.R;
+import com.usc.lugarlangfinal.Transportation.TranportationMoreDetails;
 import com.usc.lugarlangfinal.models.Trip;
 import java.util.List;
 
@@ -29,21 +31,32 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Trip trip = tripList.get(position);
 
-        // 1. Route Code (Firebase key: RouteCode)
-        // Make sure your Trip.java has @PropertyName("RouteCode")
+        // 1. Display Basic Info in the Card
         holder.tvVehicleCode.setText("Route: " + nullSafe(trip.getRouteCode()));
-
-        // 2. Terminals (Firebase keys: Terminal1 and Terminal2)
         holder.tvTerminal1.setText(nullSafe(trip.getTerminal1()));
         holder.tvTerminal2.setText(nullSafe(trip.getTerminal2()));
-
-        // 3. Driver and Conductor
         holder.tvDriver.setText("Driver: " + nullSafe(trip.getDriverName()));
         holder.tvConductor.setText("Conductor: " + nullSafe(trip.getConductorName()));
 
-        // More Details Click
+        // 2. Full Intent for More Details
         holder.btnMoreDetails.setOnClickListener(v -> {
-            // Your logic here
+            // Use v.getContext() inside an adapter
+            Intent intent = new Intent(v.getContext(), TranportationMoreDetails.class);
+
+            // Pull data directly from the 'trip' object
+            intent.putExtra("RouteCode", trip.getRouteCode());
+            intent.putExtra("VehicleCode", trip.getVehicleCode());
+            intent.putExtra("AssignedTransport", trip.getAssignedTransport());
+            intent.putExtra("PlateNumber", trip.getPlateNumber());
+            intent.putExtra("Terminal1", trip.getTerminal1());
+            intent.putExtra("Terminal2", trip.getTerminal2());
+            intent.putExtra("departureTime", trip.getDepartureTime());
+            intent.putExtra("driverName", trip.getDriverName());
+            intent.putExtra("conductorName", trip.getConductorName());
+            intent.putExtra("status", trip.getStatus());
+
+            // Start the activity
+            v.getContext().startActivity(intent);
         });
     }
 

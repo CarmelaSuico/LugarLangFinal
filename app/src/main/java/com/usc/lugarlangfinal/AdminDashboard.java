@@ -2,21 +2,19 @@ package com.usc.lugarlangfinal;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 import com.usc.lugarlangfinal.Transportation.TransportationManagement;
-import com.usc.lugarlangfinal.driverconductor.Ticketing;
 import com.usc.lugarlangfinal.employee.EmployeeManagement;
+import com.usc.lugarlangfinal.logmonitoring.LogMonitoring;
 import com.usc.lugarlangfinal.route.RouteManagement;
 
 public class AdminDashboard extends AppCompatActivity {
 
-    private MaterialButton btnSettings, btnEmployee, btnRoute, btnTransportation, btnTicket;
+    private MaterialButton btnSettings, btnEmployee, btnRoute, btnTransportation, btnLogMonitoring;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +26,7 @@ public class AdminDashboard extends AppCompatActivity {
         btnEmployee = findViewById(R.id.btnemployee);
         btnRoute = findViewById(R.id.btnroute);
         btnTransportation = findViewById(R.id.btntransportation);
-        btnTicket = findViewById(R.id.btnticket);
+        btnLogMonitoring = findViewById(R.id.btnlogmonitor);
 
         // --- Navigation Logic ---
 
@@ -53,11 +51,12 @@ public class AdminDashboard extends AppCompatActivity {
             showToast("Opening Transportation Management...");
         });
 
-//        btnTicket.setOnClickListener(v -> {
-//             Intent intent = new Intent(AdminDashboard.this, Ticketing.class);
-//             startActivity(intent);
-//            showToast("Opening Loging Management...");
-//        });
+        // 4. Logs Monitoring
+        btnLogMonitoring.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboard.this, LogMonitoring.class);
+            startActivity(intent);
+            showToast("Opening Logs Monitoring...");
+        });
 
         btnSettings.setOnClickListener(v -> {
             Intent intent = new Intent(AdminDashboard.this, SettingAdminDriCon.class);

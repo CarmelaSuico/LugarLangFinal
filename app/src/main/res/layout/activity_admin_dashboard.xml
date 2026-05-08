@@ -219,13 +219,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Ticket\nManagement"
+                        android:text="Logs\nMonitoring"
                         android:textColor="@color/textDark"
                         android:textSize="20sp"
                         android:fontFamily="sans-serif-black" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnticket"
+                        android:id="@+id/btnlogmonitor"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

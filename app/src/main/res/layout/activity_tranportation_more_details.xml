@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Transportation.TranportationMoreDetails"
+    android:background="@color/backgroundAesthetic">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <RelativeLayout
+            android:id="@+id/top_header"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:background="@drawable/top_deisgn"
+            android:padding="24dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentTop="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/arrow_back_24px"
+                app:tint="@color/white" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tvDetailRouteCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ROUTE CODE"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.1"/>
+
+                <TextView
+                    android:id="@+id/tvDetailVehicleCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="V-001"
+                    android:textColor="@color/white"
+                    android:textSize="32sp"
+                    android:fontFamily="sans-serif-black" />
+            </LinearLayout>
+
+        </RelativeLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:clipToPadding="false"
+        android:layout_marginTop="-30dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="40dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:id="@+id/tvDetailStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status: Active"
+                        android:textColor="@color/primaryAesthetic"
+                        android:fontFamily="sans-serif-black"
+                        android:textSize="14sp"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="24dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="20dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Route Path" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvDetailTerminals" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Terminal 1 ➔ Terminal 2" android:textColor="@color/textDark" android:textSize="16sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:layout_marginBottom="20dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Type" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                            <TextView android:id="@+id/tvDetailTransportType" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Jeepney" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Plate Number" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                            <TextView android:id="@+id/tvDetailPlateNumber" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ABC 123" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A000000" android:layout_marginBottom="24dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Assigned Driver/Conductor &amp; Schedule"
+                        android:textColor="@color/primaryAesthetic"
+                        android:fontFamily="sans-serif-black"
+                        android:textSize="12sp"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="20dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assigned Driver" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvDetailDriver" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="John Doe" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Assigned Conductor" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvDetailConductor" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Jane Doe" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="32dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Scheduled Departure" android:textSize="11sp" android:textColor="@color/textSecondary" android:fontFamily="sans-serif-bold" android:textAllCaps="true"/>
+                        <TextView android:id="@+id/tvDetailDeparture" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="08:00 AM" android:textColor="@color/textDark" android:textSize="15sp" android:fontFamily="sans-serif-medium"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
