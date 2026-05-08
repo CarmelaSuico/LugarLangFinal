@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -8,46 +9,48 @@
     android:background="#BAA4B1"
     tools:context=".commuter.StartTracking">
 
-    <!-- The Map View for Real-time Tracking -->
     <org.osmdroid.views.MapView
         android:id="@+id/mapTracking"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Back Button to return to Details -->
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_margin="16dp"
-        android:src="@drawable/arrow_back_24px"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/black"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:scaleType="centerCrop"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <!-- Top Status Overlay (e.g., "Waiting for the Jeepney") -->
-    <TextView
-        android:id="@+id/tvStatusHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Waiting for the Jeepney"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerCrop"
+            android:src="@drawable/arrow_back_24px"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/black" />
 
-    <!-- Floating Tracking Info Card -->
+        <TextView
+            android:id="@+id/tvStatusHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Waiting for the Jeepney"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/trackingCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="8dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:cardCornerRadius="24dp"
+        app:cardElevation="12dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,12 +58,19 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Route Header: Origin > Destination -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:background="#D3D3D3" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
+
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -102,12 +112,11 @@
                 android:layout_marginVertical="12dp"
                 android:background="#DDDDDD" />
 
-            <!-- Details Section -->
             <TextView
                 android:id="@+id/tvLiveETA"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Estimated Time of Arrival: 10:00 AM"
+                android:text="Estimated Time of Arrival: Calculating..."
                 android:textColor="@color/black" />
 
             <TextView
@@ -118,7 +127,6 @@
                 android:text="Plate Number: CEB-2010"
                 android:textColor="@color/black" />
 
-            <!-- Stop Button -->
             <TextView
                 android:id="@+id/btnStopTracking"
                 android:layout_width="wrap_content"
@@ -134,4 +142,4 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

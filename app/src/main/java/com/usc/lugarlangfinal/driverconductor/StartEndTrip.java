@@ -39,7 +39,7 @@ public class StartEndTrip extends AppCompatActivity {
     private MapView map;
     private TextView txtT1, txtT2;
     private Button btnEndTrip;
-    private String companyName, tripId;
+    private String companyName, tripId, employeeId;
     private MyLocationNewOverlay mLocationOverlay;
     private Polyline currentRoadOverlay;
 
@@ -65,6 +65,7 @@ public class StartEndTrip extends AppCompatActivity {
 
         companyName = getIntent().getStringExtra("COMPANY_NAME");
         tripId      = getIntent().getStringExtra("TRIP_ID");
+        employeeId = getIntent().getStringExtra("EMPLOYEE_ID");
 
         setupMap();
 
@@ -214,14 +215,25 @@ public class StartEndTrip extends AppCompatActivity {
     }
 
     private void saveAndPrepareNextTrip() {
-        // FIX 4: disable the button immediately to prevent double-taps
         btnEndTrip.setEnabled(false);
 
-        DatabaseReference db     = FirebaseDatabase.getInstance(DB_URL).getReference();
-        DatabaseReference logRef = db.child("trip_log").child(companyName).push();
+        DatabaseReference db = FirebaseDatabase.getInstance(DB_URL).getReference();
 
-        // FIX 5: use addListenerForSingleValueEvent here (not a persistent listener)
-        // so we read once, write once, and no further callbacks fire.
+        // 1. Generate a UNIQUE key for this specific log entry
+        // This allows one employee to have multiple trip logs under their ID.
+        // Structure: trip_log -> franchise -> employeeid -> [unique_log_id]
+        String logEntryId = db.child("trip_log").child(companyName).child(employeeId).push().getKey();
+
+        if (logEntryId == null) {
+            btnEndTrip.setEnabled(true);
+            return;
+        }
+
+        DatabaseReference logRef = db.child("trip_log")
+                .child(companyName)
+                .child(employeeId)
+                .child(logEntryId); // Use the unique key instead of just tripId
+
         db.child("trips").child(companyName).child(tripId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -231,59 +243,54 @@ public class StartEndTrip extends AppCompatActivity {
                             return;
                         }
 
-                        // Log the completed trip
-                        Map<String, Object> currentTripData =
-                                (Map<String, Object>) snapshot.getValue();
+                        // 2. Archive the current trip data
+                        Map<String, Object> currentTripData = (Map<String, Object>) snapshot.getValue();
                         if (currentTripData != null) {
                             currentTripData.put("tripEndTime", ServerValue.TIMESTAMP);
+                            // Optional: Store the original tripId inside the log object for reference
+                            currentTripData.put("originalTripId", tripId);
                             logRef.setValue(currentTripData);
                         }
 
-                        // Build the return-leg update (swap T1 ↔ T2 and reverse stops)
+                        // 3. Prepare the return leg (Swap Logic)
                         Map<String, Object> nextLeg = new HashMap<>();
-                        nextLeg.put("Terminal1",  snapshot.child("Terminal2").getValue());
-                        nextLeg.put("Terminal2",  snapshot.child("Terminal1").getValue());
-                        nextLeg.put("T1_Coords",  snapshot.child("T2_Coords").getValue());
-                        nextLeg.put("T2_Coords",  snapshot.child("T1_Coords").getValue());
-                        nextLeg.put("Stops",      reverseDelimited(
+                        nextLeg.put("Terminal1",   snapshot.child("Terminal2").getValue());
+                        nextLeg.put("Terminal2",   snapshot.child("Terminal1").getValue());
+                        nextLeg.put("T1_Coords",   snapshot.child("T2_Coords").getValue());
+                        nextLeg.put("T2_Coords",   snapshot.child("T1_Coords").getValue());
+                        nextLeg.put("Stops",       reverseDelimited(
                                 snapshot.child("Stops").getValue(String.class), ","));
                         nextLeg.put("Stop_Coords", reverseDelimited(
                                 snapshot.child("Stop_Coords").getValue(String.class), "|"));
                         nextLeg.put("status", "Scheduled");
 
-                        // Next departure = time driver pressed End Trip + 1 hour
-                        // e.g. driver ends at 5:00 PM → next departure set to 6:00 PM
                         java.util.Calendar cal = java.util.Calendar.getInstance();
                         cal.add(java.util.Calendar.HOUR_OF_DAY, 1);
                         String nextDeparture = new java.text.SimpleDateFormat(
                                 "hh:mm a", java.util.Locale.getDefault()).format(cal.getTime());
                         nextLeg.put("departureTime", nextDeparture);
 
+                        // 4. Update the LIVE trip reference for the next journey
                         db.child("trips").child(companyName).child(tripId)
                                 .updateChildren(nextLeg)
                                 .addOnSuccessListener(aVoid -> {
-                                    // Stop the location service when the trip ends
                                     stopService(new Intent(StartEndTrip.this, LocationService.class));
+                                    Toast.makeText(StartEndTrip.this, "Trip logged!", Toast.LENGTH_SHORT).show();
 
-                                    Toast.makeText(StartEndTrip.this,
-                                            "Trip logged! Ready for return leg.",
-                                            Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(StartEndTrip.this, DriverOrConductoerDashboard.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(intent);
                                     finish();
                                 })
                                 .addOnFailureListener(e -> {
-                                    Toast.makeText(StartEndTrip.this,
-                                            "Update failed: " + e.getMessage(),
-                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(StartEndTrip.this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     btnEndTrip.setEnabled(true);
                                 });
                     }
 
-                    @Override public void onCancelled(@NonNull DatabaseError error) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
                         btnEndTrip.setEnabled(true);
-                        Log.e("StartEndTrip", "saveAndPrepare cancelled: " + error.getMessage());
                     }
                 });
     }

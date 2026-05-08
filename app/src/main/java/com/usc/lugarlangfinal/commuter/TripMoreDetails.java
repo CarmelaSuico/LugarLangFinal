@@ -145,24 +145,15 @@ public class TripMoreDetails extends AppCompatActivity {
     }
 
     private void addJourneyIcons(List<GeoPoint> rideSegment) {
-        // 1. "Walk from here" Icon (Your actual starting location)
-        GeoPoint userStart = new GeoPoint(oLat, oLng);
-        addMarker(userStart, "Walk from here", R.drawable.directions_walk_24px);
+        // 1. "Board Here" Icon (Green Circle) at the start of the ride
+        if (!rideSegment.isEmpty()) {
+            addMarker(rideSegment.get(0), "Board Here", R.drawable.trip_origin_24px);
 
-        // 2. "Board Here" Icon (Green Circle)
-        addMarker(rideSegment.get(0), "Board Here", R.drawable.trip_origin_24px);
+            // 2. "Alight Here" Icon (Red Pin) at the end of the ride
+            addMarker(rideSegment.get(rideSegment.size() - 1), "Alight Here", R.drawable.location_on_24px);
+        }
 
-        // 3. "Drop off Here" Icon (Red Pin)
-        addMarker(rideSegment.get(rideSegment.size() - 1), "Alight Here", R.drawable.location_on_24px);
-
-        // 4. Dotted Walking Line from User to Jeepney Stop
-        Polyline walkPath = new Polyline();
-        walkPath.addPoint(userStart);
-        walkPath.addPoint(rideSegment.get(0));
-        walkPath.getOutlinePaint().setColor(Color.GRAY);
-        walkPath.getOutlinePaint().setStrokeWidth(6f);
-        walkPath.getOutlinePaint().setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
-        map.getOverlays().add(walkPath);
+        // Walking path logic and userStart coordinates have been removed
 
         map.invalidate();
     }

@@ -5,23 +5,22 @@ import java.io.Serializable;
 
 public class Trip implements Serializable {
 
-    @PropertyName("tripId")         private String tripId = "";
-    @PropertyName("RouteCode")      private String routeCode = "";
-    @PropertyName("VehicleCode")    private String vehicleCode = "";
-    @PropertyName("PlateNumber")    private String plateNumber = "";
-    @PropertyName("Terminal1")      private String terminal1 = "";
-    @PropertyName("Terminal2")      private String terminal2 = "";
-    @PropertyName("driverName")     private String driverName = "N/A";
-    @PropertyName("conductorName")  private String conductorName = "N/A";
-    @PropertyName("departureTime")  private String departureTime = "--:--";
-    @PropertyName("status")         private String status = "Unknown";
-    @PropertyName("franchise")      private String franchise = "";
-    @PropertyName("T1_Coords")      private String t1Coords = "0,0";
-    @PropertyName("T2_Coords")      private String t2Coords = "0,0";
-    @PropertyName("Stops")          private String stops = "";
-    // KEY FIX: Firebase field is "Stop_Coords" — must match exactly
-    @PropertyName("Stop_Coords")    private String stopCoords = "";
-    @PropertyName("AssignedTransport") private String assignedTransport = "";
+    private String tripId = "";
+    private String routeCode = "";
+    private String vehicleCode = "";
+    private String plateNumber = "";
+    private String terminal1 = "";
+    private String terminal2 = "";
+    private String driverName = "N/A";
+    private String conductorName = "N/A";
+    private String departureTime = "--:--";
+    private String status = "Unknown";
+    private String franchise = "";
+    private String t1_Coords = "0,0";
+    private String t2_Coords = "0,0";
+    private String stops = "";
+    private String stops_Coords = "";
+    private String assignedTransport = "";
 
     public Trip() {} // Required for Firebase
 
@@ -81,25 +80,24 @@ public class Trip implements Serializable {
     public void setFranchise(String v) { this.franchise = v != null ? v : ""; }
 
     @PropertyName("T1_Coords")
-    public String getT1Coords() { return t1Coords; }
+    public String getT1Coords() { return t1_Coords; }
     @PropertyName("T1_Coords")
-    public void setT1Coords(String v) { this.t1Coords = v != null ? v : "0,0"; }
+    public void setT1Coords(String v) { this.t1_Coords = v != null ? v : "0,0"; }
 
     @PropertyName("T2_Coords")
-    public String getT2Coords() { return t2Coords; }
+    public String getT2Coords() { return t2_Coords; }
     @PropertyName("T2_Coords")
-    public void setT2Coords(String v) { this.t2Coords = v != null ? v : "0,0"; }
+    public void setT2Coords(String v) { this.t2_Coords = v != null ? v : "0,0"; }
 
     @PropertyName("Stops")
     public String getStops() { return stops; }
     @PropertyName("Stops")
     public void setStops(String v) { this.stops = v != null ? v : ""; }
 
-    // KEY FIX: getter/setter names must match the @PropertyName on the field
     @PropertyName("Stop_Coords")
-    public String getStopCoords() { return stopCoords; }
+    public String getStopCoords() { return stops_Coords; }
     @PropertyName("Stop_Coords")
-    public void setStopCoords(String v) { this.stopCoords = v != null ? v : ""; }
+    public void setStopCoords(String v) { this.stops_Coords = v != null ? v : ""; }
 
     @PropertyName("AssignedTransport")
     public String getAssignedTransport() { return assignedTransport; }
