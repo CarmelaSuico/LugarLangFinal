@@ -185,7 +185,7 @@ public class AddNewEmployee extends AppCompatActivity {
                 spinnerRole.setText(emp.getRole(), false);
                 spinnerStatus.setText("Active", false);
                 editDefaultPassword.setText(emp.getPassword());
-                btnAdd.setText("Reactivate Employee");
+                btnAdd.setText("Add Employee");
                 break;
             }
         }

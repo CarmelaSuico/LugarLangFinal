@@ -98,7 +98,7 @@ public class LoginPage extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                showErrorDialog("Database Error", error.getMessage());
+                showErrorDialog("Thank you", error.getMessage());
             }
         });
     }
