@@ -3,7 +3,7 @@
     <!-- Visuals when setSelected(true) is called -->
     <item android:state_selected="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/primaryLightAesthetic" />
+            <solid android:color="@color/brand_secondary" />
             <corners android:radius="24dp" /> <!-- Increased radius for a "pill" look -->
         </shape>
     </item>

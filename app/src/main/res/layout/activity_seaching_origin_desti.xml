@@ -19,15 +19,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="50dp"
+        android:paddingHorizontal="@dimen/screen_padding"
         android:gravity="center_horizontal">
 
         <!-- Origin Search Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_origin"
-            android:layout_width="360dp"
+            android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="@dimen/card_corner_radius_medium"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/white">
 
@@ -38,15 +39,17 @@
                 app:defaultQueryHint="Origin place..."
                 app:searchIcon="@drawable/trip_origin_24px"
                 app:iconifiedByDefault="false"
-                app:queryBackground="@android:color/transparent" />
+                app:queryBackground="@android:color/transparent"
+                android:theme="@style/SearchTextBlack"/>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Destination Search Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_destination"
-            android:layout_width="360dp"
+            android:layout_width="match_parent"
             android:layout_height="56dp"
-            app:cardCornerRadius="16dp"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="@dimen/card_corner_radius_medium"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/white">
 
@@ -57,7 +60,8 @@
                 app:defaultQueryHint="Destination place..."
                 app:iconifiedByDefault="false"
                 app:searchIcon="@drawable/location_on_24px"
-                app:queryBackground="@android:color/transparent" />
+                app:queryBackground="@android:color/transparent"
+                android:theme="@style/SearchTextBlack"/>
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

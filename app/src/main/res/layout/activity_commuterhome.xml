@@ -14,20 +14,22 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/search_card"
-        android:layout_width="360dp"
-        android:layout_height="56dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_padding"
+        android:layout_marginTop="@dimen/search_bar_margin_top"
+        app:cardCornerRadius="@dimen/card_corner_radius_medium"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp"
         app:cardBackgroundColor="@color/white">
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchPlace"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="56dp"
             app:defaultQueryHint="Search place..."
             app:iconifiedByDefault="false"
-            app:queryBackground="@android:color/transparent">
+            app:queryBackground="@android:color/transparent"
+            android:theme="@style/SearchTextBlack">
         </androidx.appcompat.widget.SearchView>
     </com.google.android.material.card.MaterialCardView>
 
@@ -36,13 +38,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginBottom="24dp"
-        app:cardCornerRadius="28dp"
+        android:layout_marginHorizontal="@dimen/screen_padding"
+        android:layout_marginBottom="@dimen/nav_bar_margin_bottom"
+        app:cardCornerRadius="@dimen/card_corner_radius_large"
         app:cardElevation="12dp"
         app:strokeWidth="0dp"
         app:cardBackgroundColor="@color/white">
+
         <include layout="@layout/commuter_nav_buttons"/>
+
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

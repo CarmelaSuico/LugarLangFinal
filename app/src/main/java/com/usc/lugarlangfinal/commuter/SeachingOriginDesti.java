@@ -13,7 +13,7 @@ import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -37,6 +37,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -44,8 +45,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SeachingOriginDesti extends AppCompatActivity {
-
-    private LinearLayout btnHomePage, btnSearch, btnSetting;
     private MapView map;
     private SearchView searchOrigin, searchDestination;
     private Button btnSuggestionRoutes;
@@ -53,15 +52,19 @@ public class SeachingOriginDesti extends AppCompatActivity {
     private Marker originMarker, destinationMarker;
     private Polyline currentRouteLine;
 
-    // Suggestion Adapters
     private SimpleCursorAdapter originAdapter, destAdapter;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    // Debouncing variables
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private Runnable searchRunnable;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 1. Identify your app to OSM servers
+        Configuration.getInstance().setUserAgentValue(getPackageName());
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
         setContentView(R.layout.activity_seaching_origin_desti);
 
@@ -73,68 +76,48 @@ public class SeachingOriginDesti extends AppCompatActivity {
         setupMap();
         setupSearchSuggestions();
 
-        // Origin Listeners
+        // Origin Listeners with Debouncing
         searchOrigin.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String q) { geocode(q, true); return true; }
             @Override public boolean onQueryTextChange(String n) {
-                if (n.length() >= 3) fetchSuggestions(n, true);
+                if (searchRunnable != null) mainHandler.removeCallbacks(searchRunnable);
+                if (n.length() >= 3) {
+                    searchRunnable = () -> fetchSuggestions(n, true);
+                    mainHandler.postDelayed(searchRunnable, 600); // Wait 600ms
+                }
                 return true;
             }
         });
 
-        // Destination Listeners
+        // Destination Listeners with Debouncing
         searchDestination.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String q) { geocode(q, false); return true; }
             @Override public boolean onQueryTextChange(String n) {
-                if (n.length() >= 3) fetchSuggestions(n, false);
+                if (searchRunnable != null) mainHandler.removeCallbacks(searchRunnable);
+                if (n.length() >= 3) {
+                    searchRunnable = () -> fetchSuggestions(n, false);
+                    mainHandler.postDelayed(searchRunnable, 600); // Wait 600ms
+                }
                 return true;
             }
         });
 
         btnSuggestionRoutes.setOnClickListener(v -> showTransportDialog());
 
-        // Basic Nav
+        // Nav logic
         findViewById(R.id.btnhomepage).setOnClickListener(v -> startActivity(new Intent(this, commuterhome.class)));
         findViewById(R.id.btnsetting).setOnClickListener(v -> startActivity(new Intent(this, Settings.class)));
-    }
-
-    private void setupSearchSuggestions() {
-        String[] from = new String[]{"place_name"};
-        int[] to = new int[]{android.R.id.text1};
-
-        // Create adapters for both search views
-        originAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        destAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-
-        searchOrigin.setSuggestionsAdapter(originAdapter);
-        searchDestination.setSuggestionsAdapter(destAdapter);
-
-        // Handle clicks on suggestions
-        SearchView.OnSuggestionListener suggestionListener = new SearchView.OnSuggestionListener() {
-            @Override public boolean onSuggestionSelect(int position) { return false; }
-            @Override public boolean onSuggestionClick(int position) {
-                SearchView activeSearch = searchOrigin.hasFocus() ? searchOrigin : searchDestination;
-                SimpleCursorAdapter activeAdapter = searchOrigin.hasFocus() ? originAdapter : destAdapter;
-
-                Cursor cursor = activeAdapter.getCursor();
-                if (cursor.moveToPosition(position)) {
-                    String selection = cursor.getString(cursor.getColumnIndexOrThrow("place_name"));
-                    activeSearch.setQuery(selection, true); // This triggers geocode via onQueryTextSubmit
-                }
-                return true;
-            }
-        };
-
-        searchOrigin.setOnSuggestionListener(suggestionListener);
-        searchDestination.setOnSuggestionListener(suggestionListener);
+        findViewById(R.id.btnsearch).setSelected(true);
     }
 
     private void fetchSuggestions(String text, boolean isOrigin) {
         executor.execute(() -> {
             try {
-                NominatimPOIProvider poiProvider = new NominatimPOIProvider(getPackageName());
-                // Search specifically around Cebu City center to keep suggestions relevant
-                ArrayList<POI> pois = poiProvider.getPOICloseTo(new GeoPoint(10.3157, 123.8854), text, 5, 0.1);
+                // Unique provider ID
+                NominatimPOIProvider poiProvider = new NominatimPOIProvider("LugarLang_Search_Provider");
+
+                // Increased radius to 1.0 (approx 100km) to capture all of Cebu properly
+                ArrayList<POI> pois = poiProvider.getPOICloseTo(new GeoPoint(10.3157, 123.8854), text, 8, 1.0);
 
                 MatrixCursor cursor = new MatrixCursor(new String[]{BaseColumns._ID, "place_name"});
                 if (pois != null) {
@@ -147,7 +130,9 @@ public class SeachingOriginDesti extends AppCompatActivity {
                     if (isOrigin) originAdapter.changeCursor(cursor);
                     else destAdapter.changeCursor(cursor);
                 });
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
@@ -155,7 +140,6 @@ public class SeachingOriginDesti extends AppCompatActivity {
         executor.execute(() -> {
             try {
                 Geocoder g = new Geocoder(this, Locale.getDefault());
-                // Appending ", Cebu" helps the geocoder stay local
                 List<Address> addrs = g.getFromLocationName(name + ", Cebu", 1);
                 if (addrs != null && !addrs.isEmpty()) {
                     Address a = addrs.get(0);
@@ -180,16 +164,21 @@ public class SeachingOriginDesti extends AppCompatActivity {
                         drawRoutePreview();
                     });
                 }
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                mainHandler.post(() -> Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show());
+            }
         });
     }
 
     private void drawRoutePreview() {
         if (originPoint != null && destinationPoint != null) {
             ArrayList<GeoPoint> points = new ArrayList<>();
-            points.add(originPoint); points.add(destinationPoint);
+            points.add(originPoint);
+            points.add(destinationPoint);
             executor.execute(() -> {
-                Road road = new OSRMRoadManager(this, getPackageName()).getRoad(points);
+                // Use a proper Road Manager
+                OSRMRoadManager roadManager = new OSRMRoadManager(this, getPackageName());
+                Road road = roadManager.getRoad(points);
                 mainHandler.post(() -> {
                     if (road.mStatus == Road.STATUS_OK) {
                         if (currentRouteLine != null) map.getOverlays().remove(currentRouteLine);
@@ -203,6 +192,39 @@ public class SeachingOriginDesti extends AppCompatActivity {
                 });
             });
         }
+    }
+
+    private void setupSearchSuggestions() {
+        String[] from = new String[]{"place_name"};
+        int[] to = new int[]{android.R.id.text1};
+
+        originAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        destAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+        searchOrigin.setSuggestionsAdapter(originAdapter);
+        searchDestination.setSuggestionsAdapter(destAdapter);
+
+        SearchView.OnSuggestionListener sl = new SearchView.OnSuggestionListener() {
+            @Override public boolean onSuggestionSelect(int p) { return false; }
+            @Override public boolean onSuggestionClick(int p) {
+                SearchView active = searchOrigin.hasFocus() ? searchOrigin : searchDestination;
+                SimpleCursorAdapter adapter = searchOrigin.hasFocus() ? originAdapter : destAdapter;
+                Cursor c = adapter.getCursor();
+                if (c.moveToPosition(p)) {
+                    active.setQuery(c.getString(c.getColumnIndexOrThrow("place_name")), true);
+                }
+                return true;
+            }
+        };
+        searchOrigin.setOnSuggestionListener(sl);
+        searchDestination.setOnSuggestionListener(sl);
+    }
+
+    private void setupMap() {
+        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.setMultiTouchControls(true);
+        map.getController().setZoom(15.0);
+        map.getController().setCenter(new GeoPoint(10.3157, 123.8854));
     }
 
     private void showTransportDialog() {
@@ -226,10 +248,6 @@ public class SeachingOriginDesti extends AppCompatActivity {
         startActivity(i);
     }
 
-    private void setupMap() {
-        map.setTileSource(TileSourceFactory.MAPNIK);
-        map.setMultiTouchControls(true);
-        map.getController().setZoom(15.0);
-        map.getController().setCenter(new GeoPoint(10.3157, 123.8854));
-    }
+    @Override protected void onResume() { super.onResume(); map.onResume(); }
+    @Override protected void onPause() { super.onPause(); map.onPause(); }
 }

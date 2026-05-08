@@ -58,7 +58,7 @@
             android:layout_gravity="end"
             android:text="Okay"
             android:textAllCaps="false"
-            android:backgroundTint="#009929"
+            android:backgroundTint="@color/brand_primary"
             android:textColor="@color/white"
             app:cornerRadius="15dp"
             android:drawablePadding="8dp"

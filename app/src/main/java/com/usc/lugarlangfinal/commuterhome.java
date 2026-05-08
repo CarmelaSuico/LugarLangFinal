@@ -9,6 +9,7 @@ import android.database.MatrixCursor;
 import android.location.Address;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -37,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class commuterhome extends AppCompatActivity {
+public class commuterhome extends BaseActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
 
@@ -52,7 +54,8 @@ public class commuterhome extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // OSMDroid User Agent is required for map tile loading
-        Configuration.getInstance().setUserAgentValue(getPackageName());
+        Configuration.getInstance().setUserAgentValue("com.usc.lugarlangfinal");
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
         setContentView(R.layout.activity_commuterhome);
 
         // Initialize UI Elements

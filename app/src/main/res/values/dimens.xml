@@ -1,0 +1,9 @@
+<resources>
+    <dimen name="screen_padding">20dp</dimen>
+
+    <dimen name="card_corner_radius_medium">16dp</dimen>
+    <dimen name="card_corner_radius_large">28dp</dimen>
+
+    <dimen name="search_bar_margin_top">50dp</dimen>
+    <dimen name="nav_bar_margin_bottom">24dp</dimen>
+</resources>

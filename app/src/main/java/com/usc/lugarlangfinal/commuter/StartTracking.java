@@ -7,8 +7,8 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.usc.lugarlangfinal.BaseActivity;
 import com.usc.lugarlangfinal.R;
 
 import org.osmdroid.config.Configuration;
@@ -31,29 +32,38 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class StartTracking extends AppCompatActivity {
+public class StartTracking extends BaseActivity {
 
     private MapView map;
     private Marker driverMarker;
     private DatabaseReference tripRef;
 
-    // Add the DB URL consistency
+    // Database URL
     private final String DB_URL = "https://lugarlangfinal-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
     private MyLocationNewOverlay mLocationOverlay;
     private Polyline connectionLine;
 
     private String tripId, franchise, originName, destName, transportType;
-    private TextView tvOrigin, tvDest, tvPlate, tvStatus;
+    private TextView tvOrigin, tvDest, tvPlate, tvStatus, tvLiveETA;
     private BottomSheetBehavior<MaterialCardView> sheetBehavior;
+
+    // ETA Calculation Constants
+    private static final double AVG_SPEED_KMH = 20.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // Inherits Light Mode lock from BaseActivity
+
+        // Load OSM Configuration with User Agent
+        Configuration.getInstance().setUserAgentValue(getPackageName());
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+
         setContentView(R.layout.activity_start_tracking);
 
+        // Retrieve Data from Intent
         tripId = getIntent().getStringExtra("TRIP_ID");
         franchise = getIntent().getStringExtra("FRANCHISE");
         originName = getIntent().getStringExtra("USER_ORIGIN");
@@ -79,6 +89,7 @@ public class StartTracking extends AppCompatActivity {
         tvDest = findViewById(R.id.tvTrackingDest);
         tvPlate = findViewById(R.id.tvTrackingPlate);
         tvStatus = findViewById(R.id.tvStatusHeader);
+        tvLiveETA = findViewById(R.id.tvLiveETA);
 
         tvOrigin.setText(originName);
         tvDest.setText(destName);
@@ -95,17 +106,15 @@ public class StartTracking extends AppCompatActivity {
     private void setupGPS() {
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), map);
         mLocationOverlay.enableMyLocation();
-        // Optional: uncomment if you want the map to follow the user automatically
-        // mLocationOverlay.enableFollowLocation();
         map.getOverlays().add(mLocationOverlay);
 
+        // Dotted connection line between user and driver
         connectionLine = new Polyline();
         connectionLine.getOutlinePaint().setColor(Color.GRAY);
         connectionLine.getOutlinePaint().setStrokeWidth(5f);
         connectionLine.getOutlinePaint().setPathEffect(new DashPathEffect(new float[]{10, 20}, 0));
         map.getOverlays().add(connectionLine);
 
-        // Ensure map focuses on user as soon as GPS is found
         mLocationOverlay.runOnFirstFix(() -> runOnUiThread(() -> {
             if (mLocationOverlay.getMyLocation() != null) {
                 map.getController().animateTo(mLocationOverlay.getMyLocation());
@@ -114,7 +123,6 @@ public class StartTracking extends AppCompatActivity {
     }
 
     private void setupFirebase() {
-        // FIX: Added DB_URL to avoid null instance on non-US projects
         tripRef = FirebaseDatabase.getInstance(DB_URL)
                 .getReference("trips")
                 .child(franchise)
@@ -124,10 +132,7 @@ public class StartTracking extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) return;
-
-                // Get the coordinates (format: "lat,lng")
                 String locStr = snapshot.child("currentLocation").getValue(String.class);
-
                 if (locStr != null && !locStr.isEmpty()) {
                     GeoPoint driverPos = parseCoord(locStr);
                     updateTrackingUI(driverPos);
@@ -138,6 +143,7 @@ public class StartTracking extends AppCompatActivity {
     }
 
     private void updateTrackingUI(GeoPoint driverPos) {
+        // Update Driver Marker
         if (driverMarker == null) {
             driverMarker = new Marker(map);
             int iconRes = (transportType != null && transportType.equalsIgnoreCase("Bus"))
@@ -150,23 +156,46 @@ public class StartTracking extends AppCompatActivity {
 
         GeoPoint myPos = mLocationOverlay.getMyLocation();
         if (myPos != null) {
+            // Update connection line
             List<GeoPoint> linePoints = new ArrayList<>();
             linePoints.add(myPos);
             linePoints.add(driverPos);
             connectionLine.setPoints(linePoints);
             connectionLine.setVisible(true);
+
+            // Calculate ETA
+            calculateAndDisplayETA(myPos, driverPos);
         } else {
-            // Keep line hidden until GPS fix is acquired
             connectionLine.setVisible(false);
+            tvLiveETA.setText("Estimated Arrival: Waiting for GPS...");
         }
 
         map.invalidate();
     }
 
+    private void calculateAndDisplayETA(GeoPoint userPos, GeoPoint driverPos) {
+        double distanceMeters = userPos.distanceToAsDouble(driverPos);
+        double distanceKm = distanceMeters / 1000.0;
+
+        // Time (Minutes) = (Distance / Speed) * 60
+        double timeHours = distanceKm / AVG_SPEED_KMH;
+        int timeMinutes = (int) (timeHours * 60);
+
+        if (distanceMeters < 50) {
+            tvLiveETA.setText("Status: Your ride has arrived!");
+        } else {
+            String etaText = String.format(Locale.getDefault(),
+                    "Estimated Arrival: %d mins (%.1f km away)",
+                    timeMinutes > 0 ? timeMinutes : 1,
+                    distanceKm);
+            tvLiveETA.setText(etaText);
+        }
+    }
+
     private void setupBottomSheet() {
         MaterialCardView trackingCard = findViewById(R.id.trackingCard);
         sheetBehavior = BottomSheetBehavior.from(trackingCard);
-        sheetBehavior.setPeekHeight(300);
+        sheetBehavior.setPeekHeight(350);
         sheetBehavior.setHideable(false);
 
         sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -188,7 +217,7 @@ public class StartTracking extends AppCompatActivity {
             String[] p = s.split(",");
             return new GeoPoint(Double.parseDouble(p[0].trim()), Double.parseDouble(p[1].trim()));
         } catch (Exception e) {
-            return new GeoPoint(10.3157, 123.8854); // Default to Cebu instead of 0,0
+            return new GeoPoint(10.3157, 123.8854);
         }
     }
 
@@ -196,17 +225,13 @@ public class StartTracking extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         map.onResume();
-        if (mLocationOverlay != null) {
-            mLocationOverlay.enableMyLocation();
-        }
+        if (mLocationOverlay != null) mLocationOverlay.enableMyLocation();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         map.onPause();
-        if (mLocationOverlay != null) {
-            mLocationOverlay.disableMyLocation();
-        }
+        if (mLocationOverlay != null) mLocationOverlay.disableMyLocation();
     }
 }

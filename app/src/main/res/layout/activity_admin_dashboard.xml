@@ -80,9 +80,8 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:src="@drawable/person_24px"
-                        app:tint="@color/primaryLightAesthetic"
-                        android:layout_alignParentEnd="true"
-                        android:alpha="0.2"/>
+                        app:tint="@color/brand_primary"
+                        android:layout_alignParentEnd="true"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -125,9 +124,8 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:src="@drawable/bus_railway_24px"
-                        app:tint="@color/primaryLightAesthetic"
-                        android:layout_alignParentEnd="true"
-                        android:alpha="0.2"/>
+                        app:tint="@color/brand_primary"
+                        android:layout_alignParentEnd="true"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -170,9 +168,8 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:src="@drawable/reorder_24px"
-                        app:tint="@color/primaryLightAesthetic"
-                        android:layout_alignParentEnd="true"
-                        android:alpha="0.2"/>
+                        app:tint="@color/brand_primary"
+                        android:layout_alignParentEnd="true"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -215,9 +212,8 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:src="@drawable/transit_ticket_24px"
-                        app:tint="@color/primaryLightAesthetic"
-                        android:layout_alignParentEnd="true"
-                        android:alpha="0.2"/>
+                        app:tint="@color/brand_primary"
+                        android:layout_alignParentEnd="true"/>
 
                     <TextView
                         android:layout_width="wrap_content"

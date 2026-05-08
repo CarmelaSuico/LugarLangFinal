@@ -24,4 +24,21 @@
     </style>
 
     <style name="Theme.LugarLangFinal" parent="Base.Theme.LugarLangFinal" />
+
+    <style name="HeaderText">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="BodyText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="SearchTextBlack">
+        <item name="android:editTextColor">@color/black</item>
+        <item name="android:textColorHint">#757575</item>
+    </style>
 </resources>

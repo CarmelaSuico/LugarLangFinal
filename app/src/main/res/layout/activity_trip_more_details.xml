@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#BAA4B1"
+    android:background="@color/backgroundAesthetic"
     tools:context=".commuter.TripMoreDetails">
 
     <org.osmdroid.views.MapView
@@ -15,56 +15,113 @@
 
     <ImageButton
         android:id="@+id/btnBack"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_margin="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:scaleType="centerInside"
         android:src="@drawable/arrow_back_24px"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/black"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:scaleType="centerCrop"/>
+        app:tint="@color/black" />
 
     <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/tvTerminals"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Terminal 1 > Terminal 2"
+                android:textColor="@color/black"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textSize="16sp" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <View android:layout_width="match_parent" android:layout_height="1dp"
-                android:background="#DDDDDD" android:layout_marginVertical="8dp"/>
+            <View
+                android:id="@+id/dividerDetails"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#EEEEEE"
+                app:layout_constraintTop_toBottomOf="@id/tvTerminals" />
 
-            <TextView android:id="@+id/tvPlate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Plate Number: "/>
-            <TextView android:id="@+id/tvDeparture" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Departure Time: "/>
-            <TextView android:id="@+id/tvArrival" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Estimated Arrival: --"/>
-            <TextView android:id="@+id/tvFare" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Estimated Fare (w/o Discount): ₱0.00" android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tvPlate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Plate Number: "
+                android:textColor="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerDetails" />
+
+            <TextView
+                android:id="@+id/tvDeparture"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Departure Time: "
+                android:textColor="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPlate" />
+
+            <TextView
+                android:id="@+id/tvArrival"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Estimated Arrival: --"
+                android:textColor="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDeparture" />
+
+            <TextView
+                android:id="@+id/tvFare"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Estimated Fare (w/o Discount): ₱0.00"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvArrival" />
 
             <TextView
                 android:id="@+id/btnStartTracking"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="20dp"
+                android:background="?attr/selectableItemBackground"
+                android:padding="8dp"
                 android:text="Start Tracking ▶"
-                android:textColor="#880E4F"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:textColor="@color/primaryAesthetic"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvFare" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

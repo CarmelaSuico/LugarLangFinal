@@ -5,16 +5,20 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundAesthetic"
+    android:background="@color/brand_primary"
     tools:context=".LoginPage">
 
     <!-- Background Image -->
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:scaleType="centerCrop"
         android:src="@drawable/city_bg"
-        android:alpha="0.2" />
+        android:alpha="0.5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -27,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:padding="32dp">
+            android:padding="@dimen/screen_padding">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -59,23 +63,13 @@
                     android:gravity="center_horizontal">
 
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:padding="16dp"
+                        android:layout_width="160dp"
+                        android:layout_height="100dp"
+                        android:padding="3dp"
                         android:background="@color/primaryLightAesthetic"
-                        android:src="@drawable/bus_railway_24px"
-                        app:tint="@color/primaryAesthetic"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                        android:layout_marginBottom="24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="LugarLang"
-                        android:textColor="@color/primaryAesthetic"
-                        android:textSize="32sp"
-                        android:fontFamily="sans-serif-black"
-                        android:letterSpacing="-0.02" />
+                        android:src="@drawable/logo"
+                        android:scaleType="centerCrop"
+                        android:layout_marginBottom="2dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -97,7 +91,7 @@
                         app:boxStrokeWidth="0dp"
                         app:boxStrokeWidthFocused="0dp"
                         app:startIconDrawable="@drawable/person_24px"
-                        app:startIconTint="@color/primaryAesthetic"
+                        app:startIconTint="@color/brand_primary"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Large">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edusername"
@@ -120,7 +114,7 @@
                         app:boxStrokeWidthFocused="0dp"
                         app:passwordToggleEnabled="true"
                         app:startIconDrawable="@drawable/lock_24px"
-                        app:startIconTint="@color/primaryAesthetic"
+                        app:startIconTint="@color/brand_primary"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Large">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edpassword"
@@ -138,20 +132,11 @@
                         android:layout_marginTop="32dp"
                         android:text="Log In"
                         android:textColor="@color/white"
-                        android:backgroundTint="@color/primaryAesthetic"
+                        android:backgroundTint="@color/brand_primary"
                         android:fontFamily="sans-serif-black"
                         android:textSize="16sp"
                         app:cornerRadius="16dp"
                         app:elevation="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:text="Forgot Password?"
-                        android:textColor="@color/primaryAesthetic"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
