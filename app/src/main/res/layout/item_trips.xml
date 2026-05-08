@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/employee_icon"
-            android:layout_toLeftOf="@+id/imgedit"
+            android:layout_toLeftOf="@+id/btnviewall"
             android:layout_marginStart="16dp"
             android:orientation="vertical">
 
