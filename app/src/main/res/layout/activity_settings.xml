@@ -138,7 +138,7 @@
                 android:layout_marginBottom="16dp"
                 android:backgroundTint="@color/brand_secondary"
                 android:paddingHorizontal="24dp"
-                android:text="Operator &amp; Conductor Portal"
+                android:text="Employee Portal"
                 android:textAllCaps="false"
                 android:textColor="@color/brand_primary"
                 android:textSize="14sp"
